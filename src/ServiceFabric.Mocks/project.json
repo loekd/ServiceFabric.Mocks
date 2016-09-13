@@ -1,0 +1,35 @@
+﻿{
+  "copyright": "2016",
+  "title": "ServiceFabric.Mocks",
+  "version": "0.9.0",
+  "description": "ServiceFabric.Mocks contains Mock classes to enable unit testing of Actors and Services",
+  "authors": [ "Loek Duys" ],
+  "packOptions": {
+    "projectUrl": "https://github.com/loekd/ServiceFabric.Mocks",
+    "licenseUrl": "https://github.com/loekd/ServiceFabric.Mocks/blob/master/LICENSE.md",
+    "summary": "ServiceFabric.Mocks contains Mock classes to enable testing of Actors and Services.",
+    "tags": [ "ServiceFabric", "Service", "Fabric", "Actor", "Mock", "Unit", "Test" ],
+    "files": {
+      "include": "Content/readme.md"
+    },
+    "requireLicenseAcceptance": true,
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/loekd/ServiceFabric.Mocks.git"
+    }
+  },
+  "frameworks": {
+    "net451": {
+    },
+    "net460": {
+    }
+  },
+  "buildOptions": {
+    "platform": "x64"
+  },
+  "dependencies": {
+    "Microsoft.ServiceFabric.Services": "2.2.207",
+    "Microsoft.ServiceFabric.Services.Wcf": "2.2.207",
+    "Microsoft.ServiceFabric.Actors": "2.2.207"
+  }
+}
