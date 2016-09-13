@@ -1,6 +1,9 @@
 # ServiceFabric.Mocks
 ServiceFabric.Mocks contains Mock classes to enable unit testing of Actors and Services
 
+## Nuget package here:
+https://www.nuget.org/packages/ServiceFabric.Mocks/
+
 ## Release notes
 
 - 0.9.0-preview First implementation.  
