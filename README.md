@@ -10,7 +10,7 @@ https://www.nuget.org/packages/ServiceFabric.Mocks/
 
 ## Unit Testing Actors
 
-
+``` csharp
 [StatePersistence(StatePersistence.Persisted)]
 public class TestStatefulActor : Actor
 {
@@ -42,3 +42,4 @@ public async Task TestActorState()
     await actor.InsertAsync(stateName, payload);
     Assert.AreEqual(payload, await stateManager.GetStateAsync<Payload>(stateName));
 }
+```
