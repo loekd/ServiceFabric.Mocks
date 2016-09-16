@@ -18,6 +18,11 @@ namespace ServiceFabric.Mocks
     {
         private readonly ConcurrentQueue<T> _state = new ConcurrentQueue<T>();
 
+        public MockReliableQueue() 
+            : this(new Uri("fabric:/MockQueue"))
+        {
+        }
+
         public MockReliableQueue(Uri name)
         {
             Name = name;

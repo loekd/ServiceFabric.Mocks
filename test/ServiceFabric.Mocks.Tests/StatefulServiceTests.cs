@@ -12,7 +12,7 @@ namespace ServiceFabric.Mocks.Tests
 
 
         [TestMethod]
-        public async Task TestServiceState()
+        public async Task TestServiceState_Dictionary()
         {
             var context = MockStatefulServiceContextFactory.Default;
             var stateManager = new MockReliableStateManager();
@@ -25,8 +25,27 @@ namespace ServiceFabric.Mocks.Tests
             await service.InsertAsync(stateName, payload);
 
             //get state
-            var dictionary = await stateManager.TryGetAsync<IReliableDictionary<string, Payload>>(TestStatefulService.StateManagerKey);
+            var dictionary = await stateManager.TryGetAsync<IReliableDictionary<string, Payload>>(TestStatefulService.StateManagerDictionaryKey);
             var actual = (await dictionary.Value.TryGetValueAsync(null, stateName)).Value;
+            Assert.AreEqual(payload.Content, actual.Content);
+        }
+
+
+        [TestMethod]
+        public async Task TestServiceState_Queue()
+        {
+            var context = MockStatefulServiceContextFactory.Default;
+            var stateManager = new MockReliableStateManager();
+            var service = new TestStatefulService(context, stateManager);
+
+            var payload = new Payload(StatePayload);
+
+            //create state
+            await service.EnqueueAsync(payload);
+
+            //get state
+            var queue = await stateManager.TryGetAsync<IReliableQueue<Payload>>(TestStatefulService.StateManagerQueueKey);
+            var actual = (await queue.Value.TryPeekAsync(null)).Value;
             Assert.AreEqual(payload.Content, actual.Content);
         }
     }
