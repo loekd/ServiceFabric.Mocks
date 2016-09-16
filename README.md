@@ -81,7 +81,7 @@ private static readonly StatefulServiceContext StatefulServiceContext = new Stat
 
 And mock immutable Payload
 ``` csharp
-internal class Payload
+public class Payload
 {
     [DataMember]
     public readonly string Content;
