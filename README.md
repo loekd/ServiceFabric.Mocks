@@ -40,7 +40,7 @@ public async Task TestActorState()
 
     Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new TestStatefulActor(service, id);
     Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory = (actr, stateProvider) => stateManager;
-    var svc = new ActorService(StatefulServiceContext, ActorTypeInformation.Get(typeof(SalesOrderActor)), actorFactory, stateManagerFactory);
+    var svc = new ActorService(StatefulServiceContext, ActorTypeInformation.Get(typeof(TestStatefulActor)), actorFactory, stateManagerFactory);
     var actor = new TestStatefulActor(svc, id);
 
     string stateName = "test";
