@@ -16,6 +16,24 @@ namespace ServiceFabric.Mocks
     {
         private bool _isDisposed;
 
+        /// <summary>
+        /// Returns a default instance, using mock values.
+        /// </summary>
+        public static ICodePackageActivationContext Default { get; } = new MockCodePackageActivationContext(
+            "fabric:/MockApp",
+            "MockAppType",
+            "Code",
+            "1.0.0.0",
+            Guid.NewGuid().ToString(),
+            @"C:\logDirectory",
+            @"C:\tempDirectory",
+            @"C:\workDirectory",
+            "ServiceManifestName",
+            "1.0.0.0"
+        );
+
+       
+
         public MockCodePackageActivationContext(
            string applicationName,
            string applicationTypeName,

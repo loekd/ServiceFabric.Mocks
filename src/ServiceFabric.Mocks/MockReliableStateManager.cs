@@ -6,6 +6,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Data;
+using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.ServiceFabric.Data.Notifications;
 
 namespace ServiceFabric.Mocks
@@ -100,7 +101,23 @@ namespace ServiceFabric.Mocks
         {
             var uri = CreateUri(name);
             bool added = !_store.ContainsKey(uri);
-            var result = (T)_store.GetOrAdd(uri, key => Activator.CreateInstance<T>());
+            
+            Func<Uri, IReliableState> addValueFactory = _=>
+            { 
+                IReliableState reliable;
+                if (typeof(IReliableDictionary<,>).IsAssignableFrom(typeof(T).GetGenericTypeDefinition()))
+                {
+                    Type dictionaryType = typeof(MockReliableDictionary<,>);
+                    reliable = (IReliableState) Activator.CreateInstance(dictionaryType.MakeGenericType(typeof(T).GetGenericArguments()));
+                }
+                else
+                {
+                    Type queueType = typeof(MockReliableQueue<>);
+                    reliable = (IReliableState)Activator.CreateInstance(queueType.MakeGenericType(typeof(T).GetGenericArguments()));
+                }
+                return reliable;
+            };
+            var result = (T)_store.GetOrAdd(uri, addValueFactory);
             if (added)
             {
                 OnStateManagerChanged(new NotifyStateManagerSingleEntityChangedEventArgs(tx, result, NotifyStateManagerChangedAction.Add));
