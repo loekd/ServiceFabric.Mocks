@@ -14,7 +14,7 @@ namespace ServiceFabric.Mocks
         public static StatefulServiceContext Default { get; } = new StatefulServiceContext(
            new NodeContext("Node0", new NodeId(0, 1), 0, "NodeType1", "MOCK.MACHINE"),
            MockCodePackageActivationContext.Default, "MockServiceType",
-           new Uri("fabric:/MockApp/MockService"),
+           new Uri("fabric:/MockApp/MockStatefulService"),
            null,
            Guid.NewGuid(),
            long.MaxValue

@@ -5,20 +5,20 @@ using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.ServiceFabric.Data.Collections.Preview;
 using Microsoft.ServiceFabric.Services.Runtime;
 
-namespace ServiceFabric.Mocks.Tests.Support
+namespace ServiceFabric.Mocks.Tests.Services
 {
-    public class TestStatefulService : StatefulService
+    public class MyStatefulService : StatefulService, IMyStatefulService
     {
         public const string StateManagerDictionaryKey = "dictionaryname";
         public const string StateManagerQueueKey = "queuename";
         public const string StateManagerConcurrentQueueKey = "concurrentqueuename";
 
 
-        public TestStatefulService(StatefulServiceContext serviceContext) : base(serviceContext)
+        public MyStatefulService(StatefulServiceContext serviceContext) : base(serviceContext)
         {
         }
 
-        public TestStatefulService(StatefulServiceContext serviceContext, IReliableStateManagerReplica reliableStateManagerReplica)
+        public MyStatefulService(StatefulServiceContext serviceContext, IReliableStateManagerReplica reliableStateManagerReplica)
             : base(serviceContext, reliableStateManagerReplica)
         {
         }

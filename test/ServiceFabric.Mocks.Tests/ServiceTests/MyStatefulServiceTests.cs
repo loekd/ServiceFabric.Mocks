@@ -2,12 +2,12 @@
 using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.ServiceFabric.Data.Collections.Preview;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ServiceFabric.Mocks.Tests.Support;
+using ServiceFabric.Mocks.Tests.Services;
 
-namespace ServiceFabric.Mocks.Tests
+namespace ServiceFabric.Mocks.Tests.ServiceTests
 {
     [TestClass]
-    public class StatefulServiceTests
+    public class MyStatefulServiceTests
     {
         private const string StatePayload = "some value";
 
@@ -17,7 +17,7 @@ namespace ServiceFabric.Mocks.Tests
         {
             var context = MockStatefulServiceContextFactory.Default;
             var stateManager = new MockReliableStateManager();
-            var service = new TestStatefulService(context, stateManager);
+            var service = new MyStatefulService(context, stateManager);
 
             const string stateName = "test";
             var payload = new Payload(StatePayload);
@@ -26,7 +26,7 @@ namespace ServiceFabric.Mocks.Tests
             await service.InsertAsync(stateName, payload);
 
             //get state
-            var dictionary = await stateManager.TryGetAsync<IReliableDictionary<string, Payload>>(TestStatefulService.StateManagerDictionaryKey);
+            var dictionary = await stateManager.TryGetAsync<IReliableDictionary<string, Payload>>(MyStatefulService.StateManagerDictionaryKey);
             var actual = (await dictionary.Value.TryGetValueAsync(null, stateName)).Value;
             Assert.AreEqual(StatePayload, actual.Content);
         }
@@ -37,7 +37,7 @@ namespace ServiceFabric.Mocks.Tests
         {
             var context = MockStatefulServiceContextFactory.Default;
             var stateManager = new MockReliableStateManager();
-            var service = new TestStatefulService(context, stateManager);
+            var service = new MyStatefulService(context, stateManager);
 
             var payload = new Payload(StatePayload);
 
@@ -45,7 +45,7 @@ namespace ServiceFabric.Mocks.Tests
             await service.EnqueueAsync(payload);
 
             //get state
-            var queue = await stateManager.TryGetAsync<IReliableQueue<Payload>>(TestStatefulService.StateManagerQueueKey);
+            var queue = await stateManager.TryGetAsync<IReliableQueue<Payload>>(MyStatefulService.StateManagerQueueKey);
             var actual = (await queue.Value.TryPeekAsync(null)).Value;
             Assert.AreEqual(StatePayload, actual.Content);
         }
@@ -55,7 +55,7 @@ namespace ServiceFabric.Mocks.Tests
         {
             var context = MockStatefulServiceContextFactory.Default;
             var stateManager = new MockReliableStateManager();
-            var service = new TestStatefulService(context, stateManager);
+            var service = new MyStatefulService(context, stateManager);
 
             var payload = new Payload(StatePayload);
 
@@ -63,7 +63,7 @@ namespace ServiceFabric.Mocks.Tests
             await service.ConcurrentEnqueueAsync(payload);
 
             //get state
-            var queue = await stateManager.TryGetAsync<IReliableConcurrentQueue<Payload>>(TestStatefulService.StateManagerConcurrentQueueKey);
+            var queue = await stateManager.TryGetAsync<IReliableConcurrentQueue<Payload>>(MyStatefulService.StateManagerConcurrentQueueKey);
             var actual = (await queue.Value.DequeueAsync(null));
             Assert.AreEqual(StatePayload, actual.Content);
         }

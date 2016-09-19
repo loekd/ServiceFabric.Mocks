@@ -2,13 +2,13 @@
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
 
-namespace ServiceFabric.Mocks.Tests.Support
+namespace ServiceFabric.Mocks.Tests.Actors
 {
     [StatePersistence(StatePersistence.Persisted)]
-    public class TestStatefulActor : Actor, ITestStatefulActor
+    public class MyStatefulActor : Actor, IMyStatefulActor
     {
 
-        public TestStatefulActor(ActorService actorSerice, ActorId actorId)
+        public MyStatefulActor(ActorService actorSerice, ActorId actorId)
             : base(actorSerice, actorId)
         {
         }

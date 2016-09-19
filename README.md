@@ -6,6 +6,8 @@ https://www.nuget.org/packages/ServiceFabric.Mocks/
 
 ## Release notes
 
+- 0.9.4 add MockActorProxyFactory, MockActorServiceFactory, MockStatelessServiceContextFactory
+		added samples to Mock Service and Actor proxies.
 - 0.9.3 add support for the preview collection type 'IReliableConcurrentQueue<T>' using MockReliableConcurrentQueue<T>
 - 0.9.2 no longer preview
 - 0.9.1-preview Fixed issue in MockReliableStateManager. 
@@ -18,11 +20,13 @@ https://www.nuget.org/packages/ServiceFabric.Mocks/
 
 ### Define Actor under test
 [StatePersistence(StatePersistence.Persisted)]
-public class TestStatefulActor : Actor, ITestStatefulActor
+public class MyStatefulActor : Actor, IMyStatefulActor
 {
-    public TestStatefulActor(ActorService actorSerice, ActorId actorId)
+
+    public MyStatefulActor(ActorService actorSerice, ActorId actorId)
         : base(actorSerice, actorId)
-    { }
+    {
+    }
 
     public async Task InsertAsync(string stateName, Payload value)
     {
@@ -55,9 +59,10 @@ public async Task TestActorState()
 {
     var actorGuid = Guid.NewGuid();
     var id = new ActorId(actorGuid);
-    var stateManager = new MockActorStateManager();
 
-    var actor = CreateActor(id, stateManager);
+    var actor = CreateActor(id);
+    var stateManager = (MockActorStateManager)actor.StateManager;
+
 
     const string stateName = "test";
     var payload = new Payload(StatePayload);
@@ -67,15 +72,15 @@ public async Task TestActorState()
 
     //get state
     var actual = await stateManager.GetStateAsync<Payload>(stateName);
-    Assert.AreEqual(payload.Content, actual.Content);
+    Assert.AreEqual(StatePayload, actual.Content);
+
 }
 
-private static TestStatefulActor CreateActor(ActorId id, MockActorStateManager stateManager)
+internal static MyStatefulActor CreateActor(ActorId id)
 {
-    Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new TestStatefulActor(service, id);
-    Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory = (actr, stateProvider) => stateManager;
-    var svc = new ActorService(MockStatefulServiceContextFactory.Default, ActorTypeInformation.Get(typeof(TestStatefulActor)), actorFactory, stateManagerFactory);
-    var actor = new TestStatefulActor(svc, id);
+    Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new MyStatefulActor(service, id);
+    var svc = MockActorServiceFactory.CreateActorServiceForActor<MyStatefulActor>(actorFactory);
+    var actor = new MyStatefulActor(svc, id);
     return actor;
 }
 ```
@@ -86,18 +91,21 @@ private static TestStatefulActor CreateActor(ActorId id, MockActorStateManager s
 ### Define Stateful Service under test
 
 ``` chsharp
-public class TestStatefulService : StatefulService
+public class MyStatefulService : StatefulService, IMyStatefulService
 {
     public const string StateManagerDictionaryKey = "dictionaryname";
     public const string StateManagerQueueKey = "queuename";
     public const string StateManagerConcurrentQueueKey = "concurrentqueuename";
 
-    public TestStatefulService(StatefulServiceContext serviceContext) : base(serviceContext)
-    {    }
 
-    public TestStatefulService(StatefulServiceContext serviceContext, IReliableStateManagerReplica reliableStateManagerReplica)
+    public MyStatefulService(StatefulServiceContext serviceContext) : base(serviceContext)
+    {
+    }
+
+    public MyStatefulService(StatefulServiceContext serviceContext, IReliableStateManagerReplica reliableStateManagerReplica)
         : base(serviceContext, reliableStateManagerReplica)
-    {    }
+    {
+    }
 
     public async Task InsertAsync(string stateName, Payload value)
     {
@@ -122,7 +130,7 @@ public class TestStatefulService : StatefulService
         }
     }
 
-	public async Task ConcurrentEnqueueAsync(Payload value)
+    public async Task ConcurrentEnqueueAsync(Payload value)
     {
         var concurrentQueue = await StateManager.GetOrAddAsync<IReliableConcurrentQueue<Payload>>(StateManagerConcurrentQueueKey);
 
@@ -145,7 +153,7 @@ public async Task TestServiceState_Dictionary()
 {
     var context = MockStatefulServiceContextFactory.Default;
     var stateManager = new MockReliableStateManager();
-    var service = new TestStatefulService(context, stateManager);
+    var service = new MyStatefulService(context, stateManager);
 
     const string stateName = "test";
     var payload = new Payload(StatePayload);
@@ -154,7 +162,7 @@ public async Task TestServiceState_Dictionary()
     await service.InsertAsync(stateName, payload);
 
     //get state
-    var dictionary = await stateManager.TryGetAsync<IReliableDictionary<string, Payload>>(TestStatefulService.StateManagerDictionaryKey);
+    var dictionary = await stateManager.TryGetAsync<IReliableDictionary<string, Payload>>(MyStatefulService.StateManagerDictionaryKey);
     var actual = (await dictionary.Value.TryGetValueAsync(null, stateName)).Value;
     Assert.AreEqual(StatePayload, actual.Content);
 }
@@ -168,7 +176,7 @@ public async Task TestServiceState_Queue()
 {
     var context = MockStatefulServiceContextFactory.Default;
     var stateManager = new MockReliableStateManager();
-    var service = new TestStatefulService(context, stateManager);
+    var service = new MyStatefulService(context, stateManager);
 
     var payload = new Payload(StatePayload);
 
@@ -176,7 +184,7 @@ public async Task TestServiceState_Queue()
     await service.EnqueueAsync(payload);
 
     //get state
-    var queue = await stateManager.TryGetAsync<IReliableQueue<Payload>>(TestStatefulService.StateManagerQueueKey);
+    var queue = await stateManager.TryGetAsync<IReliableQueue<Payload>>(MyStatefulService.StateManagerQueueKey);
     var actual = (await queue.Value.TryPeekAsync(null)).Value;
     Assert.AreEqual(StatePayload, actual.Content);
 }
@@ -191,7 +199,7 @@ public async Task TestServiceState_ConcurrentQueue()
 {
     var context = MockStatefulServiceContextFactory.Default;
     var stateManager = new MockReliableStateManager();
-    var service = new TestStatefulService(context, stateManager);
+    var service = new MyStatefulService(context, stateManager);
 
     var payload = new Payload(StatePayload);
 
@@ -199,8 +207,149 @@ public async Task TestServiceState_ConcurrentQueue()
     await service.ConcurrentEnqueueAsync(payload);
 
     //get state
-    var queue = await stateManager.TryGetAsync<IReliableConcurrentQueue<Payload>>(TestStatefulService.StateManagerConcurrentQueueKey);
+    var queue = await stateManager.TryGetAsync<IReliableConcurrentQueue<Payload>>(MyStatefulService.StateManagerConcurrentQueueKey);
     var actual = (await queue.Value.DequeueAsync(null));
     Assert.AreEqual(StatePayload, actual.Content);
 }
 ```
+
+## Communication between Actors and Services
+Works by injecting IServiceProxyFactory and/or IActorProxyFactory Mocks into Actors and Services. The factories will create Mock Proxies.
+
+### Mocking out called Actors
+
+#### Create Service Under Test
+
+``` chsharp
+public class ActorCallerService : StatelessService
+{
+    public static readonly Guid CalledActorId = Guid.Parse("{1F263E8C-78D4-4D91-AAE6-C4B9CE03D6EB}");
+
+    public IActorProxyFactory ProxyFactory { get; }
+
+    public ActorCallerService(StatelessServiceContext serviceContext, IActorProxyFactory proxyFactory = null) 
+        : base(serviceContext)
+    {
+        ProxyFactory = proxyFactory ?? new ActorProxyFactory();
+    }
+
+    public async Task CallActorAsync()
+    {
+        var proxy = ProxyFactory.CreateActorProxy<IMyStatefulActor>(new ActorId(CalledActorId));
+        var value = new Payload("some other value");
+        await proxy.InsertAsync("test", value);
+    }
+}
+```
+
+#### Create Service Test
+
+``` chsharp
+[TestMethod]
+public async Task TestActorProxyFactory()
+{
+    //mock out the called actor
+    var id = new ActorId(ActorCallerService.CalledActorId);
+    Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new MyStatefulActor(service, id);
+    var svc = MockActorServiceFactory.CreateActorServiceForActor<MyStatefulActor>(actorFactory);
+    var actor = new MockTestStatefulActor(svc, id);
+
+    //prepare the service:
+    var mockProxyFactory = new MockActorProxyFactory();
+    mockProxyFactory.RegisterActor(actor);
+    var serviceInstance = new ActorCallerService(MockStatelessServiceContextFactory.Default, mockProxyFactory);
+
+    //act:
+    await serviceInstance.CallActorAsync();
+
+    //assert:
+    Assert.IsTrue(actor.InsertAsyncCalled);
+}
+
+
+private class MockTestStatefulActor : Actor, IMyStatefulActor
+{
+    public bool InsertAsyncCalled { get; private set; }
+
+    public MockTestStatefulActor(ActorService actorService, ActorId actorId) : base(actorService, actorId)
+    {
+    }
+
+    public Task InsertAsync(string stateName, Payload value)
+    {
+        InsertAsyncCalled = true;
+        return Task.FromResult(true);
+    }
+}
+```
+
+### Mocking out called Services
+
+#### Create Actor Under Test
+
+``` chsharp
+public class ServiceCallerActor : Actor, IMyStatefulActor
+{
+    public static readonly Uri CalledServiceName = new Uri("fabric:/MockApp/MockStatefulService");
+
+    public IServiceProxyFactory ServiceProxyFactory { get; }
+
+    public ServiceCallerActor(ActorService actorService, ActorId actorId, IServiceProxyFactory serviceProxyFactory) 
+    : base(actorService, actorId)
+    {
+        ServiceProxyFactory = serviceProxyFactory ?? new ServiceProxyFactory();
+    }
+
+    public Task InsertAsync(string stateName, Payload value)
+    {
+        var serviceProxy = ServiceProxyFactory.CreateServiceProxy<IMyStatefulService>(CalledServiceName, new ServicePartitionKey(0L));
+        return serviceProxy.InsertAsync(stateName, value);
+    }
+}
+```
+
+#### Create Actor Test
+
+``` chsharp
+[TestMethod]
+public async Task TestServiceProxyFactory()
+{
+    //mock out the called service
+    var mockProxyFactory = new MockServiceProxyFactory();
+    var mockService = new MockTestStatefulService();
+    mockProxyFactory.RegisterService(ServiceCallerActor.CalledServiceName, mockService);
+
+    //prepare the actor:
+    Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new ServiceCallerActor(service, actorId, mockProxyFactory);
+    var svc = MockActorServiceFactory.CreateActorServiceForActor<ServiceCallerActor>(actorFactory);
+    var actor = new ServiceCallerActor(svc, ActorId.CreateRandom(), mockProxyFactory);
+
+    //act:
+    await actor.InsertAsync("test", new Payload("some other value"));
+
+    //assert:
+    Assert.IsTrue(mockService.InsertAsyncCalled);
+}
+        
+private class MockTestStatefulService : IMyStatefulService
+{
+    public bool InsertAsyncCalled { get; private set; }
+
+    public Task ConcurrentEnqueueAsync(Payload value)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task EnqueueAsync(Payload value)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task InsertAsync(string stateName, Payload value)
+    {
+        InsertAsyncCalled = true;
+        return Task.FromResult(true);
+    }
+}
+```
+
