@@ -6,6 +6,7 @@ https://www.nuget.org/packages/ServiceFabric.Mocks/
 
 ## Release notes
 
+- 0.9.2 no longer preview
 - 0.9.1-preview Fixed issue in MockReliableStateManager. 
 				Added unit tests.
 - 0.9.0-preview First implementation.  
