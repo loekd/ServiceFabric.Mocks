@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
+using Microsoft.ServiceFabric.Data.Collections.Preview;
 using Microsoft.ServiceFabric.Data.Notifications;
 
 namespace ServiceFabric.Mocks
@@ -105,15 +106,23 @@ namespace ServiceFabric.Mocks
             Func<Uri, IReliableState> addValueFactory = _=>
             { 
                 IReliableState reliable;
-                if (typeof(IReliableDictionary<,>).IsAssignableFrom(typeof(T).GetGenericTypeDefinition()))
+                var typeArguments = typeof(T).GetGenericArguments();
+                var typeDefinition = typeof(T).GetGenericTypeDefinition();
+
+                if (typeof(IReliableDictionary<,>).IsAssignableFrom(typeDefinition))
                 {
                     Type dictionaryType = typeof(MockReliableDictionary<,>);
-                    reliable = (IReliableState) Activator.CreateInstance(dictionaryType.MakeGenericType(typeof(T).GetGenericArguments()));
+                    reliable = (IReliableState) Activator.CreateInstance(dictionaryType.MakeGenericType(typeArguments));
+                }
+                else if (typeof(IReliableConcurrentQueue<>).IsAssignableFrom(typeDefinition))
+                {
+                    Type queueType = typeof(MockReliableConcurrentQueue<>);
+                    reliable = (IReliableState)Activator.CreateInstance(queueType.MakeGenericType(typeArguments));
                 }
                 else
                 {
                     Type queueType = typeof(MockReliableQueue<>);
-                    reliable = (IReliableState)Activator.CreateInstance(queueType.MakeGenericType(typeof(T).GetGenericArguments()));
+                    reliable = (IReliableState) Activator.CreateInstance(queueType.MakeGenericType(typeArguments));
                 }
                 return reliable;
             };

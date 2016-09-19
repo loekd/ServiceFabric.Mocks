@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
+using Microsoft.ServiceFabric.Data.Collections.Preview;
 using Microsoft.ServiceFabric.Services.Runtime;
 
 namespace ServiceFabric.Mocks.Tests.Support
@@ -10,6 +11,8 @@ namespace ServiceFabric.Mocks.Tests.Support
     {
         public const string StateManagerDictionaryKey = "dictionaryname";
         public const string StateManagerQueueKey = "queuename";
+        public const string StateManagerConcurrentQueueKey = "concurrentqueuename";
+
 
         public TestStatefulService(StatefulServiceContext serviceContext) : base(serviceContext)
         {
@@ -39,6 +42,17 @@ namespace ServiceFabric.Mocks.Tests.Support
             using (var tx = StateManager.CreateTransaction())
             {
                 await queue.EnqueueAsync(tx, value);
+                await tx.CommitAsync();
+            }
+        }
+
+        public async Task ConcurrentEnqueueAsync(Payload value)
+        {
+            var concurrentQueue = await StateManager.GetOrAddAsync<IReliableConcurrentQueue<Payload>>(StateManagerConcurrentQueueKey);
+
+            using (var tx = StateManager.CreateTransaction())
+            {
+                await concurrentQueue.EnqueueAsync(tx, value);
                 await tx.CommitAsync();
             }
         }

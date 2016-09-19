@@ -6,6 +6,7 @@ https://www.nuget.org/packages/ServiceFabric.Mocks/
 
 ## Release notes
 
+- 0.9.3 add support for the preview collection type 'IReliableConcurrentQueue<T>' using MockReliableConcurrentQueue<T>
 - 0.9.2 no longer preview
 - 0.9.1-preview Fixed issue in MockReliableStateManager. 
 				Added unit tests.
@@ -89,6 +90,7 @@ public class TestStatefulService : StatefulService
 {
     public const string StateManagerDictionaryKey = "dictionaryname";
     public const string StateManagerQueueKey = "queuename";
+    public const string StateManagerConcurrentQueueKey = "concurrentqueuename";
 
     public TestStatefulService(StatefulServiceContext serviceContext) : base(serviceContext)
     {    }
@@ -119,6 +121,17 @@ public class TestStatefulService : StatefulService
             await tx.CommitAsync();
         }
     }
+
+	public async Task ConcurrentEnqueueAsync(Payload value)
+    {
+        var concurrentQueue = await StateManager.GetOrAddAsync<IReliableConcurrentQueue<Payload>>(StateManagerConcurrentQueueKey);
+
+        using (var tx = StateManager.CreateTransaction())
+        {
+            await concurrentQueue.EnqueueAsync(tx, value);
+            await tx.CommitAsync();
+        }
+    }
 }
 ```
 
@@ -143,7 +156,7 @@ public async Task TestServiceState_Dictionary()
     //get state
     var dictionary = await stateManager.TryGetAsync<IReliableDictionary<string, Payload>>(TestStatefulService.StateManagerDictionaryKey);
     var actual = (await dictionary.Value.TryGetValueAsync(null, stateName)).Value;
-    Assert.AreEqual(payload.Content, actual.Content);
+    Assert.AreEqual(StatePayload, actual.Content);
 }
 ```
 
@@ -165,7 +178,29 @@ public async Task TestServiceState_Queue()
     //get state
     var queue = await stateManager.TryGetAsync<IReliableQueue<Payload>>(TestStatefulService.StateManagerQueueKey);
     var actual = (await queue.Value.TryPeekAsync(null)).Value;
-    Assert.AreEqual(payload.Content, actual.Content);
+    Assert.AreEqual(StatePayload, actual.Content);
 }
 
+```
+
+#### Test ReliableConcurrentQueue
+
+``` csharp
+[TestMethod]
+public async Task TestServiceState_ConcurrentQueue()
+{
+    var context = MockStatefulServiceContextFactory.Default;
+    var stateManager = new MockReliableStateManager();
+    var service = new TestStatefulService(context, stateManager);
+
+    var payload = new Payload(StatePayload);
+
+    //create state
+    await service.ConcurrentEnqueueAsync(payload);
+
+    //get state
+    var queue = await stateManager.TryGetAsync<IReliableConcurrentQueue<Payload>>(TestStatefulService.StateManagerConcurrentQueueKey);
+    var actual = (await queue.Value.DequeueAsync(null));
+    Assert.AreEqual(StatePayload, actual.Content);
+}
 ```
