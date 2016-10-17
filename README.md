@@ -6,6 +6,7 @@ https://www.nuget.org/packages/ServiceFabric.Mocks/
 
 ## Release notes
 
+- 1.0.0 upgraded to new SDK and packages (2.3.301) 
 - 0.9.4 add MockActorProxyFactory, MockActorServiceFactory, MockStatelessServiceContextFactory
 		added samples to Mock Service and Actor proxies.
 - 0.9.3 add support for the preview collection type 'IReliableConcurrentQueue<T>' using MockReliableConcurrentQueue<T>
