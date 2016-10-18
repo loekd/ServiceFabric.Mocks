@@ -22,7 +22,7 @@ namespace ServiceFabric.Mocks.Tests.ActorTests
             //prepare the actor:
             Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new ServiceCallerActor(service, actorId, mockProxyFactory);
             var svc = MockActorServiceFactory.CreateActorServiceForActor<ServiceCallerActor>(actorFactory);
-            var actor = new ServiceCallerActor(svc, ActorId.CreateRandom(), mockProxyFactory);
+            var actor = svc.Activate(ActorId.CreateRandom());
 
             //act:
             await actor.InsertAsync("test", new Payload("some other value"));

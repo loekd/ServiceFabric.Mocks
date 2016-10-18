@@ -6,14 +6,31 @@ https://www.nuget.org/packages/ServiceFabric.Mocks/
 
 ## Release notes
 
-- 1.0.0 upgraded to new SDK and packages (2.3.301) 
-- 0.9.4 add MockActorProxyFactory, MockActorServiceFactory, MockStatelessServiceContextFactory
-		added samples to Mock Service and Actor proxies.
-- 0.9.3 add support for the preview collection type 'IReliableConcurrentQueue<T>' using MockReliableConcurrentQueue<T>
-- 0.9.2 no longer preview
-- 0.9.1-preview Fixed issue in MockReliableStateManager. 
-				Added unit tests.
-- 0.9.0-preview First implementation.  
+- 1.1.0 
+	- add MockActorStateProvider to unit test reminder registration **(Note: Reminders are not automatically triggered by the mock.)**
+	- add MockActorService with a method that creates Actor instances
+	- changed MockActorServiceFactory to support MockActorStateProvider and MockActorService
+	- add ReminderTimerActor to demo unit tests for timers and reminders (registration)
+
+- 1.0.0 
+	- upgraded to new SDK and packages (2.3.301) 
+
+- 0.9.4 
+	- add MockActorProxyFactory, MockActorServiceFactory, MockStatelessServiceContextFactory
+	- added samples to Mock Service and Actor proxies.
+
+- 0.9.3 
+	- add support for the preview collection type 'IReliableConcurrentQueue<T>' using MockReliableConcurrentQueue<T>
+
+- 0.9.2 
+	- no longer preview
+
+- 0.9.1-preview 
+	- Fixed issue in MockReliableStateManager. 
+	- Added unit tests.
+
+- 0.9.0-preview 
+	- First implementation.  
 
 ## Unit Testing Actors
 
@@ -81,7 +98,7 @@ internal static MyStatefulActor CreateActor(ActorId id)
 {
     Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new MyStatefulActor(service, id);
     var svc = MockActorServiceFactory.CreateActorServiceForActor<MyStatefulActor>(actorFactory);
-    var actor = new MyStatefulActor(svc, id);
+    var actor = svc.Activate(id);
     return actor;
 }
 ```
@@ -251,9 +268,9 @@ public async Task TestActorProxyFactory()
 {
     //mock out the called actor
     var id = new ActorId(ActorCallerService.CalledActorId);
-    Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new MyStatefulActor(service, id);
-    var svc = MockActorServiceFactory.CreateActorServiceForActor<MyStatefulActor>(actorFactory);
-    var actor = new MockTestStatefulActor(svc, id);
+    Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new MockTestStatefulActor(service, id);
+    var svc = MockActorServiceFactory.CreateActorServiceForActor<MockTestStatefulActor>(actorFactory);
+    var actor = svc.Activate(id);
 
     //prepare the service:
     var mockProxyFactory = new MockActorProxyFactory();
@@ -323,7 +340,7 @@ public async Task TestServiceProxyFactory()
     //prepare the actor:
     Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new ServiceCallerActor(service, actorId, mockProxyFactory);
     var svc = MockActorServiceFactory.CreateActorServiceForActor<ServiceCallerActor>(actorFactory);
-    var actor = new ServiceCallerActor(svc, ActorId.CreateRandom(), mockProxyFactory);
+    var actor = svc.Activate(ActorId.CreateRandom());
 
     //act:
     await actor.InsertAsync("test", new Payload("some other value"));
@@ -354,3 +371,75 @@ private class MockTestStatefulService : IMyStatefulService
 }
 ```
 
+### Test Actor Reminders and timers
+
+#### Actor under test:
+
+``` chsharp
+public class ReminderTimerActor : Actor, IRemindable, IReminderTimerActor
+{
+    public ReminderTimerActor(ActorService actorService, ActorId actorId) : base(actorService, actorId)
+    {
+    }
+
+    public Task RegisterReminderAsync(string reminderName)
+    {
+        return RegisterReminderAsync(reminderName, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(-1));
+    }
+
+    public Task ReceiveReminderAsync(string reminderName, byte[] context, TimeSpan dueTime, TimeSpan period)
+    {
+        //will not be called automatically.
+        return Task.FromResult(true);
+    }
+
+
+    public Task RegisterTimerAsync()
+    {
+        RegisterTimer(TimerCallbackAsync, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(-1));
+        return Task.FromResult(true);
+    }
+	    
+    private Task TimerCallbackAsync(object state)
+    {
+        //will not be called automatically.
+        return Task.FromResult(true);
+    }
+}
+```
+
+#### Test code:
+
+``` csharp
+[TestMethod]
+public async Task TestActorReminderRegistration()
+{
+    var svc = MockActorServiceFactory.CreateActorServiceForActor<ReminderTimerActor>();
+    var actor = svc.Activate(new ActorId(Guid.NewGuid()));
+    string reminderName = "reminder";
+            
+    //setup
+    await actor.RegisterReminderAsync(reminderName);
+           
+    //assert
+    var reminderCollection = actor.GetActorReminders(); //extension method
+    bool hasReminder = reminderCollection.Any();
+    Assert.IsTrue(hasReminder);
+}
+
+
+[TestMethod]
+public async Task TestActorTimerRegistration()
+{
+    var svc = MockActorServiceFactory.CreateActorServiceForActor<ReminderTimerActor>();
+    var actor = svc.Activate(new ActorId(Guid.NewGuid()));
+
+    //setup
+    await actor.RegisterTimerAsync();
+
+    //assert
+    var timers = actor.GetActorTimers(); //extension method
+    bool hasTimer = timers.Any();
+    Assert.IsTrue(hasTimer);
+}
+```

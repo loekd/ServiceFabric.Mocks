@@ -33,7 +33,7 @@ namespace ServiceFabric.Mocks.Tests.ActorTests
         {
             Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new MyStatefulActor(service, id);
             var svc = MockActorServiceFactory.CreateActorServiceForActor<MyStatefulActor>(actorFactory);
-            var actor = new MyStatefulActor(svc, id);
+            var actor = svc.Activate(id);
             return actor;
         }
     }

@@ -16,9 +16,9 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
         {
             //mock out the called actor
             var id = new ActorId(ActorCallerService.CalledActorId);
-            Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new MyStatefulActor(service, id);
-            var svc = MockActorServiceFactory.CreateActorServiceForActor<MyStatefulActor>(actorFactory);
-            var actor = new MockTestStatefulActor(svc, id);
+            Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new MockTestStatefulActor(service, id);
+            var svc = MockActorServiceFactory.CreateActorServiceForActor<MockTestStatefulActor>(actorFactory);
+            var actor = svc.Activate(id);
 
             //prepare the service:
             var mockProxyFactory = new MockActorProxyFactory();
