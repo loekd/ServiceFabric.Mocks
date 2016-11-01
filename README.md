@@ -6,6 +6,11 @@ https://www.nuget.org/packages/ServiceFabric.Mocks/
 
 ## Release notes
 
+- 1.2.0
+	- Merged pull request from WonderPanda
+	- add customizable service context factories
+	- add some unit test 
+
 - 1.1.0 
 	- add MockActorStateProvider to unit test reminder registration **(Note: Reminders are not automatically triggered by the mock.)**
 	- add MockActorService with a method that creates Actor instances

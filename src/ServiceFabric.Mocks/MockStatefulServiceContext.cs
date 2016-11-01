@@ -3,38 +3,43 @@ using System.Fabric;
 
 namespace ServiceFabric.Mocks
 {
-    /// <summary>
-    /// Factory that returns an instance of <see cref="StatefulServiceContext"/> using <see cref="MockCodePackageActivationContext.Default"/>
-    /// </summary>
-    public class MockStatefulServiceContextFactory
+	/// <summary>
+	/// Factory that returns an instance of <see cref="StatefulServiceContext"/> using <see cref="MockCodePackageActivationContext.Default"/> or customized instance using <see cref="Create"/>.
+	/// </summary>
+	public class MockStatefulServiceContextFactory
     {
-        /// <summary>
-        /// Returns an instance of <see cref="StatefulServiceContext"/> using <see cref="MockCodePackageActivationContext.Default"/>
-        /// </summary>
-        public static StatefulServiceContext Default { get; } = new StatefulServiceContext(
-           new NodeContext("Node0", new NodeId(0, 1), 0, "NodeType1", "MOCK.MACHINE"),
-           MockCodePackageActivationContext.Default, "MockServiceType",
-           new Uri("fabric:/MockApp/MockStatefulService"),
-           null,
-           Guid.NewGuid(),
-           long.MaxValue
-        );
+	    public const string ServiceTypeName = "MockServiceType";
+	    public const string ServiceName = "fabric:/MockApp/MockStatefulService";
 
-        /// <summary>
-        /// Returns an instance of <see cref="StatefulServiceContext"/> using <see cref="MockCodePackageActivationContext.Default"/>
-        /// and the specified Service URI
-        /// </summary>
-        /// <param name="serviceUri">The URI that should be used by the ServiceContext</param>
-        /// <returns>The constructed <see cref="StatefulServiceContext"/></returns>
-        public static StatefulServiceContext WithCustomUri(Uri serviceUri)
+		/// <summary>
+		/// Returns an instance of <see cref="StatefulServiceContext"/> using <see cref="MockCodePackageActivationContext.Default"/>, <see cref="ServiceTypeName"/>, <see cref="ServiceName"/> and random values for Partition and Replica id's.
+		/// </summary>
+		public static StatefulServiceContext Default { get; } =
+			Create(MockCodePackageActivationContext.Default, 
+				ServiceTypeName, 
+				new Uri(ServiceName), 
+				Guid.NewGuid(), 
+				long.MaxValue);
+
+		/// <summary>
+		/// Returns an instance of <see cref="StatefulServiceContext"/> using the specified arguments.
+		/// </summary>
+		/// <param name="codePackageActivationContext">Activation context</param>
+		/// <param name="serviceTypeName">Name of the service type</param>
+		/// <param name="serviceName">The URI that should be used by the ServiceContext</param>
+		/// <param name="partitionId">PartitionId</param>
+		/// <param name="replicaId">ReplicaId</param>
+		/// <returns>The constructed <see cref="StatefulServiceContext"/></returns>
+		public static StatefulServiceContext Create(ICodePackageActivationContext codePackageActivationContext, string serviceTypeName, Uri serviceName, Guid partitionId, long replicaId)
         {
             return new StatefulServiceContext(
                new NodeContext("Node0", new NodeId(0, 1), 0, "NodeType1", "MOCK.MACHINE"),
-               MockCodePackageActivationContext.Default, "MockServiceType",
-               serviceUri,
+               codePackageActivationContext, 
+			   serviceTypeName,
+               serviceName,
                null,
-               Guid.NewGuid(),
-               long.MaxValue
+               partitionId,
+               replicaId
             );
         }
     }
