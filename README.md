@@ -5,6 +5,8 @@ ServiceFabric.Mocks contains Mock classes to enable unit testing of Actors and S
 https://www.nuget.org/packages/ServiceFabric.Mocks/
 
 ## Release notes
+- 1.3.0
+	- upgraded to new SDK (2.3.311)
 
 - 1.2.0
 	- Merged pull request from WonderPanda
