@@ -7,12 +7,14 @@ using Microsoft.ServiceFabric.Services.Remoting;
 
 namespace ServiceFabric.Mocks
 {
+    using System.Collections.Generic;
+
     /// <summary>
     /// Specifies the interface for the factory that creates proxies for remote communication to the specified Actor.
     /// </summary>
     public class MockActorProxyFactory : MockServiceProxyFactory, IActorProxyFactory
     {
-        readonly ConcurrentDictionary<ActorId, ConcurrentBag<IActor>> _actorRegistry = new ConcurrentDictionary<ActorId, ConcurrentBag<IActor>>();
+        readonly ConcurrentDictionary<ActorId, HashSet<IActor>> _actorRegistry = new ConcurrentDictionary<ActorId, HashSet<IActor>>();
 
         /// <summary>
         /// Registers an instance of a Actor combined with its Id to be able to return it from 
@@ -23,16 +25,16 @@ namespace ServiceFabric.Mocks
         {
             _actorRegistry.AddOrUpdate(
                 actor.GetActorId(),
-                id => new ConcurrentBag<IActor>(new [] { actor }),
-                (id, bag) =>
+                id => new HashSet<IActor>(new [] { actor }),
+                (id, set) =>
                 {
-                    if (bag.Any(a => a.GetType() == actor.GetType()))
+                    if (set.Any(a => a.GetType() == actor.GetType()))
                     {
                         throw new ArgumentException($"There is already an actor of type {actor.GetType()} with the actorId {id}.");
                     }
 
-                    bag.Add(actor);
-                    return bag;
+                    set.Add(actor);
+                    return set;
                 });
         }
 
@@ -40,16 +42,16 @@ namespace ServiceFabric.Mocks
         public TActorInterface CreateActorProxy<TActorInterface>(ActorId actorId, string applicationName = null,
             string serviceName = null, string listenerName = null) where TActorInterface : IActor
         {
-            var bag = _actorRegistry[actorId];
-            return bag.OfType<TActorInterface>().SingleOrDefault();
+            var set = _actorRegistry[actorId];
+            return set.OfType<TActorInterface>().SingleOrDefault();
         }
 
         ///<inheritdoc />
         public TActorInterface CreateActorProxy<TActorInterface>(Uri serviceUri, ActorId actorId, string listenerName = null) 
             where TActorInterface : IActor
         {
-            var bag = _actorRegistry[actorId];
-            return bag.OfType<TActorInterface>().SingleOrDefault();
+            var set = _actorRegistry[actorId];
+            return set.OfType<TActorInterface>().SingleOrDefault();
         }
 
         ///<inheritdoc />
