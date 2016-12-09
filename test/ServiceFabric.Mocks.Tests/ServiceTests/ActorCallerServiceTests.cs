@@ -32,6 +32,34 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
             Assert.IsTrue(actor.InsertAsyncCalled);
         }
 
+        [TestMethod]
+        public void TestMultipleActorsForSingleActorId()
+        {
+            var sharedId = new ActorId(Guid.NewGuid());
+
+            //mock out the called actors
+            var statefulActorSvc = MockActorServiceFactory.CreateActorServiceForActor<MockTestStatefulActor>(
+                (service, actorId) => new MockTestStatefulActor(service, actorId));
+            var reminderActorService = MockActorServiceFactory.CreateActorServiceForActor<MockReminderTimerActor>(
+                (service, actorId) => new MockReminderTimerActor(service, actorId));
+
+            var statefulActor = statefulActorSvc.Activate(sharedId);
+            var reminderActor = reminderActorService.Activate(sharedId);
+
+            //prepare the service:
+            var mockProxyFactory = new MockActorProxyFactory();
+            mockProxyFactory.RegisterActor(statefulActor);
+            mockProxyFactory.RegisterActor(reminderActor);
+
+            //act:
+            var a1 = mockProxyFactory.CreateActorProxy<IMyStatefulActor>(sharedId);
+            var a2 = mockProxyFactory.CreateActorProxy<IReminderTimerActor>(sharedId);
+
+            //assert:
+            Assert.AreSame(typeof(MockTestStatefulActor), a1.GetType());
+            Assert.AreSame(typeof(MockReminderTimerActor), a2.GetType());
+        }
+
 
         private class MockTestStatefulActor : Actor, IMyStatefulActor
         {
@@ -44,6 +72,23 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
             public Task InsertAsync(string stateName, Payload value)
             {
                 InsertAsyncCalled = true;
+                return Task.FromResult(true);
+            }
+        }
+
+        private class MockReminderTimerActor : Actor, IReminderTimerActor
+        {
+            public MockReminderTimerActor(ActorService actorService, ActorId actorId) : base(actorService, actorId)
+            {
+            }
+
+            public Task RegisterReminderAsync(string reminderName)
+            {
+                return Task.FromResult(true);
+            }
+
+            public Task RegisterTimerAsync()
+            {
                 return Task.FromResult(true);
             }
         }
