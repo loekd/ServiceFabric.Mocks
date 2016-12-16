@@ -1,7 +1,7 @@
 {
   "copyright": "2016",
   "title": "ServiceFabric.Mocks",
-  "version": "1.3.0",
+  "version": "1.3.2",
   "description": "ServiceFabric.Mocks contains Mock classes to enable unit testing of Actors and Services",
   "authors": [ "Loek Duys" ],
   "packOptions": {

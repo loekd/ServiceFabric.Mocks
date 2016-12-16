@@ -36,7 +36,6 @@ namespace ServiceFabric.Mocks.Tests.MocksTests
 			Assert.AreEqual(serviceContext, instance.Context);
 		}
 
-
 		// ReSharper disable once ClassNeverInstantiated.Local   //implicit
 		private class MockActor : Actor, IMockActor
 		{
