@@ -6,6 +6,9 @@ https://www.nuget.org/packages/ServiceFabric.Mocks/
 
 ## Release notes
 
+- 1.4.0 
+	- upgraded to new SDK (2.4.145)
+
 - 1.3.2
 	- Add MockServicePartitionFactory to create mock service partitions.
 	- Add option to invoke OnActivateAsync while creating an Actor.
