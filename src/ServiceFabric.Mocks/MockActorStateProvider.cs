@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Fabric;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors;
