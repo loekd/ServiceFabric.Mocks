@@ -2,7 +2,7 @@
   "testRunner": "mstest",
   "copyright": "2016",
   "title": "ServiceFabric.Mocks.Tests",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "ServiceFabric.Mocks contains Mock classes to enable unit testing of Actors and Services",
   "authors": [ "Loek Duys" ],
   "packOptions": {

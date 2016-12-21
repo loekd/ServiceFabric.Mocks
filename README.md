@@ -6,6 +6,9 @@ https://www.nuget.org/packages/ServiceFabric.Mocks/
 
 ## Release notes
 
+- 1.4.1
+	- Fixed issue in ActorStateManager TryGetStateAsync using valuetype, found by massimobonanni 
+
 - 1.4.0 
 	- upgraded to new SDK (2.4.145)
 

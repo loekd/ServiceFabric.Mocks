@@ -97,8 +97,12 @@ namespace ServiceFabric.Mocks
         public Task<ConditionalValue<T>> TryGetStateAsync<T>(string stateName, CancellationToken cancellationToken = default(CancellationToken))
         {
             object value;
-            bool result = _state.TryGetValue(stateName, out value);
-            return Task.FromResult(new ConditionalValue<T>(result, (T)value));
+	        if (_state.TryGetValue(stateName, out value))
+	        {
+		        return Task.FromResult(new ConditionalValue<T>(true, (T) value));
+	        }
+	        return Task.FromResult(new ConditionalValue<T>());
+
         }
 
         /// <inheritdoc />
