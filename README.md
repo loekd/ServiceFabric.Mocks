@@ -6,6 +6,11 @@ https://www.nuget.org/packages/ServiceFabric.Mocks/
 
 ## Release notes
 
+- 1.5.0 
+	- Added support for custom ActorServices. (For andrejohansson)
+	  (See 'CustomActorServiceTests' for details on using custom ActorServices.)
+	- Added ActorServiceExtensions class to enable Actor activation from any ActorService implementation.
+
 - 1.4.1
 	- Fixed issue in ActorStateManager TryGetStateAsync using valuetype, found by massimobonanni 
 
