@@ -6,6 +6,10 @@ https://www.nuget.org/packages/ServiceFabric.Mocks/
 
 ## Release notes
 
+- 1.6.0
+	- upgraded to new SDK (2.4.164)
+	- added MockActorEventSubscriptionHelper to assist with testing Actor Events, as suggested by ThiemeNL.
+
 - 1.5.0 
 	- Added support for custom ActorServices. (For andrejohansson)
 	  (See 'CustomActorServiceTests' for details on using custom ActorServices.)
