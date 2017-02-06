@@ -473,3 +473,56 @@ public async Task TestActorTimerRegistration()
     Assert.IsTrue(hasTimer);
 }
 ```
+
+
+## Using your custom ActorService implementations
+
+You can use a custom ActorService implementations to create your Actor instances.
+
+### Custom ActorService
+
+``` csharp
+public class CustomActorService : ActorService
+{
+	//no additional constructor parameters
+	public CustomActorService(StatefulServiceContext context, ActorTypeInformation actorTypeInfo, Func<ActorService, ActorId, 
+		ActorBase> actorFactory = null, Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory = null, 
+		IActorStateProvider stateProvider = null, ActorServiceSettings settings = null) : base(context, actorTypeInfo, 
+		actorFactory, stateManagerFactory, stateProvider, settings)
+	{
+	}
+}
+``` 
+
+#### Test code
+
+``` csharp
+//an ActorService with a standard constructor can be created by the MockActorServiceFactory
+var customActorService = MockActorServiceFactory.CreateCustomActorServiceForActor<CustomActorService, OnActivateActor>();
+var actor = customActorService.Activate<OnActivateActor>(new ActorId(123L));
+
+Assert.IsInstanceOfType(customActorService, typeof(CustomActorService));
+Assert.IsInstanceOfType(actor, typeof(OnActivateActor));
+Assert.AreEqual(123L, actor.Id.GetLongId());
+```
+
+### ActorService with non standard constructor
+In this situation you can't use the MockActorServiceFactory, so you'll need to create an instance directly.
+
+
+//an ActorService with a NON standard constructor can be created by passing Mock arguments:
+
+``` csharp
+var stateManager = new MockActorStateManager();
+Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory = (actr, stateProvider) => stateManager;
+
+IActorStateProvider actorStateProvider = new MockActorStateProvider();
+actorStateProvider.Initialize(ActorTypeInformation.Get(typeof(OnActivateActor)));
+var context = MockStatefulServiceContextFactory.Default;
+var dummy = new object(); //this argument causes the 'non standard' ctor.
+var customActorService = new AnotherCustomActorService(dummy, context, ActorTypeInformation.Get(typeof(OnActivateActor)));
+
+var actor = customActorService.Activate<OnActivateActor>(new ActorId(123L));
+Assert.IsInstanceOfType(actor, typeof(OnActivateActor));
+Assert.AreEqual(123L, actor.Id.GetLongId());
+```
