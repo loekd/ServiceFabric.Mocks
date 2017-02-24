@@ -64,9 +64,9 @@ https://www.nuget.org/packages/ServiceFabric.Mocks/
 
 ## Unit Testing Actors
 
-``` csharp
-
 ### Define Actor under test
+
+``` csharp
 [StatePersistence(StatePersistence.Persisted)]
 public class MyStatefulActor : Actor, IMyStatefulActor
 {
@@ -93,13 +93,11 @@ public class Payload
         Content = content;
     }
 }
-
 ```
 
 ### Create an instance using an ActorService with the MockActorStateManager and MockStatefulServiceContextFactory.Default
 
-``` chsharp
-
+``` csharp
 private const string StatePayload = "some value";
 
 [TestMethod]
@@ -138,7 +136,7 @@ internal static MyStatefulActor CreateActor(ActorId id)
 
 ### Define Stateful Service under test
 
-``` chsharp
+``` csharp
 public class MyStatefulService : StatefulService, IMyStatefulService
 {
     public const string StateManagerDictionaryKey = "dictionaryname";
@@ -195,7 +193,7 @@ public class MyStatefulService : StatefulService, IMyStatefulService
 
 #### Test ReliableDictionary:
 
-``` chsharp
+``` csharp
  [TestMethod]
 public async Task TestServiceState_Dictionary()
 {
@@ -218,7 +216,7 @@ public async Task TestServiceState_Dictionary()
 
 #### Test ReliableQueue:
 
-``` chsharp
+``` csharp
 [TestMethod]
 public async Task TestServiceState_Queue()
 {
@@ -236,7 +234,6 @@ public async Task TestServiceState_Queue()
     var actual = (await queue.Value.TryPeekAsync(null)).Value;
     Assert.AreEqual(StatePayload, actual.Content);
 }
-
 ```
 
 #### Test ReliableConcurrentQueue
@@ -268,7 +265,7 @@ Works by injecting IServiceProxyFactory and/or IActorProxyFactory Mocks into Act
 
 #### Create Service Under Test
 
-``` chsharp
+``` csharp
 public class ActorCallerService : StatelessService
 {
     public static readonly Guid CalledActorId = Guid.Parse("{1F263E8C-78D4-4D91-AAE6-C4B9CE03D6EB}");
@@ -292,7 +289,7 @@ public class ActorCallerService : StatelessService
 
 #### Create Service Test
 
-``` chsharp
+``` csharp
 [TestMethod]
 public async Task TestActorProxyFactory()
 {
@@ -335,7 +332,7 @@ private class MockTestStatefulActor : Actor, IMyStatefulActor
 
 #### Create Actor Under Test
 
-``` chsharp
+``` csharp
 public class ServiceCallerActor : Actor, IMyStatefulActor
 {
     public static readonly Uri CalledServiceName = new Uri("fabric:/MockApp/MockStatefulService");
@@ -358,7 +355,7 @@ public class ServiceCallerActor : Actor, IMyStatefulActor
 
 #### Create Actor Test
 
-``` chsharp
+``` csharp
 [TestMethod]
 public async Task TestServiceProxyFactory()
 {
@@ -405,7 +402,7 @@ private class MockTestStatefulService : IMyStatefulService
 
 #### Actor under test:
 
-``` chsharp
+``` csharp
 public class ReminderTimerActor : Actor, IRemindable, IReminderTimerActor
 {
     public ReminderTimerActor(ActorService actorService, ActorId actorId) : base(actorService, actorId)
