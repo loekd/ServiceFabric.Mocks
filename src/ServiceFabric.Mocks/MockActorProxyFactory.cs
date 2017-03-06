@@ -7,13 +7,31 @@ using Microsoft.ServiceFabric.Services.Remoting;
 
 namespace ServiceFabric.Mocks
 {
+    using Microsoft.ServiceFabric.Actors.Runtime;
     using System.Collections.Generic;
-
+          
+    public delegate void MisingActorEventHandler(object sender, MisingActorEventArgs args);
     /// <summary>
     /// Specifies the interface for the factory that creates proxies for remote communication to the specified Actor.
     /// </summary>
     public class MockActorProxyFactory : MockServiceProxyFactory, IActorProxyFactory
-    {
+    {       
+
+        public event MisingActorEventHandler MisingActor;
+
+        protected virtual void OnMisingActor(object sender, ActorId id)
+        {
+            var args = new MisingActorEventArgs()
+            {
+                Id = id
+            };
+
+            MisingActor?.Invoke(sender, args);
+        }
+
+        private Func<ActorService, ActorId, ActorBase> _actorFactory;
+        
+
         readonly ConcurrentDictionary<ActorId, HashSet<IActor>> _actorRegistry = new ConcurrentDictionary<ActorId, HashSet<IActor>>();
 
         /// <summary>
@@ -42,6 +60,11 @@ namespace ServiceFabric.Mocks
         public TActorInterface CreateActorProxy<TActorInterface>(ActorId actorId, string applicationName = null,
             string serviceName = null, string listenerName = null) where TActorInterface : IActor
         {
+            if(!_actorRegistry.ContainsKey(actorId))
+            {
+                OnMisingActor(this, actorId);
+            }
+
             var set = _actorRegistry[actorId];
             return set.OfType<TActorInterface>().SingleOrDefault();
         }
@@ -50,6 +73,11 @@ namespace ServiceFabric.Mocks
         public TActorInterface CreateActorProxy<TActorInterface>(Uri serviceUri, ActorId actorId, string listenerName = null) 
             where TActorInterface : IActor
         {
+            if (!_actorRegistry.ContainsKey(actorId))
+            {
+                OnMisingActor(this, actorId);
+            }
+
             var set = _actorRegistry[actorId];
             return set.OfType<TActorInterface>().SingleOrDefault();
         }
