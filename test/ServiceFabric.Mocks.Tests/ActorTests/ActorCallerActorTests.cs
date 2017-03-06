@@ -11,24 +11,18 @@ namespace ServiceFabric.Mocks.Tests.ActorTests
     [TestClass]
     public class ActorCallerActorTests
     {
-        static MockActorProxyFactory _mockProxyFactory;
-
-        static ActorCallerActorTests()
-        {
-            _mockProxyFactory = new MockActorProxyFactory(); 
-        }
-
 
         [TestMethod]
         public async Task TestServiceProxyFactory()
         {
             //mock out the called service
 
-            _mockProxyFactory.MisingActor += MockProxyFactory_MisingActorId;
+            var mockProxyFactory = new MockActorProxyFactory();
+            mockProxyFactory.MisingActor += MockProxyFactory_MisingActorId;
             
 
             //prepare the actor:
-            Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new ActorCallerActor(service, actorId, _mockProxyFactory);
+            Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new ActorCallerActor(service, actorId, mockProxyFactory);
             var svc = MockActorServiceFactory.CreateActorServiceForActor<ActorCallerActor>(actorFactory);
             var actor = svc.Activate(ActorId.CreateRandom());
 
@@ -39,7 +33,7 @@ namespace ServiceFabric.Mocks.Tests.ActorTests
             var statefulActorId = await actor.StateManager.GetStateAsync<ActorId>(ActorCallerActor.ChildActorIdKeyName);
 
             Func<ActorService, ActorId, ActorBase> statefulActorFactory = (service, actorId) => new MyStatefulActor(service, actorId);
-            var statefulActor = _mockProxyFactory.CreateActorProxy<IMyStatefulActor>(ActorCallerActor.CalledServiceName, statefulActorId);
+            var statefulActor = mockProxyFactory.CreateActorProxy<IMyStatefulActor>(ActorCallerActor.CalledServiceName, statefulActorId);
             
             var payload = await ((MyStatefulActor)statefulActor).StateManager.GetStateAsync<Payload>("test");
 
