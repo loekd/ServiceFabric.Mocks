@@ -28,9 +28,7 @@ namespace ServiceFabric.Mocks
 
             MisingActor?.Invoke(sender, args);
         }
-
-        private Func<ActorService, ActorId, ActorBase> _actorFactory;
-        
+               
 
         readonly ConcurrentDictionary<ActorId, HashSet<IActor>> _actorRegistry = new ConcurrentDictionary<ActorId, HashSet<IActor>>();
 
