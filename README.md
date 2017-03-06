@@ -398,6 +398,80 @@ private class MockTestStatefulService : IMyStatefulService
 }
 ```
 
+### Mocking out called Actors
+
+#### Create Actor Dynamically Within Another Actor Test
+
+``` csharp
+public class ActorCallerActor : Actor, IMyStatefulActor
+{
+	public static readonly Uri CalledServiceName = new Uri("fabric:/MockApp/MyStatefulActor");
+	public const string ChildActorIdKeyName = "ChildActorIdKeyName";
+
+	public IActorProxyFactory ActorProxyFactory { get; }
+
+	public ActorCallerActor(ActorService actorService, ActorId actorId, IActorProxyFactory actorProxyFactory) 
+	: base(actorService, actorId)
+	{
+		ActorProxyFactory = actorProxyFactory ?? new ActorProxyFactory();
+	}
+
+	public Task InsertAsync(string stateName, Payload value)
+	{
+		var actorProxy = ActorProxyFactory.CreateActorProxy<IMyStatefulActor>(CalledServiceName, new ActorId(Guid.NewGuid()));
+
+		this.StateManager.SetStateAsync(ChildActorIdKeyName, actorProxy.GetActorId());
+
+		return actorProxy.InsertAsync(stateName, value);
+
+	}
+}
+```
+
+#### Create Actor Test
+Here a callback is used when the actor is requested and not found that will allow you to create it with the identifier defined in the original actor.  So you can test it.
+
+``` csharp
+[TestMethod]
+public async Task TestServiceProxyFactory()
+{
+	//mock out the called service
+
+	var mockProxyFactory = new MockActorProxyFactory();
+	mockProxyFactory.MisingActor += MockProxyFactory_MisingActorId;
+	
+
+	//prepare the actor:
+	Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new ActorCallerActor(service, actorId, mockProxyFactory);
+	var svc = MockActorServiceFactory.CreateActorServiceForActor<ActorCallerActor>(actorFactory);
+	var actor = svc.Activate(ActorId.CreateRandom());
+
+	//act:
+	await actor.InsertAsync("test", new Payload("some other value"));
+
+	//check if the other actor was called
+	var statefulActorId = await actor.StateManager.GetStateAsync<ActorId>(ActorCallerActor.ChildActorIdKeyName);
+
+	Func<ActorService, ActorId, ActorBase> statefulActorFactory = (service, actorId) => new MyStatefulActor(service, actorId);
+	var statefulActor = mockProxyFactory.CreateActorProxy<IMyStatefulActor>(ActorCallerActor.CalledServiceName, statefulActorId);
+	
+	var payload = await ((MyStatefulActor)statefulActor).StateManager.GetStateAsync<Payload>("test");
+
+	//assert:
+	Assert.AreEqual("some other value", payload.Content);
+}
+
+private void MockProxyFactory_MisingActorId(object sender, MisingActorEventArgs args)
+{
+	var registrar = (MockActorProxyFactory)sender;
+
+	Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new MyStatefulActor(service, actorId);
+	var svc = MockActorServiceFactory.CreateActorServiceForActor<MyStatefulActor>(actorFactory);
+	var actor = svc.Activate(args.Id);
+	registrar.RegisterActor(actor);
+}
+```
+
 ### Test Actor Reminders and timers
 
 #### Actor under test:
