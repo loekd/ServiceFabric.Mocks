@@ -402,6 +402,8 @@ private class MockTestStatefulService : IMyStatefulService
 
 #### Create Actor Dynamically Within Another Actor Test
 
+An actor is created from the ActorCallerActor and we need to test that it is there and that its state was set.
+
 ``` csharp
 public class ActorCallerActor : Actor, IMyStatefulActor
 {
