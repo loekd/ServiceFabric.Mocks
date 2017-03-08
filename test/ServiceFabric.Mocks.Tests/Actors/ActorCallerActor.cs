@@ -2,8 +2,6 @@
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
-using Microsoft.ServiceFabric.Services.Client;
-using ServiceFabric.Mocks.Tests.Services;
 using Microsoft.ServiceFabric.Actors.Client;
 
 namespace ServiceFabric.Mocks.Tests.Actors
@@ -24,11 +22,8 @@ namespace ServiceFabric.Mocks.Tests.Actors
         public async Task InsertAsync(string stateName, Payload value)
         {
             var actorProxy = ActorProxyFactory.CreateActorProxy<IMyStatefulActor>(CalledServiceName, new ActorId(Guid.NewGuid()));
-
-            await this.StateManager.SetStateAsync(ChildActorIdKeyName, actorProxy.GetActorId());
-
-            await actorProxy.InsertAsync(stateName, value);
-
+			await StateManager.SetStateAsync(ChildActorIdKeyName, actorProxy.GetActorId());
+			await actorProxy.InsertAsync(stateName, value);
         }
     }
 }

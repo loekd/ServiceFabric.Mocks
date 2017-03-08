@@ -1,10 +1,14 @@
 # ServiceFabric.Mocks
-ServiceFabric.Mocks contains Mock classes to enable unit testing of Actors and Services
+ServiceFabric.Mocks contains Mock classes to enable unit testing of Actors and Services.
 
-## Nuget package (preview) here:
+## Nuget package here:
 https://www.nuget.org/packages/ServiceFabric.Mocks/
 
 ## Release notes
+
+- 1.6.3
+	- Merged PR by kotvisbj. Added 'MissingActor' event to MockActorProxyFactory, to dynamically resolve Actor instances if needed. 
+	- Fixed some code quality issues.
 
 - 1.6.2
 	- MockReliableConcurrentQueue Name property now has public get and set.

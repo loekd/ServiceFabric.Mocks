@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Fabric;
+using System.Globalization;
 using System.IO;
+using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Threading.Tasks;
@@ -133,7 +135,13 @@ namespace ServiceFabric.Mocks
         {
             var type = genericType.MakeGenericType(typeArguments);
             var reliable = (IReliableState)Activator.CreateInstance(type);
-            type.GetProperty("Name").GetSetMethod().Invoke(reliable, new object[] { name });
+            type.GetProperty("Name")
+				.SetValue(reliable, 
+				name, 
+				BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, 
+				null, 
+				null, 
+				CultureInfo.InvariantCulture);
             return reliable;
         }
 

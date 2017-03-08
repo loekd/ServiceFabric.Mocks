@@ -6,6 +6,6 @@ namespace ServiceFabric.Mocks
     {
 	    public const BindingFlags InstanceNonPublic = BindingFlags.Instance | BindingFlags.NonPublic;
 
-	    public const BindingFlags InstancePublicNonPublic = Constants.InstanceNonPublic | BindingFlags.Public;
+	    public const BindingFlags InstancePublicNonPublic = InstanceNonPublic | BindingFlags.Public;
     }
 }

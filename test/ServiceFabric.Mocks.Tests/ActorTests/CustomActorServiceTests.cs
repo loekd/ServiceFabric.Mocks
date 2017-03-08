@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -31,6 +28,7 @@ namespace ServiceFabric.Mocks.Tests.ActorTests
 			//an ActorService with a NON standard constructor can be created by the MockActorServiceFactory
 			Assert.ThrowsException<InvalidOperationException>(() =>
 			{
+				// ReSharper disable once UnusedVariable
 				var customActorService =
 					MockActorServiceFactory.CreateCustomActorServiceForActor<AnotherCustomActorService, OnActivateActor>();
 			});
@@ -40,9 +38,6 @@ namespace ServiceFabric.Mocks.Tests.ActorTests
 		public void TestAnotherCustomActorService()
 		{
 			//an ActorService with a NON standard constructor can be created by passing Mock arguments:
-
-			var stateManager = new MockActorStateManager();
-			Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory = (actr, stateProvider) => stateManager;
 
 			IActorStateProvider actorStateProvider = new MockActorStateProvider();
 			actorStateProvider.Initialize(ActorTypeInformation.Get(typeof(OnActivateActor)));
