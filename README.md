@@ -6,6 +6,9 @@ https://www.nuget.org/packages/ServiceFabric.Mocks/
 
 ## Release notes
 
+- 1.6.2
+	- MockReliableConcurrentQueue Name property now has public get and set.
+
 - 1.6.1
 	- merged PR by Scythen that sets the Name of a ReliableCollection when it's created.
 

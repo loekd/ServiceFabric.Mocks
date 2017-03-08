@@ -16,7 +16,7 @@ namespace ServiceFabric.Mocks
     {
         private readonly ConcurrentQueue<T> _state = new ConcurrentQueue<T>();
 
-        public Uri Name { get; }
+        public Uri Name { get;  set; }
 
         public long Count => _state.Count;
 
