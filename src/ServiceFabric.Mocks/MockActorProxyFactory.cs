@@ -10,23 +10,24 @@ namespace ServiceFabric.Mocks
     using Microsoft.ServiceFabric.Actors.Runtime;
     using System.Collections.Generic;
           
-    public delegate void MisingActorEventHandler(object sender, MisingActorEventArgs args);
+    public delegate void MissingActorEventHandler(object sender, MissingActorEventArgs args);
     /// <summary>
     /// Specifies the interface for the factory that creates proxies for remote communication to the specified Actor.
     /// </summary>
     public class MockActorProxyFactory : MockServiceProxyFactory, IActorProxyFactory
     {       
 
-        public event MisingActorEventHandler MisingActor;
+        public event MissingActorEventHandler MissingActor;
 
-        protected virtual void OnMisingActor(object sender, ActorId id)
+        protected virtual void OnMisingActor(object sender, ActorId id, Type actorType)
         {
-            var args = new MisingActorEventArgs()
+            var args = new MissingActorEventArgs()
             {
-                Id = id
+                Id = id,
+                ActorType = actorType
             };
 
-            MisingActor?.Invoke(sender, args);
+            MissingActor?.Invoke(sender, args);
         }
                
 
@@ -60,7 +61,7 @@ namespace ServiceFabric.Mocks
         {
             if(!_actorRegistry.ContainsKey(actorId))
             {
-                OnMisingActor(this, actorId);
+                OnMisingActor(this, actorId, typeof(TActorInterface));
             }
 
             var set = _actorRegistry[actorId];
@@ -73,7 +74,7 @@ namespace ServiceFabric.Mocks
         {
             if (!_actorRegistry.ContainsKey(actorId))
             {
-                OnMisingActor(this, actorId);
+                OnMisingActor(this, actorId, typeof(TActorInterface));
             }
 
             var set = _actorRegistry[actorId];

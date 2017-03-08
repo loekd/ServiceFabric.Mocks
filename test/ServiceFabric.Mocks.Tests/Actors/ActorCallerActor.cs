@@ -21,13 +21,13 @@ namespace ServiceFabric.Mocks.Tests.Actors
             ActorProxyFactory = actorProxyFactory ?? new ActorProxyFactory();
         }
 
-        public Task InsertAsync(string stateName, Payload value)
+        public async Task InsertAsync(string stateName, Payload value)
         {
             var actorProxy = ActorProxyFactory.CreateActorProxy<IMyStatefulActor>(CalledServiceName, new ActorId(Guid.NewGuid()));
 
-            this.StateManager.SetStateAsync(ChildActorIdKeyName, actorProxy.GetActorId());
+            await this.StateManager.SetStateAsync(ChildActorIdKeyName, actorProxy.GetActorId());
 
-            return actorProxy.InsertAsync(stateName, value);
+            await actorProxy.InsertAsync(stateName, value);
 
         }
     }

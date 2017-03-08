@@ -5,8 +5,10 @@ namespace ServiceFabric.Mocks
 {
           
 
-    public class MisingActorEventArgs : EventArgs
+    public class MissingActorEventArgs : EventArgs
     {
+        public Type ActorType { get; set; }
+
         public ActorId Id { get; set; }
     }
     

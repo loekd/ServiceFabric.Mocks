@@ -18,7 +18,7 @@ namespace ServiceFabric.Mocks.Tests.ActorTests
             //mock out the called service
 
             var mockProxyFactory = new MockActorProxyFactory();
-            mockProxyFactory.MisingActor += MockProxyFactory_MisingActorId;
+            mockProxyFactory.MissingActor += MockProxyFactory_MisingActorId;
             
 
             //prepare the actor:
@@ -41,14 +41,17 @@ namespace ServiceFabric.Mocks.Tests.ActorTests
             Assert.AreEqual("some other value", payload.Content);
         }
 
-        private void MockProxyFactory_MisingActorId(object sender, MisingActorEventArgs args)
+        private void MockProxyFactory_MisingActorId(object sender, MissingActorEventArgs args)
         {
             var registrar = (MockActorProxyFactory)sender;
 
-            Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new MyStatefulActor(service, actorId);
-            var svc = MockActorServiceFactory.CreateActorServiceForActor<MyStatefulActor>(actorFactory);
-            var actor = svc.Activate(args.Id);
-            registrar.RegisterActor(actor);
+            if (args.ActorType == typeof(IMyStatefulActor))
+            {
+                Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new MyStatefulActor(service, actorId);
+                var svc = MockActorServiceFactory.CreateActorServiceForActor<MyStatefulActor>(actorFactory);
+                var actor = svc.Activate(args.Id);
+                registrar.RegisterActor(actor);
+            }
         }
         
     }
