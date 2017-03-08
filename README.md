@@ -6,6 +6,9 @@ https://www.nuget.org/packages/ServiceFabric.Mocks/
 
 ## Release notes
 
+- 1.6.1
+	- merged PR by Scythen that sets the Name of a ReliableCollection when it's created.
+
 - 1.6.0
 	- upgraded to new SDK (2.4.164)
 	- added MockActorEventSubscriptionHelper to assist with testing Actor Events, as suggested by ThiemeNL.
