@@ -100,38 +100,41 @@ namespace ServiceFabric.Mocks
 
         public Task<T> GetOrAddAsync<T>(ITransaction tx, string name) where T : IReliableState
         {
-            var uri = CreateUri(name);
-            bool added = !_store.ContainsKey(uri);
-            
-            Func<Uri, IReliableState> addValueFactory = _=>
-            { 
-                IReliableState reliable;
+            IReliableState constructed = null;
+
+            var result = _store.GetOrAdd(CreateUri(name), collectionName =>
+            {
                 var typeArguments = typeof(T).GetGenericArguments();
                 var typeDefinition = typeof(T).GetGenericTypeDefinition();
 
                 if (typeof(IReliableDictionary<,>).IsAssignableFrom(typeDefinition))
                 {
-                    Type dictionaryType = typeof(MockReliableDictionary<,>);
-                    reliable = (IReliableState) Activator.CreateInstance(dictionaryType.MakeGenericType(typeArguments));
+                    constructed = ConstructMockCollection(collectionName, typeof(MockReliableDictionary<,>), typeArguments);
                 }
                 else if (typeof(IReliableConcurrentQueue<>).IsAssignableFrom(typeDefinition))
                 {
-                    Type queueType = typeof(MockReliableConcurrentQueue<>);
-                    reliable = (IReliableState)Activator.CreateInstance(queueType.MakeGenericType(typeArguments));
+                    constructed = ConstructMockCollection(collectionName, typeof(MockReliableConcurrentQueue<>), typeArguments);
                 }
                 else
                 {
-                    Type queueType = typeof(MockReliableQueue<>);
-                    reliable = (IReliableState) Activator.CreateInstance(queueType.MakeGenericType(typeArguments));
+                    constructed = ConstructMockCollection(collectionName, typeof(MockReliableQueue<>), typeArguments);
                 }
-                return reliable;
-            };
-            var result = (T)_store.GetOrAdd(uri, addValueFactory);
-            if (added)
+                return constructed;
+            });
+
+            if (result == constructed)
             {
                 OnStateManagerChanged(new NotifyStateManagerSingleEntityChangedEventArgs(tx, result, NotifyStateManagerChangedAction.Add));
             }
-            return Task.FromResult(result);
+            return Task.FromResult((T)result);
+        }
+
+        private static IReliableState ConstructMockCollection(Uri name, Type genericType, Type[] typeArguments)
+        {
+            var type = genericType.MakeGenericType(typeArguments);
+            var reliable = (IReliableState)Activator.CreateInstance(type);
+            type.GetProperty("Name").GetSetMethod().Invoke(reliable, new object[] { name });
+            return reliable;
         }
 
         public Task<T> GetOrAddAsync<T>(string name, TimeSpan timeout) where T : IReliableState
