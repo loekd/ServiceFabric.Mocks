@@ -440,7 +440,7 @@ public async Task TestServiceProxyFactory()
 	//mock out the called service
 
 	var mockProxyFactory = new MockActorProxyFactory();
-	mockProxyFactory.MisingActor += MockProxyFactory_MisingActorId;
+	mockProxyFactory.MissingActor += MockProxyFactory_MissingActorId;
 	
 
 	//prepare the actor:
@@ -463,7 +463,7 @@ public async Task TestServiceProxyFactory()
 	Assert.AreEqual("some other value", payload.Content);
 }
 
-private void MockProxyFactory_MisingActorId(object sender, MisingActorEventArgs args)
+private void MockProxyFactory_MissingActorId(object sender, MissingActorEventArgs args)
 {
 	var registrar = (MockActorProxyFactory)sender;
 
