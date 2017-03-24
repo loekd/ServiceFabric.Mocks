@@ -6,6 +6,9 @@ https://www.nuget.org/packages/ServiceFabric.Mocks/
 
 ## Release notes
 
+- 1.7.0
+	- Upgraded nuget packages (SF 2.5.216)
+
 - 1.6.3
 	- Merged PR by kotvisbj. Added 'MissingActor' event to MockActorProxyFactory, to dynamically resolve Actor instances if needed. 
 	- Fixed some code quality issues.

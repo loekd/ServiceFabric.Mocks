@@ -1,7 +1,7 @@
 {
   "copyright": "2017",
   "title": "ServiceFabric.Mocks",
-  "version": "1.6.3",
+  "version": "1.7.0",
   "description": "ServiceFabric.Mocks contains Mock classes to enable unit testing of Actors and Services",
   "authors": [ "Loek Duys" ],
   "packOptions": {
@@ -34,8 +34,7 @@
     "platform": "x64"
   },
   "dependencies": {
-    "Microsoft.ServiceFabric.Actors": "2.4.164",
-    "Microsoft.ServiceFabric.Services": "2.4.164",
-    "Microsoft.ServiceFabric.Services.Wcf": "2.4.164"
+    "Microsoft.ServiceFabric.Actors": "2.5.216",
+    "Microsoft.ServiceFabric.Services": "2.5.216"
   }
 }
