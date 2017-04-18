@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Client;
@@ -11,11 +12,13 @@ namespace ServiceFabric.Mocks
 	public class MockActorEventSubscriptionHelper : IActorEventSubscriptionHelper
 	{
 		private readonly Task _completed = Task.FromResult(true);
+		private readonly HashSet<IActorEvents> _subscribers = new HashSet<IActorEvents>();
 
 		/// <inheritdoc />
 		public Task SubscribeAsync<TEvent>(IActorEventPublisher actorProxy, TEvent subscriber) 
 			where TEvent : IActorEvents
 		{
+			_subscribers.Add(subscriber);
 			return _completed;
 		}
 
@@ -23,13 +26,23 @@ namespace ServiceFabric.Mocks
 		public Task SubscribeAsync<TEvent>(IActorEventPublisher actorProxy, TEvent subscriber, TimeSpan resubscriptionInterval)
 			where TEvent : IActorEvents
 		{
+			_subscribers.Add(subscriber);
 			return _completed;
 		}
 
 		/// <inheritdoc />
 		public Task UnsubscribeAsync<TEvent>(IActorEventPublisher actorProxy, TEvent subscriber)
+			where TEvent : IActorEvents
 		{
+			_subscribers.Remove(subscriber);
 			return _completed;
+		}
+
+		/// <inheritdoc />
+		public bool IsSubscribed<TEvent>(TEvent subscriber)
+			where TEvent : IActorEvents
+		{
+			return _subscribers.Contains(subscriber);
 		}
 	}
 
@@ -51,7 +64,7 @@ namespace ServiceFabric.Mocks
 		}
 
 		/// <inheritdoc />
-		public Task UnsubscribeAsync<TEvent>(IActorEventPublisher actorProxy, TEvent subscriber)
+		public Task UnsubscribeAsync<TEvent>(IActorEventPublisher actorProxy, TEvent subscriber) where TEvent : IActorEvents
 		{
 			return actorProxy.UnsubscribeAsync(subscriber);
 		}
@@ -64,12 +77,15 @@ namespace ServiceFabric.Mocks
 	public interface IActorEventSubscriptionHelper
 	{
 		/// <summary>Subscribe to a published actor event.</summary>
-		Task SubscribeAsync<TEvent>(IActorEventPublisher actorProxy, TEvent subscriber) where TEvent : IActorEvents;
+		Task SubscribeAsync<TActorEvents>(IActorEventPublisher actorProxy, TActorEvents subscriber) 
+			where TActorEvents : IActorEvents;
 		
 		/// <summary>Subscribe to a published actor event.</summary>
-		Task SubscribeAsync<TEvent>(IActorEventPublisher actorProxy, TEvent subscriber, TimeSpan resubscriptionInterval) where TEvent : IActorEvents;
+		Task SubscribeAsync<TActorEvents>(IActorEventPublisher actorProxy, TActorEvents subscriber, TimeSpan resubscriptionInterval) 
+			where TActorEvents : IActorEvents;
 		
 		/// <summary>Unsubscribe from a published actor event.</summary>
-		Task UnsubscribeAsync<TEvent>(IActorEventPublisher actorProxy, TEvent subscriber);
+		Task UnsubscribeAsync<TActorEvents>(IActorEventPublisher actorProxy, TActorEvents subscriber) 
+			where TActorEvents : IActorEvents;
 	}
 }

@@ -2,7 +2,7 @@
   "testRunner": "mstest",
   "copyright": "2017",
   "title": "ServiceFabric.Mocks.Tests",
-  "version": "1.6.3",
+  "version": "1.8.0",
   "description": "ServiceFabric.Mocks contains Mock classes to enable unit testing of Actors and Services",
   "authors": [ "Loek Duys" ],
   "packOptions": {
@@ -39,7 +39,6 @@
     "MSTest.TestFramework": "1.0.1-preview",
     "dotnet-test-mstest": "1.1.1-preview",
     "Microsoft.ServiceFabric.Actors": "2.5.216",
-    "Microsoft.ServiceFabric.Services": "2.5.216",
-    "Microsoft.ServiceFabric.Services.Wcf": "2.4.164"
+    "Microsoft.ServiceFabric.Services": "2.5.216"
   }
 }
