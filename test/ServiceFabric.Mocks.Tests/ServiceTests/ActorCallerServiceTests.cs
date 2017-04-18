@@ -91,6 +91,16 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
             {
                 return Task.FromResult(true);
             }
+
+	        public Task<bool> IsReminderRegisteredAsync(string reminderName)
+	        {
+		        throw new NotImplementedException();
+	        }
+
+	        public Task UnregisterReminderAsync(string reminderName)
+	        {
+		        throw new NotImplementedException();
+	        }
         }
     }
 }

@@ -17,8 +17,30 @@ namespace ServiceFabric.Mocks.Tests.Actors
             return RegisterReminderAsync(reminderName, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(-1));
         }
 
-        /// <inheritdoc />
-        public Task ReceiveReminderAsync(string reminderName, byte[] context, TimeSpan dueTime, TimeSpan period)
+		/// <inheritdoc />
+		public Task<bool> IsReminderRegisteredAsync(string reminderName)
+		{
+			IActorReminder reminder = null;
+			try
+			{
+				reminder = GetReminder(reminderName);
+			}
+			catch (ReminderNotFoundException)
+			{
+				//not found...
+			}
+			return Task.FromResult(reminder != null);
+		}
+
+		/// <inheritdoc />
+		public Task UnregisterReminderAsync(string reminderName)
+		{
+			var reminder = GetReminder(reminderName);
+			return UnregisterReminderAsync(reminder);
+		}
+
+		/// <inheritdoc />
+		public Task ReceiveReminderAsync(string reminderName, byte[] context, TimeSpan dueTime, TimeSpan period)
         {
             //will not be called automatically.
             return Task.FromResult(true);
@@ -40,5 +62,7 @@ namespace ServiceFabric.Mocks.Tests.Actors
             //will not be called automatically.
             return Task.FromResult(true);
         }
+
+	   
     }
 }

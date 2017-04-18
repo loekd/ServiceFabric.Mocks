@@ -11,10 +11,19 @@ namespace ServiceFabric.Mocks.Tests
         /// <returns></returns>
         Task RegisterReminderAsync(string reminderName);
 
-        /// <summary>
-        /// Explicitly registers a timer.
-        /// </summary>
-        /// <returns></returns>
-        Task RegisterTimerAsync();
+	    /// <inheritdoc />
+	    Task<bool> IsReminderRegisteredAsync(string reminderName);
+
+		/// <summary>
+		/// Explicitly unregisters a reminder.
+		/// </summary>
+		/// <returns></returns>
+		Task UnregisterReminderAsync(string reminderName);
+
+		/// <summary>
+		/// Explicitly registers a timer.
+		/// </summary>
+		/// <returns></returns>
+		Task RegisterTimerAsync();
     }
 }
