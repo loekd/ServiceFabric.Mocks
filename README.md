@@ -6,7 +6,7 @@ https://www.nuget.org/packages/ServiceFabric.Mocks/
 
 ## Release notes
 
-- 1.8.0
+- 1.8.1
 	- Fix issue in MockActorStateManager.AddStateAsync not throwing on duplicate keys, found by mackgyver2k.
 
 - 1.8.0
