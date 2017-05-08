@@ -25,8 +25,11 @@ namespace ServiceFabric.Mocks
         /// <inheritdoc />
         public Task AddStateAsync<T>(string stateName, T value, CancellationToken cancellationToken = default(CancellationToken))
         {
-            bool result = _state.TryAdd(stateName, value);
-            return Task.FromResult(result);
+	        if (!_state.TryAdd(stateName, value))
+	        {
+		        throw new InvalidOperationException("ActorStateAlreadyExists");
+	        }
+	        return Task.FromResult(true);
         }
 
         /// <summary>

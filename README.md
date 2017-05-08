@@ -7,6 +7,9 @@ https://www.nuget.org/packages/ServiceFabric.Mocks/
 ## Release notes
 
 - 1.8.0
+	- Fix issue in MockActorStateManager.AddStateAsync not throwing on duplicate keys, found by mackgyver2k.
+
+- 1.8.0
 	- Added MockActorServiceRemotingClientFactory and MockActorServiceRemotingClient to mock the IServiceRemotingCallbackClient of ActorProxyFactory.
 	  (still looking for a way to mock remoting though)
 	- Added example use of MockActorEventSubscriptionHelper for VDBorovikov

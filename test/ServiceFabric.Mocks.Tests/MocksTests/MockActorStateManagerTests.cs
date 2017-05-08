@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -72,5 +73,29 @@ namespace ServiceFabric.Mocks.Tests.MocksTests
 			Assert.IsFalse(result.HasValue);
 		}
 
+		[TestMethod]
+		public async Task Int_AddStateAsyncTest()
+		{
+			var instance = new MockActorStateManager();
+			await instance.AddStateAsync("existing", 6);
+
+			var result = await instance.TryGetStateAsync<int>("existing");
+
+			Assert.IsInstanceOfType(result, typeof(ConditionalValue<int>));
+			Assert.IsNotNull(result.Value);
+			Assert.IsTrue(result.HasValue);
+			Assert.AreEqual(6, result.Value);
+		}
+
+		[TestMethod]
+		public async Task Int_DuplicateAddStateAsyncTest()
+		{
+			var instance = new MockActorStateManager();
+			await instance.AddStateAsync("existing", 6);
+
+			Assert.ThrowsException<InvalidOperationException>(() => {
+				instance.AddStateAsync("existing", 6).ConfigureAwait(false).GetAwaiter().GetResult();
+			});
+		}
 	}
 }
