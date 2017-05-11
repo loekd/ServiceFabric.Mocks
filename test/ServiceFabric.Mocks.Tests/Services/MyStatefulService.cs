@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
-using Microsoft.ServiceFabric.Data.Collections.Preview;
 using Microsoft.ServiceFabric.Services.Runtime;
 
 namespace ServiceFabric.Mocks.Tests.Services

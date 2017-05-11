@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Data.Collections;
-using Microsoft.ServiceFabric.Data.Collections.Preview;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceFabric.Mocks.Tests.Services;
 
@@ -64,7 +63,7 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
 
             //get state
             var queue = await stateManager.TryGetAsync<IReliableConcurrentQueue<Payload>>(MyStatefulService.StateManagerConcurrentQueueKey);
-            var actual = (await queue.Value.DequeueAsync(null));
+            var actual = (await queue.Value.TryDequeueAsync(null)).Value;
             Assert.AreEqual(StatePayload, actual.Content);
         }
     }

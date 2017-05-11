@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
-using Microsoft.ServiceFabric.Data.Collections.Preview;
 using Microsoft.ServiceFabric.Data.Notifications;
 
 namespace ServiceFabric.Mocks

@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Data;
-using Microsoft.ServiceFabric.Data.Collections.Preview;
+using Microsoft.ServiceFabric.Data.Collections;
 
 namespace ServiceFabric.Mocks
 {
@@ -37,13 +37,15 @@ namespace ServiceFabric.Mocks
             return Task.FromResult(true);
         }
 
-        public Task<T> DequeueAsync(ITransaction tx, CancellationToken cancellationToken = new CancellationToken(),
-            TimeSpan? timeout = null)
-        {
-            T result;
-            return Task.FromResult(_state.TryDequeue(out result) ? result : default(T));
-        }
+       
+	    public Task<ConditionalValue<T>> TryDequeueAsync(ITransaction tx, CancellationToken cancellationToken = new CancellationToken(),
+		    TimeSpan? timeout = null)
+	    {
+			T result;
+		    bool dequeued = _state.TryDequeue(out result);
+			var conditional = dequeued ? new ConditionalValue<T>(true, result) : new ConditionalValue<T>();
+		    return Task.FromResult(conditional);
 
-        
-    }
+		}
+	}
 }
