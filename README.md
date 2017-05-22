@@ -6,6 +6,9 @@ https://www.nuget.org/packages/ServiceFabric.Mocks/
 
 ## Release notes
 
+- 2.0.0
+	- Upgraded sln to VS2017
+
 - 1.9.0
 	- Upgraded nuget packages (SF 2.6.204)
 	- ReliableConcurrentQueue no longer preview

@@ -1,21 +1,20 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26510.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{991DEBD8-1717-46A5-AA9C-967AC7DC4EFA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5C3875AD-247E-41C0-B023-29B664F6DD98}"
 	ProjectSection(SolutionItems) = preProject
-		global.json = global.json
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ServiceFabric.Mocks", "src\ServiceFabric.Mocks\ServiceFabric.Mocks.xproj", "{2832EB4C-6B37-4CEA-9F8B-7896757E69A7}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{6D7E4666-FC1F-413B-AA35-41B85D2DD4AB}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ServiceFabric.Mocks.Tests", "test\ServiceFabric.Mocks.Tests\ServiceFabric.Mocks.Tests.xproj", "{EF866F8D-0FF7-4BE2-B292-21527F56FF02}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceFabric.Mocks", "src\ServiceFabric.Mocks\ServiceFabric.Mocks.csproj", "{2832EB4C-6B37-4CEA-9F8B-7896757E69A7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceFabric.Mocks.Tests", "test\ServiceFabric.Mocks.Tests\ServiceFabric.Mocks.Tests.csproj", "{EF866F8D-0FF7-4BE2-B292-21527F56FF02}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
