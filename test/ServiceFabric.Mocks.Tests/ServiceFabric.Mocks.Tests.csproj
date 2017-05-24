@@ -37,8 +37,8 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.1.17" />
     <PackageReference Include="MSTest.TestFramework" Version="1.1.17" />
-    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="2.6.204" />
-    <PackageReference Include="Microsoft.ServiceFabric.Services" Version="2.6.204" />
+    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="2.6.210" />
+    <PackageReference Include="Microsoft.ServiceFabric.Services" Version="2.6.210" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net451' ">
