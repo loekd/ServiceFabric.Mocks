@@ -6,6 +6,9 @@ https://www.nuget.org/packages/ServiceFabric.Mocks/
 
 ## Release notes
 
+- 2.1.0
+	- Upgraded nuget packages (SF 2.6.210)
+
 - 2.0.0
 	- Upgraded sln to VS2017
 
