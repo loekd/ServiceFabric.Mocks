@@ -12,6 +12,9 @@ Please also make sure all feature additions have a corresponding unit test.
 
 ## Release notes
 
+- 2.2.0
+	- Upgraded nuget packages (SF 2.6.220, MSTest 1.1.18)
+
 - 2.1.0
 	- Upgraded nuget packages (SF 2.6.210)
 
