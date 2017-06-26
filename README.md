@@ -10,6 +10,8 @@ Please upgrade the package version with a minor tick if there are no breaking ch
 Doing so will allow me to simply accept the PR, which will automatically trigger the release of a new package.
 Please also make sure all feature additions have a corresponding unit test.
 
+Or [donate](https://paypal.me/lduys/5) a cup of coffee.
+
 ## Release notes
 
 - 2.2.0
