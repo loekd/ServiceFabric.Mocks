@@ -14,6 +14,9 @@ Or [donate](https://paypal.me/lduys/5) a cup of coffee.
 
 ## Release notes
 
+- 2.2.1
+	- Allow MockActorServiceFactory to create several actors
+
 - 2.2.0
 	- Upgraded nuget packages (SF 2.6.220, MSTest 1.1.18)
 

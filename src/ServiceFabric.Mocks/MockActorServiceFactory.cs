@@ -20,8 +20,7 @@ namespace ServiceFabric.Mocks
         public static MockActorService<TActor> CreateActorServiceForActor<TActor>(Func<ActorService, ActorId, ActorBase> actorFactory = null, IActorStateProvider actorStateProvider = null, StatefulServiceContext context = null, ActorServiceSettings settings = null)
             where TActor : Actor
         {
-            var stateManager = new MockActorStateManager();
-            Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory = (actr, stateProvider) => stateManager;
+            Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory = (actr, stateProvider) => new MockActorStateManager();
             if (actorStateProvider == null)
             {
                 actorStateProvider = new MockActorStateProvider();
