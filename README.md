@@ -1,12 +1,15 @@
 # ServiceFabric.Mocks
-ServiceFabric.Mocks contains Mock classes to enable unit testing of Actors and Services.
+ServiceFabric.Mocks contains many Mock and helper classes to facilitate and simplify unit testing of Service Fabric Actors and Services.
 
 ## Nuget package here:
 https://www.nuget.org/packages/ServiceFabric.Mocks/
 
 ## Contribute!
-Contributions are welcome.
-Please upgrade the package version with a minor tick if there are no breaking changes. And add a line to the readme.md, stating the changes, e.g. 'upgraded to SF version x.y.z'.
+Contributions are most welcome:
+
+- Please upgrade the package version with a minor tick if there are no breaking changes, by changing the `<VersionPrefix>X.Y.Z</VersionPrefix>` in the [csproj file](https://github.com/loekd/ServiceFabric.Mocks/blob/master/src/ServiceFabric.Mocks/ServiceFabric.Mocks.csproj#L7) 
+- Add a line to the readme.md, stating the changes, e.g. 'upgraded to SF version x.y.z'. 
+
 Doing so will allow me to simply accept the PR, which will automatically trigger the release of a new package.
 Please also make sure all feature additions have a corresponding unit test.
 
