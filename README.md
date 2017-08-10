@@ -17,7 +17,8 @@ Or [donate](https://paypal.me/lduys/5) a cup of coffee.
 
 ## Release notes
 
-- 2.1.1
+
+- 2.2.2
 	- Upgraded nuget packages (SF 2.7.198)
 
 - 2.2.1
