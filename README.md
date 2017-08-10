@@ -17,6 +17,8 @@ Or [donate](https://paypal.me/lduys/5) a cup of coffee.
 
 ## Release notes
 
+- 2.2.3
+	- Added `MockConfigurationPackage` to mock service configuration for CharlesZhong
 
 - 2.2.2
 	- Upgraded nuget packages (SF 2.7.198)
