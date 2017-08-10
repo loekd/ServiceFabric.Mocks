@@ -26,7 +26,7 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <Platforms>AnyCPU;x64</Platforms>
     <ApplicationIcon />
-    <OutputTypeEx>exe</OutputTypeEx>
+    <OutputTypeEx>Library</OutputTypeEx>
     <StartupObject />
   </PropertyGroup>
 
