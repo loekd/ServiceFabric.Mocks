@@ -195,5 +195,16 @@ namespace ServiceFabric.Mocks
         {
             return Task.FromResult<IActorReminderCollection>(_reminders);
         }
+
+        public async Task DeleteRemindersAsync(IReadOnlyDictionary<ActorId, IReadOnlyCollection<string>> reminderNames, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            foreach (var reminder in reminderNames)
+            {
+                foreach (var reminderName in reminder.Value)
+                {
+                    await DeleteReminderAsync(reminder.Key, reminderName, cancellationToken);
+                }
+            }
+        }
     }
 }

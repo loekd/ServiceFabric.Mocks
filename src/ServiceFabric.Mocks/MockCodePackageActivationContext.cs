@@ -242,5 +242,20 @@ namespace ServiceFabric.Mocks
         {
             HealthInformations?.Add(healthInformation);
         }
+
+        public void ReportApplicationHealth(HealthInformation healthInformation, HealthReportSendOptions sendOptions)
+        {
+            HealthInformations?.Add(healthInformation);
+        }
+
+        public void ReportDeployedApplicationHealth(HealthInformation healthInformation, HealthReportSendOptions sendOptions)
+        {
+            HealthInformations?.Add(healthInformation);
+        }
+
+        public void ReportDeployedServicePackageHealth(HealthInformation healthInformation, HealthReportSendOptions sendOptions)
+        {
+            HealthInformations?.Add(healthInformation);
+        }
     }
 }
