@@ -656,3 +656,38 @@ var actor = customActorService.Activate<OnActivateActor>(new ActorId(123L));
 Assert.IsInstanceOfType(actor, typeof(OnActivateActor));
 Assert.AreEqual(123L, actor.Id.GetLongId());
 ```
+
+#### Testing service configuration
+
+To inject a configuration section into the MockCodePackageActivationContext, you can use this code:
+
+```
+[TestClass]
+    public class ConfigurationPackageTests
+    {
+        [TestMethod]
+        public void ConfigurationPackageAtMockCodePackageActivationContextTest()
+        {
+            //build ConfigurationSectionCollection
+            var configSections = new ConfigurationSectionCollection();
+
+            //Build ConfigurationSettings
+            var configSettings = CreateConfigurationSettings(configSections);
+
+            //add one ConfigurationSection
+            ConfigurationSection configSection = CreateConfigurationSection(nameof(configSection.Name));
+            configSections.Add(configSection);
+
+            //add one Parameters entry
+            ConfigurationProperty parameter = CreateConfigurationSectionParameters(nameof(parameter.Name), nameof(parameter.Value));
+            configSection.Parameters.Add(parameter);
+            
+            //Build ConfigurationPackage
+            ConfigurationPackage configPackage = CreateConfigurationPackage(configSettings, nameof(configPackage.Path));
+	    
+	    [..]
+	    }
+	 }
+}
+	 
+```
