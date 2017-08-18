@@ -97,5 +97,22 @@ namespace ServiceFabric.Mocks.Tests.MocksTests
 				instance.AddStateAsync("existing", 6).ConfigureAwait(false).GetAwaiter().GetResult();
 			});
 		}
+
+        [TestMethod]
+        public async Task MultiType_SetStateAsyncTest()
+        {
+            var instance = new MockActorStateManager();
+            string stateName = "stateName";
+            await instance.SetStateAsync(stateName, string.Empty);
+            await instance.SetStateAsync(stateName, 5);
+            DateTimeOffset utcNow = DateTimeOffset.UtcNow;
+            await instance.SetStateAsync(stateName, utcNow);
+
+            var result = await instance.TryGetStateAsync<DateTimeOffset>(stateName);
+            Assert.IsInstanceOfType(result, typeof(ConditionalValue<DateTimeOffset>));
+            Assert.IsNotNull(result.Value);
+            Assert.IsTrue(result.HasValue);
+            Assert.AreEqual(utcNow, result.Value);
+        }
 	}
 }

@@ -17,6 +17,9 @@ Or [donate](https://paypal.me/lduys/5) a cup of coffee.
 
 ## Release notes
 
+- 2.2.4
+	- Fixed `MockActorStateManager` issue, when calling `SetStateAsync` with different types for T. Found by samneirinck.
+
 - 2.2.3
 	- Added `MockConfigurationPackage` to mock service configuration for CharlesZhong
 

@@ -85,9 +85,10 @@ namespace ServiceFabric.Mocks
         }
 
         /// <inheritdoc />
-        public Task SetStateAsync<T>(string stateName, T value, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task SetStateAsync<T>(string stateName, T value, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return AddOrUpdateStateAsync(stateName, value, (key, current) => value, cancellationToken);
+            await RemoveStateAsync(stateName, cancellationToken);
+            await AddStateAsync(stateName, value, cancellationToken);
         }
 
         /// <inheritdoc />

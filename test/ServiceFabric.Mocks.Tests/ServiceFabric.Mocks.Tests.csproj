@@ -8,7 +8,7 @@
     <Description>ServiceFabric.Mocks contains Mock classes to enable unit testing of Actors and Services</Description>
     <Copyright>2017</Copyright>
     <AssemblyTitle>ServiceFabric.Mocks.Tests</AssemblyTitle>
-    <VersionPrefix>2.2.3</VersionPrefix>
+    <VersionPrefix>2.2.4</VersionPrefix>
     <Authors>Loek Duys</Authors>
     <TargetFrameworks>net451;net46</TargetFrameworks>
     <PlatformTarget>x64</PlatformTarget>
