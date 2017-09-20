@@ -18,6 +18,9 @@ Or [donate](https://paypal.me/lduys/5) a cup of coffee.
 ## Release notes
 
 - 2.2.4
+	- Added `InvokeOnPreActorMethodAsync` & `InvokeOnPostActorMethodAsync` on `ActorBaseExtensions`, requested by JefSchraag.
+
+- 2.2.4
 	- Fixed `MockActorStateManager` issue, when calling `SetStateAsync` with different types for T. Found by samneirinck.
 
 - 2.2.3

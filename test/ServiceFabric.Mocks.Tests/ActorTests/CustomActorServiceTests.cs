@@ -14,11 +14,11 @@ namespace ServiceFabric.Mocks.Tests.ActorTests
 		public void TestCustomActorServiceActivate()
 		{
 			//an ActorService with a standard constructor can be created by the MockActorServiceFactory
-			var customActorService = MockActorServiceFactory.CreateCustomActorServiceForActor<CustomActorService, OnActivateActor>();
-			var actor = customActorService.Activate<OnActivateActor>(new ActorId(123L));
+			var customActorService = MockActorServiceFactory.CreateCustomActorServiceForActor<CustomActorService, InvokeOnActor>();
+			var actor = customActorService.Activate<InvokeOnActor>(new ActorId(123L));
 
 			Assert.IsInstanceOfType(customActorService, typeof(CustomActorService));
-			Assert.IsInstanceOfType(actor, typeof(OnActivateActor));
+			Assert.IsInstanceOfType(actor, typeof(InvokeOnActor));
 			Assert.AreEqual(123L, actor.Id.GetLongId());
 		}
 
@@ -30,7 +30,7 @@ namespace ServiceFabric.Mocks.Tests.ActorTests
 			{
 				// ReSharper disable once UnusedVariable
 				var customActorService =
-					MockActorServiceFactory.CreateCustomActorServiceForActor<AnotherCustomActorService, OnActivateActor>();
+					MockActorServiceFactory.CreateCustomActorServiceForActor<AnotherCustomActorService, InvokeOnActor>();
 			});
 		}
 
@@ -40,14 +40,14 @@ namespace ServiceFabric.Mocks.Tests.ActorTests
 			//an ActorService with a NON standard constructor can be created by passing Mock arguments:
 
 			IActorStateProvider actorStateProvider = new MockActorStateProvider();
-			actorStateProvider.Initialize(ActorTypeInformation.Get(typeof(OnActivateActor)));
+			actorStateProvider.Initialize(ActorTypeInformation.Get(typeof(InvokeOnActor)));
 			var context = MockStatefulServiceContextFactory.Default;
 			var dummy = new object(); //this argument causes the 'non standard' ctor.
-			var customActorService = new AnotherCustomActorService(dummy, context, ActorTypeInformation.Get(typeof(OnActivateActor)));
+			var customActorService = new AnotherCustomActorService(dummy, context, ActorTypeInformation.Get(typeof(InvokeOnActor)));
 
-			var actor = customActorService.Activate<OnActivateActor>(new ActorId(123L));
+			var actor = customActorService.Activate<InvokeOnActor>(new ActorId(123L));
 
-			Assert.IsInstanceOfType(actor, typeof(OnActivateActor));
+			Assert.IsInstanceOfType(actor, typeof(InvokeOnActor));
 			Assert.AreEqual(123L, actor.Id.GetLongId());
 		}
 	}

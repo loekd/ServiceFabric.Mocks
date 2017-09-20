@@ -36,6 +36,39 @@ namespace ServiceFabric.Mocks
 		}
 
 		/// <summary>
+		/// Invokes <see cref="ActorBase.OnPreActorMethodAsync"/> and returns the resulting task.
+		/// Call <see cref="MockActorMethodContextFactory.ActorMethodContextCreateForActor"/> 
+		/// /<see cref="MockActorMethodContextFactory.ActorMethodContextCreateForReminder"/> 
+		/// /<see cref="MockActorMethodContextFactory.ActorMethodContextCreateForTimer"/> 
+		/// to create an <see cref="ActorMethodContext"/>.
+		/// </summary>
+		/// <param name="actor"></param>
+		/// <param name="actorMethodContext"> An <see cref="ActorMethodContext" /> describing the method that will be invoked by actor runtime after this method finishes.</param>
+		/// <returns></returns>
+		public static Task InvokeOnPreActorMethodAsync(this ActorBase actor, ActorMethodContext actorMethodContext)
+		{
+			return (Task)typeof(ActorBase)
+				.GetMethod("OnPreActorMethodAsync", BindingFlags.Instance | BindingFlags.NonPublic)
+				.Invoke(actor, new object[]{actorMethodContext});
+		}
+
+		/// <summary>
+		/// Invokes <see cref="ActorBase.InvokeOnPostActorMethodAsync"/> and returns the resulting task.
+		/// Call <see cref="MockActorMethodContextFactory.ActorMethodContextCreateForActor"/> 
+		/// /<see cref="MockActorMethodContextFactory.ActorMethodContextCreateForReminder"/> 
+		/// /<see cref="MockActorMethodContextFactory.ActorMethodContextCreateForTimer"/> 
+		/// to create an <see cref="ActorMethodContext"/>./// </summary>
+		/// <param name="actor"></param>
+		/// <param name="actorMethodContext"> An <see cref="ActorMethodContext" /> describing the method that will be invoked by actor runtime after this method finishes.</param>
+		/// <returns></returns>
+		public static Task InvokeOnPostActorMethodAsync(this ActorBase actor, ActorMethodContext actorMethodContext)
+		{
+			return (Task)typeof(ActorBase)
+				.GetMethod("OnPostActorMethodAsync", BindingFlags.Instance | BindingFlags.NonPublic)
+				.Invoke(actor, new object[] { actorMethodContext });
+		}
+				
+		/// <summary>
 		/// Gets all registered timers for the provided ActorBase.
 		/// </summary>
 		/// <param name="actor"></param>
@@ -59,6 +92,46 @@ namespace ServiceFabric.Mocks
 		{
 			var reminderCollection = actor.ActorService.StateProvider.LoadRemindersAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 			return reminderCollection[actor.Id];
+		}
+	}
+
+	public static class MockActorMethodContextFactory
+	{
+		/// <summary>
+		/// Creates an <see cref="ActorMethodContext"/> for an Actor interface method, to use when invoking <see cref="InvokeOnPreActorMethodAsync"/>.
+		/// </summary>
+		/// <param name="methodName"></param>
+		/// <returns></returns>
+		public static ActorMethodContext CreateForActor(string methodName)
+		{
+			return (ActorMethodContext)typeof(ActorMethodContext)
+				.GetMethod("CreateForActor", BindingFlags.Static | BindingFlags.NonPublic)
+				.Invoke(null, new object[] { methodName });
+		}
+
+		/// <summary>
+		/// Creates an <see cref="ActorMethodContext"/> for an Actor timer method, to use when invoking <see cref="InvokeOnPreActorMethodAsync"/>.
+		/// </summary>
+		/// <param name="methodName"></param>
+		/// <returns></returns>
+		public static ActorMethodContext CreateForTimer(string methodName)
+		{
+			return (ActorMethodContext)typeof(ActorMethodContext)
+				.GetMethod("CreateForTimer", BindingFlags.Static | BindingFlags.NonPublic)
+				.Invoke(null, new object[] { methodName });
+		}
+
+		/// <summary>
+		/// Creates an <see cref="ActorMethodContext"/> for an Actor reminder method, to use when invoking <see cref="InvokeOnPreActorMethodAsync"/>.
+		/// </summary>
+		/// <param name="actor">ignored</param>
+		/// <param name="methodName"></param>
+		/// <returns></returns>
+		public static ActorMethodContext CreateForReminder(string methodName)
+		{
+			return (ActorMethodContext)typeof(ActorMethodContext)
+				.GetMethod("CreateForReminder", BindingFlags.Static | BindingFlags.NonPublic)
+				.Invoke(null, new object[] { methodName });
 		}
 	}
 }
