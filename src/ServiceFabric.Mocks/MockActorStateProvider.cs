@@ -75,7 +75,7 @@ namespace ServiceFabric.Mocks
 
         public Func<CancellationToken, Task<bool>> OnDataLossAsync { get; set; }
 
-        
+        public Func<CancellationToken, Task> OnRestoreCompletedAsync { get; set; }
 
         public Task ActorActivatedAsync(ActorId actorId, CancellationToken cancellationToken = new CancellationToken())
         {
