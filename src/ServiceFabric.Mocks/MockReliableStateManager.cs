@@ -16,7 +16,7 @@ namespace ServiceFabric.Mocks
     /// <summary>
     /// Defines replica of a reliable state provider.
     /// </summary>
-    public class MockReliableStateManager : IReliableStateManagerReplica
+    public class MockReliableStateManager : IReliableStateManagerReplica2
     {
         private ConcurrentDictionary<Uri, IReliableState> _store = new ConcurrentDictionary<Uri, IReliableState>();
 
@@ -40,6 +40,11 @@ namespace ServiceFabric.Mocks
         /// Called when <see cref="TriggerDataLoss"/> is called.
         /// </summary>
         public Func<CancellationToken, Task<bool>> OnDataLossAsync { set; get; }
+
+        /// <summary>
+        /// Called when <see cref="TriggerRestoreCompleted"/> is called.
+        /// </summary>
+        public Func<CancellationToken, Task> OnRestoreCompletedAsync { get; set; }
 
         public void Abort()
         {
@@ -272,6 +277,11 @@ namespace ServiceFabric.Mocks
         public Task TriggerDataLoss()
         {
             return OnDataLossAsync(CancellationToken.None);
+        }
+
+        public Task TriggerRestoreCompleted()
+        {
+            return OnRestoreCompletedAsync(CancellationToken.None);
         }
 
         private static Uri CreateUri(string name)

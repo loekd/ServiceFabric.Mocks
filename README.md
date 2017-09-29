@@ -17,6 +17,9 @@ Or [donate](https://paypal.me/lduys/5) a cup of coffee.
 
 ## Release notes
 
+- 2.3.0
+	- Merged PR by dotnetgator, upgrading to SF 2.8.211
+
 - 2.2.4
 	- Added `InvokeOnPreActorMethodAsync` & `InvokeOnPostActorMethodAsync` on `ActorBaseExtensions`, requested by JefSchraag.
 

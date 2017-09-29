@@ -10,7 +10,7 @@ using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Services.Client;
 using Microsoft.ServiceFabric.Services.Communication.Client;
 using Microsoft.ServiceFabric.Services.Remoting;
-using Microsoft.ServiceFabric.Services.Remoting.Client;
+using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
 using Microsoft.ServiceFabric.Services.Runtime;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceFabric.Mocks.Tests.Actors;
@@ -96,7 +96,7 @@ namespace ServiceFabric.Mocks.Tests.ServiceRemoting
 				_subscriptionHelper = subscriptionHelper ?? new ActorEventSubscriptionHelper();
 			}
 
-			public ExampleClient(StatefulServiceContext serviceContext, IReliableStateManagerReplica reliableStateManagerReplica,
+			public ExampleClient(StatefulServiceContext serviceContext, IReliableStateManagerReplica2 reliableStateManagerReplica,
 				IActorEventSubscriptionHelper subscriptionHelper, IActorProxyFactory actorProxyFactory)
 				: base(serviceContext, reliableStateManagerReplica)
 			{
