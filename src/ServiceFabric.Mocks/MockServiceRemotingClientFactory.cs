@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.ServiceFabric.Services.Client;
 using Microsoft.ServiceFabric.Services.Communication.Client;
+using Microsoft.ServiceFabric.Services.Remoting;
 using Microsoft.ServiceFabric.Services.Remoting.V1;
 using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
+using Microsoft.ServiceFabric.Services.Remoting.V2;
 
 namespace ServiceFabric.Mocks
 {
@@ -126,12 +128,12 @@ namespace ServiceFabric.Mocks
 		}
 	}
 
-	/// <summary>
-	/// Mock implementation of <see cref="IServiceRemotingClient"/>. (returned from <see cref="MockActorServiceRemotingClientFactory"/>)
-	/// Defines the interface that must be implemented to provide a client for Service Remoting communication.
-	/// </summary>
-	public class MockActorServiceRemotingClient : IServiceRemotingClient
-	{
+    /// <summary>
+    /// Mock implementation of <see cref="IServiceRemotingClient"/>. (returned from <see cref="MockActorServiceRemotingClientFactory"/>)
+    /// Defines the interface that must be implemented to provide a client for Service Remoting communication.
+    /// </summary>
+    public class MockActorServiceRemotingClient : IServiceRemotingClient, Microsoft.ServiceFabric.Services.Remoting.V2.Client.IServiceRemotingClient
+    {
 		/// <summary>
 		/// Null
 		/// </summary>
@@ -182,5 +184,39 @@ namespace ServiceFabric.Mocks
 		public void SendOneWay(ServiceRemotingMessageHeaders messageHeaders, byte[] requestBody)
 		{
 		}
+
+        public Task<IServiceRemotingResponseMessage> RequestResponseAsync(IServiceRemotingRequestMessage requestRequestMessage)
+        {
+            return Task.FromResult<IServiceRemotingResponseMessage>(new MockServiceRemotingResponseMessage());
+        }
+
+        public void SendOneWay(IServiceRemotingRequestMessage requestMessage)
+        {
+        }
+    }
+
+    public class MockServiceRemotingResponseMessage : IServiceRemotingResponseMessage
+    {
+        public IServiceRemotingResponseMessageHeader Header { get; set; }
+        public IServiceRemotingResponseMessageBody MsgBody { get; set; }
+
+        public MockServiceRemotingResponseMessage()
+        { }
+
+        public MockServiceRemotingResponseMessage(IServiceRemotingResponseMessageHeader header, IServiceRemotingResponseMessageBody msgBody)
+        {
+            Header = header;
+            MsgBody = msgBody;
+        }
+
+        public IServiceRemotingResponseMessageHeader GetHeader()
+        {
+            return Header;
+        }
+
+        public IServiceRemotingResponseMessageBody GetBody()
+        {
+            return MsgBody;
+        }
     }
 }
