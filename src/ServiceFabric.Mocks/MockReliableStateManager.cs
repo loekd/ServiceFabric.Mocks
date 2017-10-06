@@ -20,6 +20,14 @@ namespace ServiceFabric.Mocks
     {
         private ConcurrentDictionary<Uri, IReliableState> _store = new ConcurrentDictionary<Uri, IReliableState>();
 
+        public MockTransaction Transaction { get; private set; }
+
+        public bool TransanctionIsCreated => Transaction != null;
+
+        public bool TransactionIsCommitted => Transaction != null && Transaction.IsCommitted;
+
+        public bool TransactionIsAborted => Transaction != null && Transaction.IsAborted;
+
         /// <summary>
         /// Returns last known <see cref="ReplicaRole"/>.
         /// </summary>
@@ -91,7 +99,12 @@ namespace ServiceFabric.Mocks
 
         public ITransaction CreateTransaction()
         {
-            return new MockTransaction();
+            if (Transaction != null && !Transaction.IsCompleted)
+                throw new InvalidOperationException("Only one transaction is currently supported.");
+
+            Transaction = new MockTransaction();
+
+            return Transaction;
         }
 
         public IAsyncEnumerator<IReliableState> GetAsyncEnumerator()
