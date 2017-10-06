@@ -31,7 +31,6 @@ namespace ServiceFabric.Mocks
 
         public void Dispose()
         {
-            Dispose();
             IsAborted = true;
         }
 
