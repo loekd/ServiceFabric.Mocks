@@ -33,6 +33,17 @@ namespace ServiceFabric.Mocks.Tests.Services
             }
         }
 
+        public async Task InsertAndAbortAsync(string stateName, Payload value)
+        {
+            var dictionary = await StateManager.GetOrAddAsync<IReliableDictionary<string, Payload>>(StateManagerDictionaryKey);
+
+            using (var tx = StateManager.CreateTransaction())
+            {
+                await dictionary.TryAddAsync(tx, stateName, value);
+                tx.Abort();
+            }
+        }
+
 
         public async Task EnqueueAsync(Payload value)
         {

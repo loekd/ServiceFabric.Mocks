@@ -8,6 +8,8 @@ namespace ServiceFabric.Mocks
     /// </summary>
     public class MockTransaction : ITransaction
     {
+        public int InstanceCount { get; }
+
         public long CommitSequenceNumber => 0L;
 
         public bool IsCommitted { get; private set; }
@@ -18,20 +20,34 @@ namespace ServiceFabric.Mocks
 
         public long TransactionId => 0L;
 
+        public MockTransaction(int instanceCount)
+        {
+            InstanceCount = instanceCount;
+        }
+
         public void Abort()
         {
-            IsAborted = true;
+            if (!IsCommitted)
+            {
+                IsAborted = true;
+            }
         }
 
         public Task CommitAsync()
         {
-            IsCommitted = true;
+            if (!IsAborted)
+            {
+                IsCommitted = true;
+            }
             return Task.FromResult(true);
         }
 
         public void Dispose()
         {
-            IsAborted = true;
+            if (!IsCommitted)
+            {
+                IsAborted = true;
+            }
         }
 
         public Task<long> GetVisibilitySequenceNumberAsync()

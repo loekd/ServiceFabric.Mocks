@@ -10,5 +10,7 @@ namespace ServiceFabric.Mocks.Tests.Services
         Task EnqueueAsync(Payload value);
 
         Task InsertAsync(string stateName, Payload value);
+
+        Task InsertAndAbortAsync(string stateName, Payload value);
     }
 }

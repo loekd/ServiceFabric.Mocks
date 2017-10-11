@@ -17,6 +17,9 @@ Or [donate](https://paypal.me/lduys/5) a cup of coffee.
 
 ## Release notes
 
+- 2.3.1
+	- Merged PR by Izzmo, adding a list of past Transactions to the `MockReliableStateManager`. Added unit tests
+
 - 2.3.0
 	- Merged PR by dotnetgator, upgrading to SF 2.8.211
 

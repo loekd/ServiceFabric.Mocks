@@ -50,6 +50,11 @@ namespace ServiceFabric.Mocks.Tests.ActorTests
                 InsertAsyncCalled = true;
                 return Task.FromResult(true);
             }
+
+            public Task InsertAndAbortAsync(string stateName, Payload value)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }
