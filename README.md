@@ -17,6 +17,9 @@ Or [donate](https://paypal.me/lduys/5) a cup of coffee.
 
 ## Release notes
 
+- 2.3.1
+	- Merged PR by huesie, fix exception thrown for duplicate key in `MockReliableDictionary`
+
 - 2.3.0
 	- Merged PR by dotnetgator, upgrading to SF 2.8.211
 
