@@ -17,6 +17,9 @@ Or [donate](https://paypal.me/lduys/5) a cup of coffee.
 
 ## Release notes
 
+- 2.3.2
+	- Merged PR by huesie, fix exception type thrown for duplicate key in `MockReliableDictionary`. Added unit tests.
+
 - 2.3.1
 	- Merged PR by Izzmo, adding a list of past Transactions to the `MockReliableStateManager`. Added unit tests
 

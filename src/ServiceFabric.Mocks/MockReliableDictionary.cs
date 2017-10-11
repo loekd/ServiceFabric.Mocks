@@ -35,7 +35,7 @@ namespace ServiceFabric.Mocks
         {
             if (!_state.TryAdd(key, value))
             {
-                throw new InvalidOperationException($"The provided key '{key}' already exists.");
+                throw new ArgumentException($"The provided key '{key}' already exists.", nameof(key));
             }
             OnDictionaryChanged(new NotifyDictionaryItemAddedEventArgs<TKey, TValue>(tx, key, value));
             return Task.FromResult(true);
