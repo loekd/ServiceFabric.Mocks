@@ -12,7 +12,7 @@ namespace ServiceFabric.Mocks.Tests.MocksTests
         {
             const string key = "key";
             var dictionary = new MockReliableDictionary<string, string>();
-            var tx = new MockTransaction();
+            var tx = new MockTransaction(1);
 
             await dictionary.AddAsync(tx, key, "value");
             await Assert.ThrowsExceptionAsync<ArgumentException>(async () =>
@@ -28,7 +28,7 @@ namespace ServiceFabric.Mocks.Tests.MocksTests
             const string value = "value";
                 
             var dictionary = new MockReliableDictionary<string, string>();
-            var tx = new MockTransaction();
+            var tx = new MockTransaction(1);
 
             await dictionary.AddAsync(tx, key, value);
             var actual = await dictionary.TryGetValueAsync(tx, key);
