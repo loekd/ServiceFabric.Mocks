@@ -17,6 +17,9 @@ Or [donate](https://paypal.me/lduys/5) a cup of coffee.
 
 ## Release notes
 
+- 2.4.0
+	- Upgraded nuget packages (SF 2.8.219)
+	
 - 2.3.2
 	- Merged PR by huesie, fix exception type thrown for duplicate key in `MockReliableDictionary`. Added unit tests.
 
