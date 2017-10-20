@@ -8,7 +8,7 @@
     <Description>ServiceFabric.Mocks contains Mock classes to enable unit testing of Actors and Services</Description>
     <Copyright>2017</Copyright>
     <AssemblyTitle>ServiceFabric.Mocks.Tests</AssemblyTitle>
-    <VersionPrefix>2.3.2</VersionPrefix>
+    <VersionPrefix>2.4.0</VersionPrefix>
     <Authors>Loek Duys</Authors>
     <TargetFrameworks>net451;net46</TargetFrameworks>
     <PlatformTarget>x64</PlatformTarget>
@@ -45,8 +45,8 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.1.18" />
     <PackageReference Include="MSTest.TestFramework" Version="1.1.18" />
-    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="2.8.211" />
-    <PackageReference Include="Microsoft.ServiceFabric.Services" Version="2.8.211" />
+    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="2.8.219" />
+    <PackageReference Include="Microsoft.ServiceFabric.Services" Version="2.8.219" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net451' ">
