@@ -15,6 +15,14 @@ Please also make sure all feature additions have a corresponding unit test.
 
 Or [donate](https://paypal.me/lduys/5) a cup of coffee.
 
+## VSTS users
+The VSTS Agent lags behind in Service Fabric SDK version. This causes runtime errors. The SF team is aware, hope this will be resolved.
+```
+Failed   ServiceFabric.Mocks.Tests.ActorTests.ReminderTimerActorTests.TestActorReminderUnregistration
+Error Message:
+ Exception thrown while executing test. If using extension of TestMethodAttribute then please contact vendor. Error message: Could not load type 'Microsoft.ServiceFabric.Data.IStateProviderReplica2' from assembly 'Microsoft.ServiceFabric.Data.Interfaces, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35'.
+```
+
 ## Release notes
 
 - 2.4.0
