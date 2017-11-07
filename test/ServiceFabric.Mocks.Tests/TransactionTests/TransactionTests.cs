@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceFabric.Mocks.Tests.Services;
 using System.Linq;
+using Microsoft.ServiceFabric.Data;
 
 namespace ServiceFabric.Mocks.Tests.TransactionTests
 {
@@ -18,16 +19,21 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
             var stateManager = new MockReliableStateManager();
             var service = new MyStatefulService(context, stateManager);
 
+            List<MockTransaction> changedTransactions = new List<MockTransaction>();
+            stateManager.MockTransactionChanged += (s, t) => { changedTransactions.Add(t); };
+
             const string stateName = "test";
             var payload = new Payload(StatePayload);
 
             //create state-->Tran 1
             await service.InsertAsync(stateName, payload);
 
-            Assert.IsInstanceOfType(stateManager.Transaction, typeof(MockTransaction));
-            Assert.AreEqual(1, stateManager.AllTransactions.Count());
-            Assert.IsTrue(stateManager.Transaction.IsCommitted);
-            Assert.IsFalse(stateManager.Transaction.IsAborted);
+            Assert.AreEqual(1, changedTransactions.Count);
+            foreach (var tx in changedTransactions)
+            {
+                Assert.IsTrue(tx.IsCommitted);
+                Assert.IsFalse(tx.IsAborted);
+            }
         }
 
         [TestMethod]
@@ -37,6 +43,9 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
             var stateManager = new MockReliableStateManager();
             var service = new MyStatefulService(context, stateManager);
 
+            List<MockTransaction> changedTransactions = new List<MockTransaction>();
+            stateManager.MockTransactionChanged += (s, t) => { changedTransactions.Add(t); };
+
             const string stateName = "test";
             var payload = new Payload(StatePayload);
 
@@ -45,10 +54,12 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
             //create state-->Tran 2
             await service.InsertAsync(stateName, payload);
 
-            Assert.IsInstanceOfType(stateManager.Transaction, typeof(MockTransaction));
-            Assert.AreEqual(2, stateManager.AllTransactions.Count());
-            Assert.IsTrue(stateManager.Transaction.IsCommitted);
-            Assert.IsFalse(stateManager.Transaction.IsAborted);
+            Assert.AreEqual(2, changedTransactions.Count);
+            foreach (var tx in changedTransactions)
+            {
+                Assert.IsTrue(tx.IsCommitted);
+                Assert.IsFalse(tx.IsAborted);
+            }
         }
 
         [TestMethod]
@@ -58,20 +69,26 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
             var stateManager = new MockReliableStateManager();
             var service = new MyStatefulService(context, stateManager);
 
+            List<MockTransaction> changedTransactions = new List<MockTransaction>();
+            stateManager.MockTransactionChanged += (s, t) => { changedTransactions.Add(t); };
+
             const string stateName = "test";
             var payload = new Payload(StatePayload);
 
             var tasks = new List<Task>(100);
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 3; i++)
             {
                 //create state
                 tasks.Add(service.InsertAsync(stateName, payload));
             };
             await Task.WhenAll(tasks);
-            Assert.IsInstanceOfType(stateManager.Transaction, typeof(MockTransaction));
-            Assert.AreEqual(100, stateManager.AllTransactions.Count());
-            Assert.IsTrue(stateManager.Transaction.IsCommitted);
-            Assert.IsFalse(stateManager.Transaction.IsAborted);
+
+            Assert.AreEqual(3, changedTransactions.Count);
+            foreach (var tx in changedTransactions)
+            {
+                Assert.IsTrue(tx.IsCommitted);
+                Assert.IsFalse(tx.IsAborted);
+            }
         }
 
         [TestMethod]
@@ -80,6 +97,9 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
             var context = MockStatefulServiceContextFactory.Default;
             var stateManager = new MockReliableStateManager();
             var service = new MyStatefulService(context, stateManager);
+
+            List<MockTransaction> changedTransactions = new List<MockTransaction>();
+            stateManager.MockTransactionChanged += (s, t) => { changedTransactions.Add(t); };
 
             const string stateName = "test";
             var payload = new Payload(StatePayload);
@@ -92,12 +112,23 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
             };
             await Task.WhenAll(tasks);
             await service.InsertAndAbortAsync(stateName, payload);
-            Assert.IsInstanceOfType(stateManager.Transaction, typeof(MockTransaction));
-            Assert.AreEqual(100, stateManager.AllTransactions.Count());
-            Assert.IsFalse(stateManager.Transaction.IsCommitted);
-            Assert.IsTrue(stateManager.Transaction.IsAborted);
+
+            Assert.AreEqual(100, changedTransactions.Count);
+            foreach (var tx in changedTransactions)
+            {
+                if (tx.TransactionId < 100)
+                {
+                    Assert.IsTrue(tx.IsCommitted);
+                    Assert.IsFalse(tx.IsAborted);
+                }
+                else
+                {
+                    Assert.IsFalse(tx.IsCommitted);
+                    Assert.IsTrue(tx.IsAborted);
+                }
+            }
             //check ordering
-            Assert.IsTrue(stateManager.AllTransactions.Select(t=>t.InstanceCount).SequenceEqual(Enumerable.Range(1, 100)));
+            Assert.IsTrue(changedTransactions.Select(t => (int)t.TransactionId).Last() == 100);
         }
 
         [TestMethod]
@@ -107,16 +138,22 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
             var stateManager = new MockReliableStateManager();
             var service = new MyStatefulService(context, stateManager);
 
+            List<ITransaction> changedTransactions = new List<ITransaction>();
+            stateManager.MockTransactionChanged += (s, t) => { changedTransactions.Add(t); };
+
             const string stateName = "test";
             var payload = new Payload(StatePayload);
 
             //create state-->Tran 1
             await service.InsertAndAbortAsync(stateName, payload);
 
-            Assert.IsInstanceOfType(stateManager.Transaction, typeof(MockTransaction));
-            Assert.AreEqual(1, stateManager.AllTransactions.Count());
-            Assert.IsFalse(stateManager.Transaction.IsCommitted);
-            Assert.IsTrue(stateManager.Transaction.IsAborted);
+            Assert.AreEqual(1, changedTransactions.Count);
+            foreach (var tx in changedTransactions)
+            {
+                Assert.IsInstanceOfType(tx, typeof(MockTransaction));
+                Assert.IsFalse(((MockTransaction)tx).IsCommitted);
+                Assert.IsTrue(((MockTransaction)tx).IsAborted);
+            }
         }
 
         [TestMethod]
@@ -126,6 +163,9 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
             var stateManager = new MockReliableStateManager();
             var service = new MyStatefulService(context, stateManager);
 
+            List<MockTransaction> changedTransactions = new List<MockTransaction>();
+            stateManager.MockTransactionChanged += (s, t) => { changedTransactions.Add(t); };
+
             const string stateName = "test";
             var payload = new Payload(StatePayload);
 
@@ -134,10 +174,16 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
             //create state-->Tran 2
             await service.InsertAndAbortAsync(stateName, payload);
 
-            Assert.IsInstanceOfType(stateManager.Transaction, typeof(MockTransaction));
-            Assert.AreEqual(2, stateManager.AllTransactions.Count());
-            Assert.IsFalse(stateManager.Transaction.IsCommitted);
-            Assert.IsTrue(stateManager.Transaction.IsAborted);
+            Assert.AreEqual(2, changedTransactions.Count);
+            MockTransaction tx;
+
+            tx = changedTransactions[0];
+            Assert.IsTrue(tx.IsCommitted);
+            Assert.IsFalse(tx.IsAborted);
+
+            tx = changedTransactions[1];
+            Assert.IsFalse(tx.IsCommitted);
+            Assert.IsTrue(tx.IsAborted);
         }
     }
 }

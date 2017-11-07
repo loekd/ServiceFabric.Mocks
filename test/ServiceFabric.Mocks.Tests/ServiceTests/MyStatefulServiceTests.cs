@@ -26,7 +26,7 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
 
             //get state
             var dictionary = await stateManager.TryGetAsync<IReliableDictionary<string, Payload>>(MyStatefulService.StateManagerDictionaryKey);
-            var actual = (await dictionary.Value.TryGetValueAsync(null, stateName)).Value;
+            var actual = (await dictionary.Value.TryGetValueAsync(stateManager.CreateTransaction(), stateName)).Value;
             Assert.AreEqual(StatePayload, actual.Content);
         }
 
@@ -45,7 +45,7 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
 
             //get state
             var queue = await stateManager.TryGetAsync<IReliableQueue<Payload>>(MyStatefulService.StateManagerQueueKey);
-            var actual = (await queue.Value.TryPeekAsync(null)).Value;
+            var actual = (await queue.Value.TryPeekAsync(stateManager.CreateTransaction())).Value;
             Assert.AreEqual(StatePayload, actual.Content);
         }
 
@@ -63,7 +63,7 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
 
             //get state
             var queue = await stateManager.TryGetAsync<IReliableConcurrentQueue<Payload>>(MyStatefulService.StateManagerConcurrentQueueKey);
-            var actual = (await queue.Value.TryDequeueAsync(null)).Value;
+            var actual = (await queue.Value.TryDequeueAsync(stateManager.CreateTransaction())).Value;
             Assert.AreEqual(StatePayload, actual.Content);
         }
     }

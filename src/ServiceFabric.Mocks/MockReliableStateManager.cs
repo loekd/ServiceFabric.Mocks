@@ -12,6 +12,7 @@ using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.ServiceFabric.Data.Notifications;
 using System.Linq;
+using ServiceFabric.Mocks.ReliableCollections;
 
 namespace ServiceFabric.Mocks
 {
@@ -22,36 +23,6 @@ namespace ServiceFabric.Mocks
     {
         private int _totalTransactionInstanceCount = 0;
         private ConcurrentDictionary<Uri, IReliableState> _store = new ConcurrentDictionary<Uri, IReliableState>();
-
-        /// <summary>
-        /// Keeps all created transactions.
-        /// </summary>
-        private ConcurrentDictionary<int, MockTransaction> _allTransactions { get; } = new ConcurrentDictionary<int, MockTransaction>();
-
-        /// <summary>
-        /// Returns all created transactions ordered by instance count (asc).
-        /// </summary>
-        public IEnumerable<MockTransaction> AllTransactions => _allTransactions.Values;
-
-        /// <summary>
-        /// Gets the last known <see cref="Transaction"/>.
-        /// </summary>
-        public MockTransaction Transaction => _allTransactions[_allTransactions.Keys.Last()];
-
-        /// <summary>
-        /// Gets a bool that indicates whether the last known <see cref="Transaction"/> is set.
-        /// </summary>
-        public bool TransanctionsIsCreated => Transaction != null;
-
-        /// <summary>
-        /// Gets a bool that indicates whether the last known <see cref="Transaction"/> is committed.
-        /// </summary>
-        public bool TransactionIsCommitted => Transaction != null && Transaction.IsCommitted;
-       
-        /// <summary>
-        /// Gets a bool that indicates whether the last known <see cref="Transaction"/> is aborted.
-        /// </summary>
-        public bool TransactionIsAborted => Transaction != null && Transaction.IsAborted;
 
         /// <summary>
         /// Returns last known <see cref="ReplicaRole"/>.
@@ -65,9 +36,14 @@ namespace ServiceFabric.Mocks
         public event EventHandler<NotifyStateManagerChangedEventArgs> StateManagerChanged;
 
         /// <summary>
-        /// Does not fire.
+        /// Fires when a transaction is committed since the Action enum only has a value for commit.
         /// </summary>
         public event EventHandler<NotifyTransactionChangedEventArgs> TransactionChanged;
+
+        /// <summary>
+        /// Test hook to verify transaction status.
+        /// </summary>
+        public event EventHandler<MockTransaction> MockTransactionChanged;
 
         /// <summary>
         /// Called when <see cref="TriggerDataLoss"/> is called.
@@ -124,10 +100,7 @@ namespace ServiceFabric.Mocks
 
         public ITransaction CreateTransaction()
         {
-            int instanceCount = Interlocked.Increment(ref _totalTransactionInstanceCount);
-            var transaction = new MockTransaction(instanceCount);
-            _allTransactions.TryAdd(transaction.InstanceCount, transaction);
-            return Transaction;
+            return new MockTransaction(this, Interlocked.Increment(ref _totalTransactionInstanceCount));
         }
 
         public IAsyncEnumerator<IReliableState> GetAsyncEnumerator()
@@ -174,14 +147,8 @@ namespace ServiceFabric.Mocks
         private static IReliableState ConstructMockCollection(Uri name, Type genericType, Type[] typeArguments)
         {
             var type = genericType.MakeGenericType(typeArguments);
-            var reliable = (IReliableState)Activator.CreateInstance(type);
-            type.GetProperty("Name")
-				.SetValue(reliable, 
-				name, 
-				BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, 
-				null, 
-				null, 
-				CultureInfo.InvariantCulture);
+            var reliable = (IReliableState)Activator.CreateInstance(type, name);
+
             return reliable;
         }
 
@@ -330,9 +297,14 @@ namespace ServiceFabric.Mocks
             StateManagerChanged?.Invoke(this, e);
         }
 
-        public void OnTransactionChanged(NotifyTransactionChangedEventArgs e)
+        public void OnTransactionChanged(ITransaction tx, bool isCommit)
         {
-            TransactionChanged?.Invoke(this, e);
+            if (isCommit)
+            {
+                TransactionChanged?.Invoke(this, new NotifyTransactionChangedEventArgs(tx, NotifyTransactionChangedAction.Commit));
+            }
+
+            MockTransactionChanged?.Invoke(this, (MockTransaction)tx);
         }
     }
 }

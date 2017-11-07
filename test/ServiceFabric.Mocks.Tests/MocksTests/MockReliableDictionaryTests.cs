@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
+using ServiceFabric.Mocks.ReliableCollections;
 
 namespace ServiceFabric.Mocks.Tests.MocksTests
 {
@@ -11,8 +12,8 @@ namespace ServiceFabric.Mocks.Tests.MocksTests
         public async Task DictionaryAddDuplicateKeyExceptionTypeTest()
         {
             const string key = "key";
-            var dictionary = new MockReliableDictionary<string, string>();
-            var tx = new MockTransaction(1);
+            var dictionary = new MockReliableDictionary<string, string>(new Uri("fabric://MockReliableDictionary"));
+            var tx = new MockTransaction(null, 1);
 
             await dictionary.AddAsync(tx, key, "value");
             await Assert.ThrowsExceptionAsync<ArgumentException>(async () =>
@@ -26,9 +27,9 @@ namespace ServiceFabric.Mocks.Tests.MocksTests
         {
             const string key = "key";
             const string value = "value";
-                
-            var dictionary = new MockReliableDictionary<string, string>();
-            var tx = new MockTransaction(1);
+
+            var dictionary = new MockReliableDictionary<string, string>(new Uri("fabric://MockReliableDictionary"));
+            var tx = new MockTransaction(null, 1);
 
             await dictionary.AddAsync(tx, key, value);
             var actual = await dictionary.TryGetValueAsync(tx, key);
