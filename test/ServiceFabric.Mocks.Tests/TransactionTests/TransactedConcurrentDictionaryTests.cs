@@ -374,7 +374,6 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
 
                 Assert.AreEqual("Two", change.Added);
             }
-
         }
 
         private async Task<bool> ContainsKey(TransactedConcurrentDictionary<int, string> d, int key, TimeSpan timeout = default(TimeSpan))

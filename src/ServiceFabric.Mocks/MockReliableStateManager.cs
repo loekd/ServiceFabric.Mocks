@@ -1,21 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.Fabric;
-using System.Globalization;
-using System.IO;
-using System.Reflection;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.ServiceFabric.Data;
-using Microsoft.ServiceFabric.Data.Collections;
-using Microsoft.ServiceFabric.Data.Notifications;
-using System.Linq;
-using ServiceFabric.Mocks.ReliableCollections;
-
-namespace ServiceFabric.Mocks
+﻿namespace ServiceFabric.Mocks
 {
+    using Microsoft.ServiceFabric.Data;
+    using Microsoft.ServiceFabric.Data.Collections;
+    using Microsoft.ServiceFabric.Data.Notifications;
+    using ServiceFabric.Mocks.ReliableCollections;
+    using System;
+    using System.Fabric;
+    using System.IO;
+    using System.Threading;
+    using System.Threading.Tasks;
+
     /// <summary>
     /// Defines replica of a reliable state provider.
     /// </summary>
@@ -55,11 +49,29 @@ namespace ServiceFabric.Mocks
             );
         }
 
+        #region TestHooks
+        /// <summary>
+        /// Test hook to verify transaction status. Raised for both commit and abort.
+        /// </summary>
+        public event EventHandler<MockTransaction> MockTransactionChanged;
+
         /// <summary>
         /// Returns last known <see cref="ReplicaRole"/>.
         /// </summary>
         public ReplicaRole? ReplicaRole { get; set; }
 
+        public Task TriggerDataLoss()
+        {
+            return OnDataLossAsync(CancellationToken.None);
+        }
+
+        public Task TriggerRestoreCompleted()
+        {
+            return OnRestoreCompletedAsync(CancellationToken.None);
+        }
+        #endregion
+
+        #region IReliableStateManager
         /// <summary>
         /// Occurs when State Manager's state changes.
         /// For example, creation or delete of reliable state or rebuild of the reliable state manager.
@@ -71,24 +83,162 @@ namespace ServiceFabric.Mocks
         /// </summary>
         public event EventHandler<NotifyTransactionChangedEventArgs> TransactionChanged;
 
-        /// <summary>
-        /// Test hook to verify transaction status.
-        /// </summary>
-        public event EventHandler<MockTransaction> MockTransactionChanged;
+        public ITransaction CreateTransaction()
+        {
+            return new MockTransaction(this, Interlocked.Increment(ref _totalTransactionInstanceCount));
+        }
 
+        #region GetOrAddAsync
+        public Task<T> GetOrAddAsync<T>(string name) where T : IReliableState
+        {
+            return GetOrAddAsync<T>(name, default(TimeSpan));
+        }
+
+        public Task<T> GetOrAddAsync<T>(string name, TimeSpan timeout) where T : IReliableState
+        {
+            return GetOrAddAsync<T>(CreateUri(name), timeout);
+        }
+
+        public Task<T> GetOrAddAsync<T>(ITransaction tx, string name) where T : IReliableState
+        {
+            return GetOrAddAsync<T>(tx, name, default(TimeSpan));
+        }
+
+        public Task<T> GetOrAddAsync<T>(ITransaction tx, string name, TimeSpan timeout) where T : IReliableState
+        {
+            return GetOrAddAsync<T>(tx, CreateUri(name), timeout);
+        }
+
+        public Task<T> GetOrAddAsync<T>(Uri name) where T : IReliableState
+        {
+            return GetOrAddAsync<T>(name, default(TimeSpan));
+        }
+
+        public async Task<T> GetOrAddAsync<T>(Uri name, TimeSpan timeout) where T : IReliableState
+        {
+            using (var tx = CreateTransaction())
+            {
+                var result = await GetOrAddAsync<T>(tx, name, timeout);
+                await tx.CommitAsync();
+
+                return result;
+            }
+        }
+
+        public Task<T> GetOrAddAsync<T>(ITransaction tx, Uri name) where T : IReliableState
+        {
+            return GetOrAddAsync<T>(tx, name, default(TimeSpan));
+        }
+
+        public async Task<T> GetOrAddAsync<T>(ITransaction tx, Uri name, TimeSpan timeout) where T : IReliableState
+        {
+            IReliableState constructed = null;
+
+            var result = await _store.GetOrAddAsync(tx, name, collectionName =>
+            {
+                var typeArguments = typeof(T).GetGenericArguments();
+                var typeDefinition = typeof(T).GetGenericTypeDefinition();
+
+                if (typeof(IReliableDictionary<,>).IsAssignableFrom(typeDefinition))
+                {
+                    constructed = ConstructMockCollection(collectionName, typeof(MockReliableDictionary<,>), typeArguments);
+                }
+                else if (typeof(IReliableConcurrentQueue<>).IsAssignableFrom(typeDefinition))
+                {
+                    constructed = ConstructMockCollection(collectionName, typeof(MockReliableConcurrentQueue<>), typeArguments);
+                }
+                else
+                {
+                    constructed = ConstructMockCollection(collectionName, typeof(MockReliableQueue<>), typeArguments);
+                }
+                return constructed;
+            });
+
+            return (T)result;
+        }
+        #endregion
+
+        #region RemoveAsync
+        public Task RemoveAsync(string name)
+        {
+            return RemoveAsync(name, default(TimeSpan));
+        }
+
+        public Task RemoveAsync(string name, TimeSpan timeout)
+        {
+            return RemoveAsync(CreateUri(name), timeout);
+        }
+
+        public Task RemoveAsync(ITransaction tx, string name)
+        {
+            return RemoveAsync(tx, name, default(TimeSpan));
+        }
+
+        public Task RemoveAsync(ITransaction tx, string name, TimeSpan timeout)
+        {
+            return RemoveAsync(tx, CreateUri(name), timeout);
+        }
+
+        public Task RemoveAsync(Uri name)
+        {
+            return RemoveAsync(name, default(TimeSpan));
+        }
+
+        public async Task RemoveAsync(Uri name, TimeSpan timeout)
+        {
+            using (var tx = CreateTransaction())
+            {
+                await RemoveAsync(tx, name, timeout);
+                await tx.CommitAsync();
+            }
+        }
+
+        public Task RemoveAsync(ITransaction tx, Uri name)
+        {
+            return RemoveAsync(tx, name, default(TimeSpan));
+        }
+
+        public async Task RemoveAsync(ITransaction tx, Uri name, TimeSpan timeout)
+        {
+            await _store.TryRemoveAsync(tx, name, timeout);
+        }
+        #endregion
+
+        public bool TryAddStateSerializer<T>(IStateSerializer<T> stateSerializer)
+        {
+            return true;
+        }
+
+        #region TrygetAsync
+        public Task<ConditionalValue<T>> TryGetAsync<T>(string name) where T : IReliableState
+        {
+            return TryGetAsync<T>(CreateUri(name));
+        }
+
+        public async Task<ConditionalValue<T>> TryGetAsync<T>(Uri name) where T : IReliableState
+        {
+            using (var tx = CreateTransaction())
+            {
+                var result = await _store.TryGetValueAsync(tx, name, LockMode.Default);
+                return new ConditionalValue<T>(result.HasValue, (T)result.Value);
+            }
+        }
+        #endregion
+
+        public IAsyncEnumerator<IReliableState> GetAsyncEnumerator()
+        {
+            return new MockAsyncEnumerator<IReliableState>(_store.ValuesEnumerable);
+        }
+        #endregion
+
+        #region IStateProviderReplica
         /// <summary>
         /// Called when <see cref="TriggerDataLoss"/> is called.
         /// </summary>
         public Func<CancellationToken, Task<bool>> OnDataLossAsync { set; get; }
 
-        /// <summary>
-        /// Called when <see cref="TriggerRestoreCompleted"/> is called.
-        /// </summary>
-        public Func<CancellationToken, Task> OnRestoreCompletedAsync { get; set; }
-
         public void Abort()
-        {
-        }
+        { }
 
         public Task BackupAsync(Func<BackupInfo, CancellationToken, Task<bool>> backupCallback)
         {
@@ -112,161 +262,17 @@ namespace ServiceFabric.Mocks
             return Task.FromResult(true);
         }
 
-        public Task ClearAsync(ITransaction tx)
-        {
-            return ClearAsync();
-        }
-
-        public Task ClearAsync()
-        {
-            return _store.ClearAsync();
-        }
-
         public Task CloseAsync(CancellationToken cancellationToken)
         {
             return Task.FromResult(true);
         }
 
-        public ITransaction CreateTransaction()
-        {
-            return new MockTransaction(this, Interlocked.Increment(ref _totalTransactionInstanceCount));
-        }
-
-        public IAsyncEnumerator<IReliableState> GetAsyncEnumerator()
-        {
-            return new MockAsyncEnumerator<IReliableState>(_store.ValuesEnumerable);
-        }
-
-        public Task<T> GetOrAddAsync<T>(string name) where T : IReliableState
-        {
-            using (var tx = CreateTransaction())
-            {
-                var result = GetOrAddAsync<T>(tx, name);
-
-                tx.CommitAsync();
-                return result;
-            }
-        }
-
-        public async Task<T> GetOrAddAsync<T>(ITransaction tx, string name) where T : IReliableState
-        {
-            IReliableState constructed = null;
-
-            var result = await _store.GetOrAddAsync(tx, CreateUri(name), collectionName =>
-            {
-                var typeArguments = typeof(T).GetGenericArguments();
-                var typeDefinition = typeof(T).GetGenericTypeDefinition();
-
-                if (typeof(IReliableDictionary<,>).IsAssignableFrom(typeDefinition))
-                {
-                    constructed = ConstructMockCollection(collectionName, typeof(MockReliableDictionary<,>), typeArguments);
-                }
-                else if (typeof(IReliableConcurrentQueue<>).IsAssignableFrom(typeDefinition))
-                {
-                    constructed = ConstructMockCollection(collectionName, typeof(MockReliableConcurrentQueue<>), typeArguments);
-                }
-                else
-                {
-                    constructed = ConstructMockCollection(collectionName, typeof(MockReliableQueue<>), typeArguments);
-                }
-                return constructed;
-            });
-
-            return (T)result;
-        }
-
-        private static IReliableState ConstructMockCollection(Uri name, Type genericType, Type[] typeArguments)
-        {
-            var type = genericType.MakeGenericType(typeArguments);
-            var reliable = (IReliableState)Activator.CreateInstance(type, name);
-
-            return reliable;
-        }
-
-        public Task<T> GetOrAddAsync<T>(string name, TimeSpan timeout) where T : IReliableState
-        {
-            return GetOrAddAsync<T>(name);
-        }
-
-        public Task<T> GetOrAddAsync<T>(ITransaction tx, string name, TimeSpan timeout) where T : IReliableState
-        {
-            return GetOrAddAsync<T>(tx, name);
-        }
-
-        public Task<T> GetOrAddAsync<T>(Uri name) where T : IReliableState
-        {
-            return GetOrAddAsync<T>(name.ToString());
-        }
-
-        public Task<T> GetOrAddAsync<T>(Uri name, TimeSpan timeout) where T : IReliableState
-        {
-            return GetOrAddAsync<T>(name.ToString());
-        }
-
-        public Task<T> GetOrAddAsync<T>(ITransaction tx, Uri name) where T : IReliableState
-        {
-            return GetOrAddAsync<T>(tx, name.ToString());
-        }
-
-        public Task<T> GetOrAddAsync<T>(ITransaction tx, Uri name, TimeSpan timeout) where T : IReliableState
-        {
-            return GetOrAddAsync<T>(tx, name.ToString());
-        }
-
         public void Initialize(StatefulServiceInitializationParameters initializationParameters)
-        {
-
-        }
+        { }
 
         public Task<IReplicator> OpenAsync(ReplicaOpenMode openMode, IStatefulServicePartition partition, CancellationToken cancellationToken)
         {
             return Task.FromResult<IReplicator>(null);
-        }
-
-        public Task RemoveAsync(string name)
-        {
-            return RemoveAsync(name, default(TimeSpan));
-        }
-
-        public Task RemoveAsync(ITransaction tx, string name)
-        {
-            return RemoveAsync(tx, name, default(TimeSpan));
-        }
-
-        public Task RemoveAsync(string name, TimeSpan timeout)
-        {
-            using (var tx = CreateTransaction())
-            {
-                var result = RemoveAsync(tx, name, timeout);
-                tx.CommitAsync();
-
-                return result;
-            }
-        }
-
-        public Task RemoveAsync(ITransaction tx, string name, TimeSpan timeout)
-        {
-            return RemoveAsync(tx, new Uri(name, UriKind.Absolute), timeout);
-        }
-
-        public Task RemoveAsync(Uri name)
-        {
-            return RemoveAsync(name.ToString());
-        }
-
-        public Task RemoveAsync(Uri name, TimeSpan timeout)
-        {
-            return RemoveAsync(name.ToString());
-        }
-
-        public Task RemoveAsync(ITransaction tx, Uri name)
-        {
-            return RemoveAsync(tx, name.ToString());
-        }
-
-        public async Task RemoveAsync(ITransaction tx, Uri name, TimeSpan timeout)
-        {
-            await _store.TryRemoveAsync(tx, name, timeout);
         }
 
         public Task RestoreAsync(string backupFolderPath)
@@ -289,45 +295,14 @@ namespace ServiceFabric.Mocks
         {
             return RestoreAsync(backupFolderPath);
         }
+        #endregion
 
-        public bool TryAddStateSerializer<T>(IStateSerializer<T> stateSerializer)
-        {
-            return true;
-        }
-
-        public Task<ConditionalValue<T>> TryGetAsync<T>(string name) where T : IReliableState
-        {
-            return TryGetAsync<T>(CreateUri(name));
-        }
-
-        public async Task<ConditionalValue<T>> TryGetAsync<T>(Uri name) where T : IReliableState
-        {
-            using (var tx = CreateTransaction())
-            {
-                var result = await _store.TryGetValueAsync(tx, name, LockMode.Default);
-                return new ConditionalValue<T>(result.HasValue, (T)result.Value);
-            }
-        }
-
-        public Task TriggerDataLoss()
-        {
-            return OnDataLossAsync(CancellationToken.None);
-        }
-
-        public Task TriggerRestoreCompleted()
-        {
-            return OnRestoreCompletedAsync(CancellationToken.None);
-        }
-
-        private static Uri CreateUri(string name)
-        {
-            return new Uri($"fabric://mocks/{name}", UriKind.Absolute);
-        }
-
-        public void OnStateManagerChanged(NotifyStateManagerChangedEventArgs e)
-        {
-            StateManagerChanged?.Invoke(this, e);
-        }
+        #region IStateProviderReplica2
+        /// <summary>
+        /// Called when <see cref="TriggerRestoreCompleted"/> is called.
+        /// </summary>
+        public Func<CancellationToken, Task> OnRestoreCompletedAsync { get; set; }
+        #endregion
 
         public void OnTransactionChanged(ITransaction tx, bool isCommit)
         {
@@ -337,6 +312,19 @@ namespace ServiceFabric.Mocks
             }
 
             MockTransactionChanged?.Invoke(this, (MockTransaction)tx);
+        }
+
+        private static IReliableState ConstructMockCollection(Uri name, Type genericType, Type[] typeArguments)
+        {
+            var type = genericType.MakeGenericType(typeArguments);
+            var reliable = (IReliableState)Activator.CreateInstance(type, name);
+
+            return reliable;
+        }
+
+        private static Uri CreateUri(string name)
+        {
+            return new Uri($"fabric://mocks/{name}", UriKind.Absolute);
         }
     }
 }
