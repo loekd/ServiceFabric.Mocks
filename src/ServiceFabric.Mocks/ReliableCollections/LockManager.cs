@@ -13,7 +13,7 @@
         private ConcurrentDictionary<TKey, Lock> _lockTable = new ConcurrentDictionary<TKey, Lock>();
         private ConcurrentDictionary<long, HashSet<TKey>> _txLocks = new ConcurrentDictionary<long, HashSet<TKey>>();
 
-        public async Task<Lock> AcquireLock(ITransaction tx, TKey key, LockMode lockMode, TimeSpan timeout, CancellationToken token)
+        public async Task<Lock> AcquireLock(ITransaction tx, TKey key, LockMode lockMode, TimeSpan timeout = default(TimeSpan), CancellationToken token = default(CancellationToken))
         {
             var l = _lockTable.GetOrAdd(key, (k) => new Lock());
             if (await l.Acquire(tx, lockMode, timeout, token) == TryAcquireResult.Acquired)

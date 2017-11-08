@@ -22,7 +22,38 @@ namespace ServiceFabric.Mocks
     public class MockReliableStateManager : IReliableStateManagerReplica2
     {
         private int _totalTransactionInstanceCount = 0;
-        private ConcurrentDictionary<Uri, IReliableState> _store = new ConcurrentDictionary<Uri, IReliableState>();
+        private TransactedConcurrentDictionary<Uri, IReliableState> _store;
+
+        public MockReliableStateManager()
+        {
+            _store = new TransactedConcurrentDictionary<Uri, IReliableState>(
+                new Uri("fabric://state", UriKind.Absolute),
+                (c) =>
+                {
+                    if (StateManagerChanged != null)
+                    {
+                        NotifyStateManagerSingleEntityChangedEventArgs changeEvent;
+                        switch (c.ChangeType)
+                        {
+                            case ChangeType.Added:
+                                changeEvent = new NotifyStateManagerSingleEntityChangedEventArgs(c.Transaction, c.Added, NotifyStateManagerChangedAction.Add);
+                                break;
+
+                            case ChangeType.Removed:
+                                changeEvent = new NotifyStateManagerSingleEntityChangedEventArgs(c.Transaction, c.Removed, NotifyStateManagerChangedAction.Remove);
+                                break;
+
+                            default:
+                                return false;
+                        }
+
+                        StateManagerChanged.Invoke(this, changeEvent);
+                    }
+
+                    return true;
+                }
+            );
+        }
 
         /// <summary>
         /// Returns last known <see cref="ReplicaRole"/>.
@@ -69,8 +100,7 @@ namespace ServiceFabric.Mocks
             string stateBin = Path.Combine(Path.GetTempPath(), "state.bin");
             using (var fs = File.Create(stateBin))
             {
-                var formatter = new BinaryFormatter();
-                formatter.Serialize(fs, _store);
+                _store.Serialize(fs);
             }
             var info = new BackupInfo(Path.GetDirectoryName(stateBin), option, new BackupInfo.BackupVersion());
             return backupCallback(info, CancellationToken.None);
@@ -89,8 +119,7 @@ namespace ServiceFabric.Mocks
 
         public Task ClearAsync()
         {
-            _store.Clear();
-            return Task.FromResult(true);
+            return _store.ClearAsync();
         }
 
         public Task CloseAsync(CancellationToken cancellationToken)
@@ -105,19 +134,25 @@ namespace ServiceFabric.Mocks
 
         public IAsyncEnumerator<IReliableState> GetAsyncEnumerator()
         {
-            return new MockAsyncEnumerator<IReliableState>(_store.Values);
+            return new MockAsyncEnumerator<IReliableState>(_store.ValuesEnumerable);
         }
 
         public Task<T> GetOrAddAsync<T>(string name) where T : IReliableState
         {
-            return GetOrAddAsync<T>(null, name);
+            using (var tx = CreateTransaction())
+            {
+                var result = GetOrAddAsync<T>(tx, name);
+
+                tx.CommitAsync();
+                return result;
+            }
         }
 
-        public Task<T> GetOrAddAsync<T>(ITransaction tx, string name) where T : IReliableState
+        public async Task<T> GetOrAddAsync<T>(ITransaction tx, string name) where T : IReliableState
         {
             IReliableState constructed = null;
 
-            var result = _store.GetOrAdd(CreateUri(name), collectionName =>
+            var result = await _store.GetOrAddAsync(tx, CreateUri(name), collectionName =>
             {
                 var typeArguments = typeof(T).GetGenericArguments();
                 var typeDefinition = typeof(T).GetGenericTypeDefinition();
@@ -137,11 +172,7 @@ namespace ServiceFabric.Mocks
                 return constructed;
             });
 
-            if (result == constructed)
-            {
-                OnStateManagerChanged(new NotifyStateManagerSingleEntityChangedEventArgs(tx, result, NotifyStateManagerChangedAction.Add));
-            }
-            return Task.FromResult((T)result);
+            return (T)result;
         }
 
         private static IReliableState ConstructMockCollection(Uri name, Type genericType, Type[] typeArguments)
@@ -194,27 +225,28 @@ namespace ServiceFabric.Mocks
 
         public Task RemoveAsync(string name)
         {
-            return RemoveAsync(null, name);
+            return RemoveAsync(name, default(TimeSpan));
         }
 
         public Task RemoveAsync(ITransaction tx, string name)
         {
-            IReliableState result;
-            if (_store.TryRemove(CreateUri(name), out result))
-            {
-                OnStateManagerChanged(new NotifyStateManagerSingleEntityChangedEventArgs(tx, result, NotifyStateManagerChangedAction.Remove));
-            }
-            return Task.FromResult(true);
+            return RemoveAsync(tx, name, default(TimeSpan));
         }
 
         public Task RemoveAsync(string name, TimeSpan timeout)
         {
-            return RemoveAsync(name);
+            using (var tx = CreateTransaction())
+            {
+                var result = RemoveAsync(tx, name, timeout);
+                tx.CommitAsync();
+
+                return result;
+            }
         }
 
         public Task RemoveAsync(ITransaction tx, string name, TimeSpan timeout)
         {
-            return RemoveAsync(tx, name);
+            return RemoveAsync(tx, new Uri(name, UriKind.Absolute), timeout);
         }
 
         public Task RemoveAsync(Uri name)
@@ -232,9 +264,9 @@ namespace ServiceFabric.Mocks
             return RemoveAsync(tx, name.ToString());
         }
 
-        public Task RemoveAsync(ITransaction tx, Uri name, TimeSpan timeout)
+        public async Task RemoveAsync(ITransaction tx, Uri name, TimeSpan timeout)
         {
-            return RemoveAsync(tx, name.ToString());
+            await _store.TryRemoveAsync(tx, name, timeout);
         }
 
         public Task RestoreAsync(string backupFolderPath)
@@ -248,8 +280,7 @@ namespace ServiceFabric.Mocks
 
             using (var fs = File.OpenRead(stateBin))
             {
-                var formatter = new BinaryFormatter();
-                _store = (ConcurrentDictionary<Uri, IReliableState>)formatter.Deserialize(fs);
+                _store.Deserialize(fs);
             }
             return Task.FromResult(true);
         }
@@ -266,15 +297,16 @@ namespace ServiceFabric.Mocks
 
         public Task<ConditionalValue<T>> TryGetAsync<T>(string name) where T : IReliableState
         {
-            IReliableState item;
-            bool result = _store.TryGetValue(CreateUri(name), out item);
-
-            return Task.FromResult(new ConditionalValue<T>(result, (T)item));
+            return TryGetAsync<T>(CreateUri(name));
         }
 
-        public Task<ConditionalValue<T>> TryGetAsync<T>(Uri name) where T : IReliableState
+        public async Task<ConditionalValue<T>> TryGetAsync<T>(Uri name) where T : IReliableState
         {
-            return TryGetAsync<T>(name.ToString());
+            using (var tx = CreateTransaction())
+            {
+                var result = await _store.TryGetValueAsync(tx, name, LockMode.Default);
+                return new ConditionalValue<T>(result.HasValue, (T)result.Value);
+            }
         }
 
         public Task TriggerDataLoss()

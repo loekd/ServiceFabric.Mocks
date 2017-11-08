@@ -84,7 +84,7 @@
 
         public Task<ConditionalValue<T>> TryPeekAsync(ITransaction tx, LockMode lockMode)
         {
-            return TryPeekAsync(tx, lockMode, default(TimeSpan), CancellationToken.None);
+            return TryPeekAsync(tx, lockMode, default(TimeSpan), default(CancellationToken));
         }
 
         public async Task<ConditionalValue<T>> TryPeekAsync(ITransaction tx, LockMode lockMode, TimeSpan timeout, CancellationToken cancellationToken)

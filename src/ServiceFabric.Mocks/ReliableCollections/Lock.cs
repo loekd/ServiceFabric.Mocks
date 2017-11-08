@@ -143,7 +143,7 @@
                 CancellationTokenSource linkedTokenSource = null;
                 try
                 {
-                    if (cancellationToken != CancellationToken.None)
+                    if (cancellationToken != default(CancellationToken))
                     {
                         linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, token);
                         token = linkedTokenSource.Token;
