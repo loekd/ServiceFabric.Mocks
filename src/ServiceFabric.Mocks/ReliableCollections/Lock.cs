@@ -64,7 +64,7 @@
         }
         #endregion
 
-        public async Task<TryAcquireResult> Acquire(ITransaction tx, LockMode lockMode, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<TryAcquireResult> Acquire(ITransaction tx, LockMode lockMode, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Stopwatch sw = new Stopwatch();
 
@@ -99,7 +99,7 @@
                     else if (_lockOwners.Count == 1)
                     {
                         // The request is a lock upgrade and the tx is the only lock owner, so upgrade it.
-                        LockMode = LockMode;
+                        LockMode = lockMode;
                         result = TryAcquireResult.Owned;
                     }
                 }
@@ -108,6 +108,7 @@
                     if (_lockOwners.Count == 0 || LockMode == LockMode.Default && lockMode == LockMode.Default)
                     {
                         // The request lock is compatible or there are no current lock holders, so acquire the lock
+                        LockMode = lockMode;
                         _lockOwners.Add(tx.TransactionId);
                         result = TryAcquireResult.Acquired;
                     }
