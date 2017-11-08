@@ -8,7 +8,7 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    public enum TryAcquireResult
+    public enum AcquireResult
     {
         Acquired,   // The lock request was granted and the RefCount was increased
         Denied,     // The lock request was denied
@@ -64,7 +64,7 @@
         }
         #endregion
 
-        public async Task<TryAcquireResult> Acquire(ITransaction tx, LockMode lockMode, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<AcquireResult> Acquire(ITransaction tx, LockMode lockMode, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Stopwatch sw = new Stopwatch();
 
@@ -76,31 +76,31 @@
             while (true)
             {
                 var result = TryAcquire(tx, lockMode);
-                if (result != TryAcquireResult.Denied)
+                if (result != AcquireResult.Denied)
                     return result;
 
                 await Wait((int)((timeout.Ticks - sw.ElapsedTicks) / TimeSpan.TicksPerMillisecond), cancellationToken);
             }
         }
 
-        public TryAcquireResult TryAcquire(ITransaction tx, LockMode lockMode)
+        public AcquireResult TryAcquire(ITransaction tx, LockMode lockMode)
         {
             lock (_lockOwners)
             {
-                var result = TryAcquireResult.Denied;
+                var result = AcquireResult.Denied;
 
                 if (_lockOwners.Contains(tx.TransactionId))
                 {
                     if (lockMode == LockMode.Default || lockMode == LockMode)
                     {
                         // The tx already owns this lock and the new request is a compatible lock.
-                        result = TryAcquireResult.Owned;
+                        result = AcquireResult.Owned;
                     }
                     else if (_lockOwners.Count == 1)
                     {
                         // The request is a lock upgrade and the tx is the only lock owner, so upgrade it.
                         LockMode = lockMode;
-                        result = TryAcquireResult.Owned;
+                        result = AcquireResult.Owned;
                     }
                 }
                 else
@@ -110,7 +110,7 @@
                         // The request lock is compatible or there are no current lock holders, so acquire the lock
                         LockMode = lockMode;
                         _lockOwners.Add(tx.TransactionId);
-                        result = TryAcquireResult.Acquired;
+                        result = AcquireResult.Acquired;
                     }
                 }
 
