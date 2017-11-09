@@ -36,6 +36,11 @@
 
         public void Abort()
         {
+            if (IsCompleted)
+            {
+                throw new InvalidOperationException();
+            }
+
             foreach (var collection in _transactedCollections.Values)
             {
                 collection.EndTransaction(this, false);
@@ -48,17 +53,20 @@
 
         public Task CommitAsync()
         {
-            if (!IsAborted)
+            if (IsCompleted)
             {
-                foreach (var collection in _transactedCollections.Values)
-                {
-                    collection.EndTransaction(this, true);
-                    collection.ReleaseLocks(this);
-                }
-
-                IsCommitted = true;
-                _stateManager?.OnTransactionChanged(this, true);
+                throw new InvalidOperationException();
             }
+
+            foreach (var collection in _transactedCollections.Values)
+            {
+                collection.EndTransaction(this, true);
+                collection.ReleaseLocks(this);
+            }
+
+            IsCommitted = true;
+            _stateManager?.OnTransactionChanged(this, true);
+
             return Task.FromResult(true);
         }
 

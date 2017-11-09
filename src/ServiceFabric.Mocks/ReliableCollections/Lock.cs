@@ -31,8 +31,11 @@
                     if (_lockOwners.Contains(tx.TransactionId))
                     {
                         LockMode = LockMode.Default;
-                        TokenSource?.Cancel();
-                        TokenSource = null;
+                        if (TokenSource != null)
+                        {
+                            TokenSource.Cancel();
+                            TokenSource = null;
+                        }
                     }
                     else
                     {
@@ -55,8 +58,11 @@
                 if (_lockOwners.Count == 0)
                 {
                     LockMode = LockMode.Default;
-                    TokenSource?.Cancel();
-                    TokenSource = null;
+                    if (TokenSource != null)
+                    {
+                        TokenSource.Cancel();
+                        TokenSource = null;
+                    }
                 }
             }
 
