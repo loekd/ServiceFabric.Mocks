@@ -5,12 +5,12 @@
     using System.Collections.Concurrent;
     using System.Threading.Tasks;
 
-    public abstract class ReliableCollection
+    public abstract class TransactedCollection
     {
         private ConcurrentDictionary<long, ConcurrentStack<Func<bool>>> _abortActions = new ConcurrentDictionary<long, ConcurrentStack<Func<bool>>>();
         private ConcurrentDictionary<long, ConcurrentQueue<Func<bool>>> _commitActions = new ConcurrentDictionary<long, ConcurrentQueue<Func<bool>>>();
 
-        protected ReliableCollection(Uri uri)
+        protected TransactedCollection(Uri uri)
         {
             Name = uri;
         }
@@ -62,9 +62,5 @@
         public abstract void ReleaseLocks(ITransaction tx);
 
         public Uri Name { get; private set; }
-
-        public abstract Task ClearAsync();
-
-        public abstract Task<long> GetCountAsync(ITransaction tx);
     }
 }

@@ -19,7 +19,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
         Updated,
     }
 
-    public class TransactedConcurrentDictionary<TKey, TValue> : ReliableCollection
+    public class TransactedConcurrentDictionary<TKey, TValue> : TransactedCollection
     {
         public sealed class DictionaryChange
         {
@@ -71,13 +71,13 @@ namespace ServiceFabric.Mocks.ReliableCollections
         }
 
         #region IReliableCollection
-        public override Task ClearAsync()
+        public Task ClearAsync()
         {
             Dictionary.Clear();
             return Task.FromResult(true);
         }
 
-        public override Task<long> GetCountAsync(ITransaction tx)
+        public Task<long> GetCountAsync(ITransaction tx)
         {
             long count = Dictionary.Count;
             return Task.FromResult(count);

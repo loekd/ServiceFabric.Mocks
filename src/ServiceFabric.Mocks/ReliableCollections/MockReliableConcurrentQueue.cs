@@ -9,7 +9,7 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    public class MockReliableConcurrentQueue<T> : ReliableCollection, IReliableConcurrentQueue<T>
+    public class MockReliableConcurrentQueue<T> : TransactedCollection, IReliableConcurrentQueue<T>
     {
         private List<T> _queue = new List<T>();
         private Dictionary<long, Queue<T>> _pendingEnqueueItems = new Dictionary<long, Queue<T>>();
@@ -26,15 +26,6 @@
         }
 
         public long Count => _queue.Count;
-
-        public override Task ClearAsync()
-        {
-            lock (_queue)
-            {
-                _queue.Clear();
-                return Task.FromResult(true);
-            }
-        }
 
         /// <summary>
         /// Enqueue value into the queue.
@@ -68,28 +59,6 @@
             Monitor.Exit(queue);
 
             return Task.FromResult(true);
-        }
-
-        /// <summary>
-        /// Get the count of items in the queue.
-        /// </summary>
-        /// <remarks>
-        /// This count may not be accurate. Transactions see their own enqueued item count, but do see uncommitted transactions' dequeue count.
-        /// </remarks>
-        /// <param name="tx">Transaction</param>
-        /// <returns>Current count of items in the queue</returns>
-        public override Task<long> GetCountAsync(ITransaction tx)
-        {
-            lock (_pendingEnqueueItems)
-            {
-                long count = Count;
-                if (_pendingEnqueueItems.TryGetValue(tx.TransactionId, out Queue<T> queue))
-                {
-                    count += queue.Count;
-                }
-
-                return Task.FromResult(count);
-            }
         }
 
         /// <summary>

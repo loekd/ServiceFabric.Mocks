@@ -7,7 +7,7 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    public class MockReliableQueue<T> : ReliableCollection, IReliableQueue<T>
+    public class MockReliableQueue<T> : TransactedCollection, IReliableQueue<T>
     {
         private Queue<T> _queue = new Queue<T>();
         private Lock _lock = new Lock();
@@ -21,7 +21,7 @@
             _lock.Release(tx);
         }
 
-        public override Task ClearAsync()
+        public Task ClearAsync()
         {
             _queue.Clear();
 
@@ -46,7 +46,7 @@
             AddAbortAction(tx, () => { _queue.Dequeue(); return true; });
         }
 
-        public async override Task<long> GetCountAsync(ITransaction tx)
+        public async Task<long> GetCountAsync(ITransaction tx)
         {
             await _lock.Acquire(BeginTransaction(tx), LockMode.Default, default(TimeSpan), CancellationToken.None);
 
