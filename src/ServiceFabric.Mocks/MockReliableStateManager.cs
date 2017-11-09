@@ -20,6 +20,7 @@
 
         public MockReliableStateManager()
         {
+            // Initialze _store to a TransactedConcurrentDictionary that fires the StateManagerChanged event in the OnDictionaryChanged callback.
             _store = new TransactedConcurrentDictionary<Uri, IReliableState>(
                 new Uri("fabric://state", UriKind.Absolute),
                 (c) =>

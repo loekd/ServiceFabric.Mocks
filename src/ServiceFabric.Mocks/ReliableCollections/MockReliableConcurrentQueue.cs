@@ -9,6 +9,10 @@
     using System.Threading;
     using System.Threading.Tasks;
 
+    /// <summary>
+    /// Implements IReliableConcurrentQueue
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class MockReliableConcurrentQueue<T> : TransactedCollection, IReliableConcurrentQueue<T>
     {
         private List<T> _queue = new List<T>();
@@ -20,6 +24,10 @@
             : base(uri)
         { }
 
+        /// <summary>
+        /// Release any locks the transaction may have on _queueEmptyLock.
+        /// </summary>
+        /// <param name="tx"></param>
         public override void ReleaseLocks(ITransaction tx)
         {
             _queueEmptyLock.Release(tx);
@@ -122,7 +130,7 @@
                             //
                             // So, let's acquire the Update lock on Lock. Ideally, this would just succeed, but there may be other threads acquiring
                             // Default locks who snuck in, but have not released it yet. So, we'll spin until we actually get it. 
-                            for (uint i = 1; AcquireResult.Denied == _queueEmptyLock.TryAcquire(_queueEmptyTransaction, LockMode.Update); i++)
+                            for (byte i = 1; AcquireResult.Denied == _queueEmptyLock.TryAcquire(_queueEmptyTransaction, LockMode.Update); i++)
                             {
                                 // Should I yield while spinning? If I don't yield then I risk a thread deadlock if every physical thread is also in
                                 // a spin lock/tight loop waiting for something to be tirggered on an async thread that can't get scheduled since all
@@ -143,6 +151,12 @@
             return default(ConditionalValue<T>);
         }
 
+        /// <summary>
+        /// Enqueue any items that were enqueued in the transaction. Release _queueEmptyLock if any items were enqueued to unblock any
+        /// threads that are waiting to dequeue an item.
+        /// </summary>
+        /// <param name="tx"></param>
+        /// <returns></returns>
         private bool OnCommit(ITransaction tx)
         {
             Queue<T> queue = null;
@@ -172,6 +186,13 @@
             return true;
         }
 
+        /// <summary>
+        /// Re-enqueue any items that were dequeued by the transaction. Release _queueEmptyLock if any items were enqueued to unblock any
+        /// threads that are waiting to dequeue an item.
+        /// </summary>
+        /// <param name="tx"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         private bool OnAbort(ITransaction tx, T value)
         {
             lock (_pendingEnqueueItems)

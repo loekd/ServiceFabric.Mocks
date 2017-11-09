@@ -10,12 +10,18 @@
     using System.Threading;
     using System.Threading.Tasks;
 
+    /// <summary>
+    /// Implements IReliableDictionary.
+    /// </summary>
+    /// <typeparam name="TKey"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
     public class MockReliableDictionary<TKey, TValue> : TransactedConcurrentDictionary<TKey, TValue>, IReliableDictionary<TKey, TValue>
         where TKey : IEquatable<TKey>, IComparable<TKey>
     {
         public MockReliableDictionary(Uri uri)
             : base(uri, null)
         {
+            // Set the OnDictionaryChanged callback to fire the DictionaryChanged event.
             OnDictionaryChanged =
                 (c) =>
                 {

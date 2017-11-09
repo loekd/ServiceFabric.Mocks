@@ -13,7 +13,7 @@
         private MockReliableStateManager _stateManager;
         private ConcurrentDictionary<Uri, ReliableCollections.TransactedCollection> _transactedCollections = new ConcurrentDictionary<Uri, ReliableCollections.TransactedCollection>();
 
-        public bool TryAddReliableCollection(ReliableCollections.TransactedCollection collection)
+        public bool TryAddTransactedCollection(ReliableCollections.TransactedCollection collection)
         {
             return _transactedCollections.TryAdd(collection.Name, collection);
         }

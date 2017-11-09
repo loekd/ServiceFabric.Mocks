@@ -19,8 +19,19 @@ namespace ServiceFabric.Mocks.ReliableCollections
         Updated,
     }
 
+    /// <summary>
+    /// Implements the core methods of IReliableDictionary, but does not require TKey to be IComparable or IEquatable.
+    /// </summary>
+    /// <typeparam name="TKey"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
     public class TransactedConcurrentDictionary<TKey, TValue> : TransactedCollection
     {
+        /// <summary>
+        /// Describe the change made to the collection.
+        ///   Add: Added is set to the value that was added.
+        ///   Remove: Removed is set to the value that was removed.
+        ///   Update: Added is set to the updated value, Removed is set to the origional value.
+        /// </summary>
         public sealed class DictionaryChange
         {
             public DictionaryChange(ITransaction tx, ChangeType changeType, TKey key, TValue added = default(TValue), TValue removed = default(TValue))
@@ -39,6 +50,10 @@ namespace ServiceFabric.Mocks.ReliableCollections
             public TValue Removed { get; private set; }
         }
 
+        /// <summary>
+        /// This is fired similar to the DictionaryChanged event on IReliableDictionary except that it provides the
+        /// removed value on a remove operation.
+        /// </summary>
         protected Func<DictionaryChange, bool> OnDictionaryChanged;
 
         public IEnumerable<TValue> ValuesEnumerable => Dictionary.Values;
@@ -53,23 +68,41 @@ namespace ServiceFabric.Mocks.ReliableCollections
             OnDictionaryChanged = changeCallback;
         }
 
+        /// <summary>
+        /// Release any locks in the TransactedConcurrentDictionary owned by the transaction.
+        /// </summary>
+        /// <param name="tx"></param>
         public override void ReleaseLocks(ITransaction tx)
         {
             LockManager.ReleaseLocks(tx);
         }
 
+        /// <summary>
+        /// Initialize the internal ConcurrentDictionary to the deserialized stream.
+        /// </summary>
+        /// <remarks>
+        /// This should probably also purge the locks, and commit and abort actions.
+        /// </remarks>
+        /// <param name="stream">Source Stream</param>
         public void Deserialize(Stream stream)
         {
             var formatter = new BinaryFormatter();
             Dictionary = (ConcurrentDictionary<TKey, TValue>)formatter.Deserialize(stream);
         }
 
+        /// <summary>
+        /// Serialize the internal ConcurrentDictionary to the stream.
+        /// </summary>
+        /// <param name="stream">Target Stream</param>
         public void Serialize(Stream stream)
         {
             var formatter = new BinaryFormatter();
             formatter.Serialize(stream, Dictionary);
         }
 
+        /// <summary>
+        /// Implement IReliableCollection methods
+        /// </summary>
         #region IReliableCollection
         public Task ClearAsync()
         {
@@ -84,6 +117,9 @@ namespace ServiceFabric.Mocks.ReliableCollections
         }
         #endregion
 
+        /// <summary>
+        /// Implement IReliableDictionary methods
+        /// </summary>
         #region IReliableDictionary
         public async Task AddAsync(ITransaction tx, TKey key, TValue value, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {

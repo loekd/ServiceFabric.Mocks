@@ -7,6 +7,10 @@
     using System.Threading;
     using System.Threading.Tasks;
 
+    /// <summary>
+    /// Implements IReliableQueue.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class MockReliableQueue<T> : TransactedCollection, IReliableQueue<T>
     {
         private Queue<T> _queue = new Queue<T>();

@@ -74,7 +74,7 @@
 
         /// <summary>
         /// Try to acquire the lock in the specified timeout.
-        /// If the lock was acquired because it was newly acquired, or already owned by the transaction, then it returns the result.
+        /// If the lock was acquired because it was newly Acquired, or already Owned by the transaction, then it returns the result.
         /// If the lock was not acquired in the specitied timeout then a TimeoutExcption is thrown.
         /// </summary>
         /// <param name="tx">Transaction</param>
@@ -111,6 +111,7 @@
         public async Task<AcquireResult> Acquire(ITransaction tx, LockMode lockMode, long milliseconds, CancellationToken cancellationToken)
         {
             Stopwatch sw = new Stopwatch();
+            sw.Start();
 
             while (true)
             {
@@ -126,6 +127,12 @@
             }
         }
 
+        /// <summary>
+        /// Try to acquire the lock.
+        /// </summary>
+        /// <param name="tx">Transaction</param>
+        /// <param name="lockMode">Lock Mode</param>
+        /// <returns>{Acquired|Denied|Owned}</returns>
         public AcquireResult TryAcquire(ITransaction tx, LockMode lockMode)
         {
             lock (_lockOwners)
@@ -150,7 +157,7 @@
                 {
                     if (_lockOwners.Count == 0 || LockMode == LockMode.Default && lockMode == LockMode.Default)
                     {
-                        // The request lock is compatible or there are no current lock holders, so acquire the lock
+                        // The requested lock is compatible or there are no current lock holders, so acquire the lock
                         LockMode = lockMode;
                         _lockOwners.Add(tx.TransactionId);
                         result = AcquireResult.Acquired;
