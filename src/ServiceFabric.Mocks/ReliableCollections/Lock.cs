@@ -15,22 +15,35 @@
         Owned,      // The lock request was granted and the RefCount was not increased
     }
 
+    /// <summary>
+    /// Implements a primitive lock to be used to controll access to other objects.
+    /// A lock owner is identified by a long, In this case ITransaction.TransactionId.
+    /// </summary>
     public class Lock
     {
         private HashSet<long> _lockOwners = new HashSet<long>();
         public CancellationTokenSource TokenSource { get; private set; }
 
+        /// <summary>
+        /// The default timeout if default(TimeSpan) is specified.
+        /// </summary>
         public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(4);
 
-        #region ILock
+        /// <summary>
+        /// Downgrade the lock to the Default LockMode if the transaction is the only owner.
+        /// If the lock was downgraded and there is a non-null TokenSource than cancel it to free other
+        /// threads that may be waiting for the lock.
+        /// </summary>
+        /// <param name="tx">Transaction</param>
+        /// <returns>true if the LockMode is now Default, false otherwise</returns>
         public bool Downgrade(ITransaction tx)
         {
             bool result = true;
-            if (LockMode == LockMode.Update)
+            if (LockMode != LockMode.Default)
             {
                 lock (_lockOwners)
                 {
-                    if (_lockOwners.Contains(tx.TransactionId))
+                    if (_lockOwners.Contains(tx.TransactionId) && _lockOwners.Count == 1)
                     {
                         LockMode = LockMode.Default;
                         if (TokenSource != null)
@@ -49,8 +62,18 @@
             return result;
         }
 
-        public LockMode LockMode { get; internal set; }
+        /// <summary>
+        /// Get the current lock mode.
+        /// </summary>
+        public LockMode LockMode { get; private set; }
 
+        /// <summary>
+        /// Release the specified transaction from the lock.
+        /// If the lock now has no owners and there is a non-null TokenSource than cancel it to free other
+        /// threads that may be waiting for the lock.
+        /// </summary>
+        /// <param name="tx">Transaction</param>
+        /// <returns></returns>
         public bool Release(ITransaction tx)
         {
             bool result;
@@ -70,7 +93,6 @@
 
             return result;
         }
-        #endregion
 
         /// <summary>
         /// Try to acquire the lock in the specified timeout.
