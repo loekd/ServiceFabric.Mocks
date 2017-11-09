@@ -18,7 +18,9 @@
     public class Lock
     {
         private HashSet<long> _lockOwners = new HashSet<long>();
-        public CancellationTokenSource TokenSource;
+        public CancellationTokenSource TokenSource { get; private set; }
+
+        public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(4);
 
         #region ILock
         public bool Downgrade(ITransaction tx)
@@ -70,14 +72,45 @@
         }
         #endregion
 
+        /// <summary>
+        /// Try to acquire the lock in the specified timeout.
+        /// If the lock was acquired because it was newly acquired, or already owned by the transaction, then it returns the result.
+        /// If the lock was not acquired in the specitied timeout then a TimeoutExcption is thrown.
+        /// </summary>
+        /// <param name="tx">Transaction</param>
+        /// <param name="lockMode">Lock Mode</param>
+        /// <param name="timeout">Timeout</param>
+        /// <param name="cancellationToken">Cancellation Token</param>
+        /// <returns>{Acquired|Owned}</returns>
         public async Task<AcquireResult> Acquire(ITransaction tx, LockMode lockMode, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
-            Stopwatch sw = new Stopwatch();
-
             if (timeout == default(TimeSpan))
             {
-                timeout = TimeSpan.FromSeconds(4);
+                timeout = DefaultTimeout;
             }
+
+            var result = await Acquire(tx, lockMode, (long)timeout.TotalMilliseconds, cancellationToken);
+            if (result == AcquireResult.Denied)
+            {
+                throw new TimeoutException();
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Try to acquire the lock in the specified timeout.
+        /// If the lock was acquired because it was newly Acquired, or already Owned by the transaction, then it retuns the result.
+        /// If the lock was not acquired in the specitied timeout then Denied is returned.
+        /// </summary>
+        /// <param name="tx">Transaction</param>
+        /// <param name="lockMode">Lock Mode</param>
+        /// <param name="milliseconds">Timeout Milliseconds</param>
+        /// <param name="cancellationToken">Cancellation Token</param>
+        /// <returns>{Acquired|Denied|Owned}</returns>
+        public async Task<AcquireResult> Acquire(ITransaction tx, LockMode lockMode, long milliseconds, CancellationToken cancellationToken)
+        {
+            Stopwatch sw = new Stopwatch();
 
             while (true)
             {
@@ -85,7 +118,11 @@
                 if (result != AcquireResult.Denied)
                     return result;
 
-                await Wait((int)((timeout.Ticks - sw.ElapsedTicks) / TimeSpan.TicksPerMillisecond), cancellationToken);
+                bool keepWaiting = await Wait((int)(milliseconds - sw.ElapsedMilliseconds), cancellationToken);
+                if (!keepWaiting)
+                {
+                    return AcquireResult.Denied;
+                }
             }
         }
 
@@ -126,14 +163,14 @@
 
         /// <summary>
         /// Wait until:
-        ///   * Cancel is called on the lock's TokenSource.
-        ///   * The caller's CancellationToken is cancelled.
-        ///   * The timout delay has elapsed.
+        ///   * Cancel is called on the lock's TokenSource, returns true.
+        ///   * The caller's CancellationToken is cancelled, throws OperationCancelledException.
+        ///   * The timout delay has elapsed, returns false.
         /// </summary>
         /// <param name="milliseconds">Timeout delay in milliseconds</param>
         /// <param name="cancellationToken">Caller's Cancellation Token</param>
         /// <returns></returns>
-        public async Task Wait(int milliseconds, CancellationToken cancellationToken)
+        private async Task<bool> Wait(int milliseconds, CancellationToken cancellationToken)
         {
             if (milliseconds > 0)
             {
@@ -160,9 +197,11 @@
                 }
                 catch (OperationCanceledException)
                 {
+                    // If the caller's cancellation token is cancelled then throw
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    return;
+                    // Otherwise the lock's cancellation token is cancelled, so the lock is available.
+                    return true;
                 }
                 finally
                 {
@@ -170,7 +209,7 @@
                 }
             }
 
-            throw new TimeoutException();
+            return false;
         }
     }
 }
