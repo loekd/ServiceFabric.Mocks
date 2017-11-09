@@ -72,5 +72,23 @@
                 Assert.AreEqual(1, (await task).Value);
             }
         }
+
+        [TestMethod]
+        public async Task DequeueWaitOtherEnqueueTest()
+        {
+            var q = new MockReliableConcurrentQueue<int>(new Uri("test://queue"));
+            using (var tx = _stateManager.CreateTransaction())
+            {
+                Task<ConditionalValue<int>> task = q.TryDequeueAsync(tx);
+
+                using (var tx2 = _stateManager.CreateTransaction())
+                {
+                    await q.EnqueueAsync(tx2, 1);
+                    await tx2.CommitAsync();
+                }
+
+                Assert.AreEqual(1, (await task).Value);
+            }
+        }
     }
 }

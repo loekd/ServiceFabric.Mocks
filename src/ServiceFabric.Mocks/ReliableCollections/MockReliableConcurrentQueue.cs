@@ -156,9 +156,16 @@
 
             lock(_queue)
             {
+                bool enqueued = false;
                 while (queue.Count > 0)
                 {
+                    enqueued = true;
                     _queue.Add(queue.Dequeue());
+                }
+
+                if (enqueued)
+                {
+                    _queueEmptyLock.Release(_queueEmptyTransaction);
                 }
             }
 
