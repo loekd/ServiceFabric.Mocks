@@ -25,10 +25,10 @@
     public class TransactedConcurrentDictionary<TKey, TValue> : TransactedCollection
     {
         /// <summary>
-        /// Describe the change made to the collection.
-        ///   Add: Added is set to the value that was added.
-        ///   Remove: Removed is set to the value that was removed.
-        ///   Update: Added is set to the updated value, Removed is set to the origional value.
+        /// Describe the change made to the collection. ChangeType:
+        ///   Added: Added is set to the value that was added.
+        ///   Removed: Removed is set to the value that was removed.
+        ///   Updated: Added is set to the updated value, Removed is set to the origional value.
         /// </summary>
         public sealed class DictionaryChange
         {

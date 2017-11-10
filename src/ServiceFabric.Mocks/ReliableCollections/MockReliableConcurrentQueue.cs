@@ -18,10 +18,26 @@
         private Dictionary<long, Queue<T>> _pendingEnqueueItems = new Dictionary<long, Queue<T>>();
         private long _queueEmptyTransactionId = -1;
         private Lock<long> _queueEmptyLock = new Lock<long>();
+        private bool _canTxSeeOwnEnqueues;
 
+        /// <summary>
+        /// The constructor.
+        /// </summary>
+        /// <param name="uri">Uri</param>
         public MockReliableConcurrentQueue(Uri uri)
-            : base(uri)
+            : this(uri, false)
         { }
+
+        /// <summary>
+        /// The constructor.
+        /// </summary>
+        /// <param name="uri">Uri</param>
+        /// <param name="canTxSeeOwnEnqueues">Can a transaction see its own enqueues?</param>
+        public MockReliableConcurrentQueue(Uri uri, bool canTxSeeOwnEnqueues = false)
+            : base(uri)
+        {
+            _canTxSeeOwnEnqueues = canTxSeeOwnEnqueues;
+        }
 
         /// <summary>
         /// Release any locks the transaction may have on _queueEmptyLock.
@@ -83,23 +99,26 @@
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
-            // Try to get an uncommitted item on the transaction
-            Queue<T> queue;
-            lock (_pendingEnqueueItems)
+            if (_canTxSeeOwnEnqueues)
             {
-                if (_pendingEnqueueItems.TryGetValue(tx.TransactionId, out queue))
+                // Try to get an uncommitted item on the transaction
+                Queue<T> queue;
+                lock (_pendingEnqueueItems)
                 {
-                    Monitor.Enter(queue);
+                    if (_pendingEnqueueItems.TryGetValue(tx.TransactionId, out queue))
+                    {
+                        Monitor.Enter(queue);
+                    }
                 }
-            }
 
-            if (queue != null)
-            {
-                ConditionalValue<T> value = queue.Count > 0 ? new ConditionalValue<T>(true, queue.Dequeue()) : default(ConditionalValue<T>);
-                Monitor.Exit(queue);
-                if (value.HasValue)
+                if (queue != null)
                 {
-                    return value;
+                    ConditionalValue<T> value = queue.Count > 0 ? new ConditionalValue<T>(true, queue.Dequeue()) : default(ConditionalValue<T>);
+                    Monitor.Exit(queue);
+                    if (value.HasValue)
+                    {
+                        return value;
+                    }
                 }
             }
 
