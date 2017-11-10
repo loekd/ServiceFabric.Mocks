@@ -1,6 +1,5 @@
 ﻿namespace ServiceFabric.Mocks.ReliableCollections
 {
-    using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
     using System;
     using System.Collections.Generic;
@@ -17,33 +16,28 @@
 
     /// <summary>
     /// Implements a primitive lock to be used to controll access to other objects.
-    /// A lock owner is identified by a long, In this case ITransaction.TransactionId.
     /// </summary>
-    public class Lock
+    /// <typeparam name="T">Lock Owner Id Type</typeparam>
+    public class Lock<T>
     {
-        private HashSet<long> _lockOwners = new HashSet<long>();
+        private HashSet<T> _lockOwners = new HashSet<T>();
         public CancellationTokenSource TokenSource { get; private set; }
-
-        /// <summary>
-        /// The default timeout if default(TimeSpan) is specified.
-        /// </summary>
-        public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(4);
 
         /// <summary>
         /// Downgrade the lock to the Default LockMode if the transaction is the only owner.
         /// If the lock was downgraded and there is a non-null TokenSource than cancel it to free other
         /// threads that may be waiting for the lock.
         /// </summary>
-        /// <param name="tx">Transaction</param>
+        /// <param name="id">Owner Id</param>
         /// <returns>true if the LockMode is now Default, false otherwise</returns>
-        public bool Downgrade(ITransaction tx)
+        public bool Downgrade(T id)
         {
             bool result = true;
             if (LockMode != LockMode.Default)
             {
                 lock (_lockOwners)
                 {
-                    if (_lockOwners.Contains(tx.TransactionId) && _lockOwners.Count == 1)
+                    if (_lockOwners.Contains(id) && _lockOwners.Count == 1)
                     {
                         LockMode = LockMode.Default;
                         if (TokenSource != null)
@@ -72,14 +66,14 @@
         /// If the lock now has no owners and there is a non-null TokenSource than cancel it to free other
         /// threads that may be waiting for the lock.
         /// </summary>
-        /// <param name="tx">Transaction</param>
+        /// <param name="id">Owner Id</param>
         /// <returns></returns>
-        public bool Release(ITransaction tx)
+        public bool Release(T id)
         {
             bool result;
             lock (_lockOwners)
             {
-                result = _lockOwners.Remove(tx.TransactionId);
+                result = _lockOwners.Remove(id);
                 if (_lockOwners.Count == 0)
                 {
                     LockMode = LockMode.Default;
@@ -99,19 +93,19 @@
         /// If the lock was acquired because it was newly Acquired, or already Owned by the transaction, then it returns the result.
         /// If the lock was not acquired in the specitied timeout then a TimeoutExcption is thrown.
         /// </summary>
-        /// <param name="tx">Transaction</param>
+        /// <param name="id">OwnerId</param>
         /// <param name="lockMode">Lock Mode</param>
         /// <param name="timeout">Timeout</param>
         /// <param name="cancellationToken">Cancellation Token</param>
         /// <returns>{Acquired|Owned}</returns>
-        public async Task<AcquireResult> Acquire(ITransaction tx, LockMode lockMode, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<AcquireResult> Acquire(T id, LockMode lockMode, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             if (timeout == default(TimeSpan))
             {
-                timeout = DefaultTimeout;
+                timeout = Constants.DefaultTimeout;
             }
 
-            var result = await Acquire(tx, lockMode, (long)timeout.TotalMilliseconds, cancellationToken);
+            var result = await Acquire(id, lockMode, (long)timeout.TotalMilliseconds, cancellationToken);
             if (result == AcquireResult.Denied)
             {
                 throw new TimeoutException();
@@ -125,19 +119,19 @@
         /// If the lock was acquired because it was newly Acquired, or already Owned by the transaction, then it retuns the result.
         /// If the lock was not acquired in the specitied timeout then Denied is returned.
         /// </summary>
-        /// <param name="tx">Transaction</param>
+        /// <param name="id">Owner Id</param>
         /// <param name="lockMode">Lock Mode</param>
         /// <param name="milliseconds">Timeout Milliseconds</param>
         /// <param name="cancellationToken">Cancellation Token</param>
         /// <returns>{Acquired|Denied|Owned}</returns>
-        public async Task<AcquireResult> Acquire(ITransaction tx, LockMode lockMode, long milliseconds, CancellationToken cancellationToken)
+        public async Task<AcquireResult> Acquire(T id, LockMode lockMode, long milliseconds, CancellationToken cancellationToken)
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
             while (true)
             {
-                var result = TryAcquire(tx, lockMode);
+                var result = TryAcquire(id, lockMode);
                 if (result != AcquireResult.Denied)
                     return result;
 
@@ -152,16 +146,16 @@
         /// <summary>
         /// Try to acquire the lock.
         /// </summary>
-        /// <param name="tx">Transaction</param>
+        /// <param name="id">Owner Id</param>
         /// <param name="lockMode">Lock Mode</param>
         /// <returns>{Acquired|Denied|Owned}</returns>
-        public AcquireResult TryAcquire(ITransaction tx, LockMode lockMode)
+        public AcquireResult TryAcquire(T id, LockMode lockMode)
         {
             lock (_lockOwners)
             {
                 var result = AcquireResult.Denied;
 
-                if (_lockOwners.Contains(tx.TransactionId))
+                if (_lockOwners.Contains(id))
                 {
                     if (lockMode == LockMode.Default || lockMode == LockMode)
                     {
@@ -181,7 +175,7 @@
                     {
                         // The requested lock is compatible or there are no current lock holders, so acquire the lock
                         LockMode = lockMode;
-                        _lockOwners.Add(tx.TransactionId);
+                        _lockOwners.Add(id);
                         result = AcquireResult.Acquired;
                     }
                 }

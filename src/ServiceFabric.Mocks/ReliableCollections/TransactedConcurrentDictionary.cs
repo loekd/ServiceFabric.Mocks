@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.ServiceFabric.Data;
-using System.Collections.Concurrent;
-using Microsoft.ServiceFabric.Data.Collections;
-using System.Threading;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
-
-namespace ServiceFabric.Mocks.ReliableCollections
+﻿namespace ServiceFabric.Mocks.ReliableCollections
 {
+    using Microsoft.ServiceFabric.Data;
+    using Microsoft.ServiceFabric.Data.Collections;
+    using System;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Runtime.Serialization.Formatters.Binary;
+    using System.Threading;
+    using System.Threading.Tasks;
+
     public enum ChangeType
     {
         Added,
@@ -58,13 +56,13 @@ namespace ServiceFabric.Mocks.ReliableCollections
 
         public IEnumerable<TValue> ValuesEnumerable => Dictionary.Values;
         protected ConcurrentDictionary<TKey, TValue> Dictionary { get; private set; }
-        protected LockManager<TKey> LockManager { get; private set; }
+        protected LockManager<TKey, long> LockManager { get; private set; }
 
         public TransactedConcurrentDictionary(Uri uri, Func<DictionaryChange, bool> changeCallback)
             : base(uri)
         {
             Dictionary = new ConcurrentDictionary<TKey, TValue>();
-            LockManager = new LockManager<TKey>();
+            LockManager = new LockManager<TKey, long>();
             OnDictionaryChanged = changeCallback;
         }
 
@@ -74,7 +72,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
         /// <param name="tx"></param>
         public override void ReleaseLocks(ITransaction tx)
         {
-            LockManager.ReleaseLocks(tx);
+            LockManager.ReleaseLocks(tx.TransactionId);
         }
 
         /// <summary>
@@ -123,7 +121,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
         #region IReliableDictionary
         public async Task AddAsync(ITransaction tx, TKey key, TValue value, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
-            await LockManager.AcquireLock(BeginTransaction(tx), key, LockMode.Update, timeout, cancellationToken);
+            await LockManager.AcquireLock(BeginTransaction(tx).TransactionId, key, LockMode.Update, timeout, cancellationToken);
             if (!Dictionary.TryAdd(key, value))
             {
                 throw new ArgumentException("A value with the same key already exists.", nameof(value));
@@ -135,7 +133,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
 
         public async Task<TValue> AddOrUpdateAsync(ITransaction tx, TKey key, Func<TKey, TValue> addValueFactory, Func<TKey, TValue, TValue> updateValueFactory, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
-            await LockManager.AcquireLock(BeginTransaction(tx), key, LockMode.Update, timeout, cancellationToken);
+            await LockManager.AcquireLock(BeginTransaction(tx).TransactionId, key, LockMode.Update, timeout, cancellationToken);
 
             bool isUpdate = Dictionary.TryGetValue(key, out TValue oldValue);
             var newValue = Dictionary.AddOrUpdate(key, addValueFactory, updateValueFactory);
@@ -156,21 +154,21 @@ namespace ServiceFabric.Mocks.ReliableCollections
 
         public async Task<bool> ContainsKeyAsync(ITransaction tx, TKey key, LockMode lockMode, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
-            await LockManager.AcquireLock(BeginTransaction(tx), key, lockMode, timeout, cancellationToken);
+            await LockManager.AcquireLock(BeginTransaction(tx).TransactionId, key, lockMode, timeout, cancellationToken);
 
             return Dictionary.ContainsKey(key);
         }
 
         public async Task<TValue> GetOrAddAsync(ITransaction tx, TKey key, Func<TKey, TValue> valueFactory, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
-            var acquireResult = await LockManager.AcquireLock(BeginTransaction(tx), key, LockMode.Update, timeout, cancellationToken);
+            var acquireResult = await LockManager.AcquireLock(BeginTransaction(tx).TransactionId, key, LockMode.Update, timeout, cancellationToken);
             TValue value;
 
             if (Dictionary.TryGetValue(key, out value))
             {
                 if (acquireResult == AcquireResult.Acquired)
                 {
-                    LockManager.DowngradeLock(tx, key);
+                    LockManager.DowngradeLock(tx.TransactionId, key);
                 }
             }
             else
@@ -187,7 +185,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
 
         public async Task SetAsync(ITransaction tx, TKey key, TValue value, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
-            await LockManager.AcquireLock(BeginTransaction(tx), key, LockMode.Update, timeout, cancellationToken);
+            await LockManager.AcquireLock(BeginTransaction(tx).TransactionId, key, LockMode.Update, timeout, cancellationToken);
 
             TValue oldValue;
             try
@@ -207,7 +205,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
 
         public async Task<bool> TryAddAsync(ITransaction tx, TKey key, TValue value, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
-            var acquireResult = await LockManager.AcquireLock(BeginTransaction(tx), key, LockMode.Update, timeout, cancellationToken);
+            var acquireResult = await LockManager.AcquireLock(BeginTransaction(tx).TransactionId, key, LockMode.Update, timeout, cancellationToken);
             var result = Dictionary.TryAdd(key, value);
             if (result)
             {
@@ -216,7 +214,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
             }
             else if (acquireResult == AcquireResult.Acquired)
             {
-                LockManager.ReleaseLock(tx, key);
+                LockManager.ReleaseLock(tx.TransactionId, key);
             }
 
             return result;
@@ -224,7 +222,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
 
         public async Task<ConditionalValue<TValue>> TryGetValueAsync(ITransaction tx, TKey key, LockMode lockMode, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
-            await LockManager.AcquireLock(BeginTransaction(tx), key, lockMode, timeout, cancellationToken);
+            await LockManager.AcquireLock(BeginTransaction(tx).TransactionId, key, lockMode, timeout, cancellationToken);
 
             if (Dictionary.TryGetValue(key, out TValue value))
             {
@@ -236,7 +234,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
 
         public async Task<ConditionalValue<TValue>> TryRemoveAsync(ITransaction tx, TKey key, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
-            var acquireResult = await LockManager.AcquireLock(BeginTransaction(tx), key, LockMode.Update, timeout, cancellationToken);
+            var acquireResult = await LockManager.AcquireLock(BeginTransaction(tx).TransactionId, key, LockMode.Update, timeout, cancellationToken);
 
             TValue value;
             bool hasValue = Dictionary.TryRemove(key, out value);
@@ -247,7 +245,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
             }
             else if (acquireResult == AcquireResult.Acquired)
             {
-                LockManager.ReleaseLock(tx, key);
+                LockManager.ReleaseLock(tx.TransactionId, key);
             }
 
             return new ConditionalValue<TValue>(hasValue, value);
@@ -255,7 +253,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
 
         public async Task<bool> TryUpdateAsync(ITransaction tx, TKey key, TValue newValue, TValue comparisonValue, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
-            var acquireResult = await LockManager.AcquireLock(BeginTransaction(tx), key, LockMode.Update, timeout, cancellationToken);
+            var acquireResult = await LockManager.AcquireLock(BeginTransaction(tx).TransactionId, key, LockMode.Update, timeout, cancellationToken);
             var result = Dictionary.TryUpdate(key, newValue, comparisonValue);
             if (result)
             {
@@ -264,7 +262,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
             }
             else if (acquireResult == AcquireResult.Acquired)
             {
-                LockManager.ReleaseLock(tx, key);
+                LockManager.ReleaseLock(tx.TransactionId, key);
             }
 
             return result;

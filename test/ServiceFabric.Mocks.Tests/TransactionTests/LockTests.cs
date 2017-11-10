@@ -20,15 +20,13 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
         [TestMethod]
         public async Task Lock_DefaultLock()
         {
-            Lock l = new Lock();
+            Lock<int> l = new Lock<int>();
             AcquireResult result;
 
-            ITransaction tx1 = new MockTransaction(null, 1);
-            result = await l.Acquire(tx1, LockMode.Default);
+            result = await l.Acquire(1, LockMode.Default);
             Assert.AreEqual(AcquireResult.Acquired, result);
 
-            ITransaction tx2 = new MockTransaction(null, 2);
-            result = await l.Acquire(tx2, LockMode.Default);
+            result = await l.Acquire(2, LockMode.Default);
             Assert.AreEqual(AcquireResult.Acquired, result);
         }
 
@@ -39,16 +37,14 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
         [TestMethod]
         public async Task Lock_UpdateBlockDefaultLock()
         {
-            Lock l = new Lock();
+            Lock<int> l = new Lock<int>();
 
-            ITransaction tx1 = new MockTransaction(null, 1);
-            await l.Acquire(tx1, LockMode.Update);
+            await l.Acquire(1, LockMode.Update);
 
             await Assert.ThrowsExceptionAsync<TimeoutException>(
                 async () =>
                 {
-                    ITransaction tx2 = new MockTransaction(null, 2);
-                    await l.Acquire(tx2, LockMode.Default, timeout: TimeSpan.FromMilliseconds(10));
+                    await l.Acquire(2, LockMode.Default, timeout: TimeSpan.FromMilliseconds(10));
                 }
             );
         }
@@ -56,16 +52,14 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
         [TestMethod]
         public async Task Lock_UpdateGrantedAfterDefaultRelease()
         {
-            Lock l = new Lock();
+            Lock<int> l = new Lock<int>();
             AcquireResult result;
 
-            ITransaction tx1 = new MockTransaction(null, 1);
-            result = await l.Acquire(tx1, LockMode.Default);
+            result = await l.Acquire(1, LockMode.Default);
             Assert.AreEqual(AcquireResult.Acquired, result);
 
-            ITransaction tx2 = new MockTransaction(null, 2);
-            var task = l.Acquire(tx2, LockMode.Default);
-            l.Release(tx1);
+            var task = l.Acquire(2, LockMode.Default);
+            l.Release(1);
             result = await task;
             Assert.AreEqual(AcquireResult.Acquired, result);
         }
@@ -73,16 +67,14 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
         [TestMethod]
         public async Task Lock_DefaultGrantedAfterUpdateDowngrade()
         {
-            Lock l = new Lock();
+            Lock<int> l = new Lock<int>();
             AcquireResult result;
 
-            ITransaction tx1 = new MockTransaction(null, 1);
-            result = await l.Acquire(tx1, LockMode.Update);
+            result = await l.Acquire(1, LockMode.Update);
             Assert.AreEqual(AcquireResult.Acquired, result);
 
-            ITransaction tx2 = new MockTransaction(null, 2);
-            var task = l.Acquire(tx2, LockMode.Default);
-            l.Downgrade(tx1);
+            var task = l.Acquire(2, LockMode.Default);
+            l.Downgrade(1);
             result = await task;
             Assert.AreEqual(AcquireResult.Acquired, result);
         }
@@ -90,19 +82,18 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
         [TestMethod]
         public async Task Lock_DefaultUpgradeNotDowngraded()
         {
-            Lock l = new Lock();
+            Lock<int> l = new Lock<int>();
             AcquireResult result;
 
-            ITransaction tx1 = new MockTransaction(null, 1);
-            result = await l.Acquire(tx1, LockMode.Default);
+            result = await l.Acquire(1, LockMode.Default);
             Assert.AreEqual(AcquireResult.Acquired, result);
             Assert.AreEqual(l.LockMode, LockMode.Default);
 
-            result = await l.Acquire(tx1, LockMode.Update);
+            result = await l.Acquire(1, LockMode.Update);
             Assert.AreEqual(AcquireResult.Owned, result);
             Assert.AreEqual(l.LockMode, LockMode.Update);
 
-            result = await l.Acquire(tx1, LockMode.Default);
+            result = await l.Acquire(1, LockMode.Default);
             Assert.AreEqual(AcquireResult.Owned, result);
             Assert.AreEqual(l.LockMode, LockMode.Update);
         }
@@ -110,17 +101,15 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
         [TestMethod]
         public async Task Lock_UpdateBlockedAndCancelled()
         {
-            Lock l = new Lock();
+            Lock<int> l = new Lock<int>();
 
-            ITransaction tx1 = new MockTransaction(null, 1);
-            await l.Acquire(tx1, LockMode.Update);
+            await l.Acquire(1, LockMode.Update);
 
             await Assert.ThrowsExceptionAsync<OperationCanceledException>(
                 async () =>
                 {
                     CancellationTokenSource tokenSource = new CancellationTokenSource();
-                    ITransaction tx2 = new MockTransaction(null, 2);
-                    var task =  l.Acquire(tx2, LockMode.Default, cancellationToken: tokenSource.Token);
+                    var task =  l.Acquire(2, LockMode.Default, cancellationToken: tokenSource.Token);
                     tokenSource.Cancel();
                     await task;
                 }
@@ -130,34 +119,30 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
         [TestMethod]
         public async Task LockManager_BasicTest()
         {
-            LockManager<int> lockManager = new LockManager<int>();
-            ITransaction tx1 = new MockTransaction(null, 1);
-            await lockManager.AcquireLock(tx1, 1, LockMode.Update);
-            await lockManager.AcquireLock(tx1, 2, LockMode.Update);
-            await lockManager.AcquireLock(tx1, 3, LockMode.Update);
+            LockManager<int, int> lockManager = new LockManager<int, int>();
+            await lockManager.AcquireLock(1, 1, LockMode.Update);
+            await lockManager.AcquireLock(1, 2, LockMode.Update);
+            await lockManager.AcquireLock(1, 3, LockMode.Update);
 
-            ITransaction tx2 = new MockTransaction(null, 2);
-            ITransaction tx3 = new MockTransaction(null, 3);
-            ITransaction tx4 = new MockTransaction(null, 4);
             Task[] tasks = new Task[]
                 {
-                    lockManager.AcquireLock(tx2, 1, LockMode.Update),
-                    lockManager.AcquireLock(tx3, 2, LockMode.Update),
-                    lockManager.AcquireLock(tx4, 3, LockMode.Update),
+                    lockManager.AcquireLock(2, 1, LockMode.Update),
+                    lockManager.AcquireLock(3, 2, LockMode.Update),
+                    lockManager.AcquireLock(4, 3, LockMode.Update),
                 };
 
-            lockManager.ReleaseLocks(tx1);
+            lockManager.ReleaseLocks(1);
             Task.WaitAll(tasks);
 
-            lockManager.ReleaseLocks(tx2);
-            lockManager.ReleaseLocks(tx3);
-            ITransaction tx5 = new MockTransaction(null, 1);
-            await lockManager.AcquireLock(tx5, 1, LockMode.Default);
-            await lockManager.AcquireLock(tx5, 2, LockMode.Default);
+            lockManager.ReleaseLocks(2);
+            lockManager.ReleaseLocks(3);
+
+            await lockManager.AcquireLock(5, 1, LockMode.Default);
+            await lockManager.AcquireLock(5, 2, LockMode.Default);
             await Assert.ThrowsExceptionAsync<TimeoutException>(
                 async () =>
                 {
-                    await lockManager.AcquireLock(tx5, 3, LockMode.Default, timeout: TimeSpan.FromMilliseconds(10));
+                    await lockManager.AcquireLock(5, 3, LockMode.Default, timeout: TimeSpan.FromMilliseconds(10));
                 }
             );
         }

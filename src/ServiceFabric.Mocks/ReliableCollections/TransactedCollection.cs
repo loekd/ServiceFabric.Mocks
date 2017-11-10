@@ -3,7 +3,6 @@
     using Microsoft.ServiceFabric.Data;
     using System;
     using System.Collections.Concurrent;
-    using System.Threading.Tasks;
 
     /// <summary>
     /// Implements a subset of IReliableCollection that is common to IReliableConcurrentQueue, IReliableDictionary, and IReliableQueue.

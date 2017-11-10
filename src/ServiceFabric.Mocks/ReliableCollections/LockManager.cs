@@ -1,6 +1,5 @@
 ﻿namespace ServiceFabric.Mocks.ReliableCollections
 {
-    using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
     using System;
     using System.Collections.Concurrent;
@@ -11,11 +10,12 @@
     /// <summary>
     /// Implements a simple manager for key locks
     /// </summary>
-    /// <typeparam name="TKey">Key Type</typeparam>
-    public class LockManager<TKey>
+    /// <typeparam name="TKey">Lock Key Type</typeparam>
+    /// <typeparam name="TId">Lock Owner Id Type</typeparam>
+    public class LockManager<TKey, TId>
     {
-        private ConcurrentDictionary<TKey, Lock> _lockTable = new ConcurrentDictionary<TKey, Lock>();
-        private ConcurrentDictionary<long, HashSet<TKey>> _txLocks = new ConcurrentDictionary<long, HashSet<TKey>>();
+        private ConcurrentDictionary<TKey, Lock<TId>> _lockTable = new ConcurrentDictionary<TKey, Lock<TId>>();
+        private ConcurrentDictionary<TId, HashSet<TKey>> _ownerLockKeys = new ConcurrentDictionary<TId, HashSet<TKey>>();
 
         /// <summary>
         /// Try to acquire the key lock. If it is newly acquired then add it to the lock table.
@@ -24,19 +24,19 @@
         /// 
         /// If the lock cannot be acquired in the specified timeout then a TimeoutException is thrown (by Lock.Acquire).
         /// </summary>
-        /// <param name="tx">Transaction</param>
+        /// <param name="id">Owner Id</param>
         /// <param name="key">Key</param>
         /// <param name="lockMode">Lock Mode</param>
         /// <param name="timeout">Timeout</param>
         /// <param name="token">Cancellation Token</param>
         /// <returns>{Acquired|Owned}</returns>
-        public async Task<AcquireResult> AcquireLock(ITransaction tx, TKey key, LockMode lockMode, TimeSpan timeout = default(TimeSpan), CancellationToken token = default(CancellationToken))
+        public async Task<AcquireResult> AcquireLock(TId id, TKey key, LockMode lockMode, TimeSpan timeout = default(TimeSpan), CancellationToken token = default(CancellationToken))
         {
-            var l = _lockTable.GetOrAdd(key, (k) => new Lock());
-            var result = await l.Acquire(tx, lockMode, timeout, token);
+            var l = _lockTable.GetOrAdd(key, (k) => new Lock<TId>());
+            var result = await l.Acquire(id, lockMode, timeout, token);
             if (result == AcquireResult.Acquired)
             {
-                var keys = _txLocks.GetOrAdd(tx.TransactionId, (k) => new HashSet<TKey>());
+                var keys = _ownerLockKeys.GetOrAdd(id, (k) => new HashSet<TKey>());
                 keys.Add(key);
             }
 
@@ -46,16 +46,16 @@
         /// <summary>
         /// Downgrade the key lock if the update lock is owned by the transaction.
         /// </summary>
-        /// <param name="tx">Transaction</param>
+        /// <param name="id">Owner Id</param>
         /// <param name="key">Key</param>
         /// <returns></returns>
-        public bool DowngradeLock(ITransaction tx, TKey key)
+        public bool DowngradeLock(TId id, TKey key)
         {
-            if (_txLocks.TryGetValue(tx.TransactionId, out HashSet<TKey> keys))
+            if (_ownerLockKeys.TryGetValue(id, out HashSet<TKey> keys))
             {
-                if (_lockTable.TryGetValue(key, out Lock l))
+                if (_lockTable.TryGetValue(key, out Lock<TId> l))
                 {
-                    return l.Downgrade(tx);
+                    return l.Downgrade(id);
                 };
             }
 
@@ -65,16 +65,16 @@
         /// <summary>
         /// Release the locks on the key lock that are owned by the transaction.
         /// </summary>
-        /// <param name="tx">Transaction</param>
+        /// <param name="id">Owner Id</param>
         /// <param name="key">Key</param>
         /// <returns></returns>
-        public bool ReleaseLock(ITransaction tx, TKey key)
+        public bool ReleaseLock(TId id, TKey key)
         {
-            if (_txLocks.TryGetValue(tx.TransactionId, out HashSet<TKey> keys))
+            if (_ownerLockKeys.TryGetValue(id, out HashSet<TKey> keys))
             {
-                if (_lockTable.TryGetValue(key, out Lock l))
+                if (_lockTable.TryGetValue(key, out Lock<TId> l))
                 {
-                    return l.Release(tx);
+                    return l.Release(id);
                 };
             }
 
@@ -84,16 +84,16 @@
         /// <summary>
         /// Release all key locks owned by the transaction.
         /// </summary>
-        /// <param name="tx">Transaction</param>
-        public void ReleaseLocks(ITransaction tx)
+        /// <param name="id">Owner Id</param>
+        public void ReleaseLocks(TId id)
         {
-            if (_txLocks.TryRemove(tx.TransactionId, out HashSet<TKey> keys))
+            if (_ownerLockKeys.TryRemove(id, out HashSet<TKey> keys))
             {
                 foreach (var key in keys)
                 {
-                    if (_lockTable.TryGetValue(key, out Lock l))
+                    if (_lockTable.TryGetValue(key, out Lock<TId> l))
                     {
-                        l.Release(tx);
+                        l.Release(id);
                     }
                 }
             }

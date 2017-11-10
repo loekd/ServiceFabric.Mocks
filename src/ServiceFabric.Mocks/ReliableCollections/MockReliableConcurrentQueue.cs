@@ -3,7 +3,6 @@
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading;
@@ -17,8 +16,8 @@
     {
         private List<T> _queue = new List<T>();
         private Dictionary<long, Queue<T>> _pendingEnqueueItems = new Dictionary<long, Queue<T>>();
-        ITransaction _queueEmptyTransaction = new MockTransaction(null, -1);
-        Lock _queueEmptyLock = new Lock();
+        private long _queueEmptyTransactionId = -1;
+        private Lock<long> _queueEmptyLock = new Lock<long>();
 
         public MockReliableConcurrentQueue(Uri uri)
             : base(uri)
@@ -30,7 +29,7 @@
         /// <param name="tx"></param>
         public override void ReleaseLocks(ITransaction tx)
         {
-            _queueEmptyLock.Release(tx);
+            _queueEmptyLock.Release(tx.TransactionId);
         }
 
         public long Count => _queue.Count;
@@ -80,7 +79,7 @@
         {
             BeginTransaction(tx);
 
-            long totalMilliseconds = (long)(timeout ?? Lock.DefaultTimeout).TotalMilliseconds;
+            long totalMilliseconds = (long)(timeout ?? Constants.DefaultTimeout).TotalMilliseconds;
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
@@ -107,9 +106,9 @@
             // Try to get committed item from the queue
             for (long milliseconds = totalMilliseconds; milliseconds > 0; milliseconds = totalMilliseconds - sw.ElapsedMilliseconds)
             {
-                if (AcquireResult.Denied != await _queueEmptyLock.Acquire(tx, LockMode.Default, milliseconds, cancellationToken))
+                if (AcquireResult.Denied != await _queueEmptyLock.Acquire(tx.TransactionId, LockMode.Default, milliseconds, cancellationToken))
                 {
-                    _queueEmptyLock.Release(tx);
+                    _queueEmptyLock.Release(tx.TransactionId);
                     lock (_queue)
                     {
                         if (_queue.Count > 0)
@@ -130,7 +129,7 @@
                             //
                             // So, let's acquire the Update lock on Lock. Ideally, this would just succeed, but there may be other threads acquiring
                             // Default locks who snuck in, but have not released it yet. So, we'll spin until we actually get it. 
-                            for (byte i = 1; AcquireResult.Denied == _queueEmptyLock.TryAcquire(_queueEmptyTransaction, LockMode.Update); i++)
+                            for (byte i = 1; AcquireResult.Denied == _queueEmptyLock.TryAcquire(_queueEmptyTransactionId, LockMode.Update); i++)
                             {
                                 // Should I yield while spinning? If I don't yield then I risk a thread deadlock if every physical thread is also in
                                 // a spin lock/tight loop waiting for something to be tirggered on an async thread that can't get scheduled since all
@@ -179,7 +178,7 @@
 
                 if (enqueued)
                 {
-                    _queueEmptyLock.Release(_queueEmptyTransaction);
+                    _queueEmptyLock.Release(_queueEmptyTransactionId);
                 }
             }
 
@@ -203,7 +202,7 @@
             lock (_queue)
             {
                 _queue.Insert(0, value);
-                _queueEmptyLock.Release(_queueEmptyTransaction);
+                _queueEmptyLock.Release(_queueEmptyTransactionId);
             }
 
             return true;

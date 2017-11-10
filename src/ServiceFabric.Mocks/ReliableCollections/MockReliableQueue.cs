@@ -14,7 +14,7 @@
     public class MockReliableQueue<T> : TransactedCollection, IReliableQueue<T>
     {
         private Queue<T> _queue = new Queue<T>();
-        private Lock _lock = new Lock();
+        private Lock<long> _lock = new Lock<long>();
 
         public MockReliableQueue(Uri uri)
             : base(uri)
@@ -22,7 +22,7 @@
 
         public override void ReleaseLocks(ITransaction tx)
         {
-            _lock.Release(tx);
+            _lock.Release(tx.TransactionId);
         }
 
         public Task ClearAsync()
@@ -34,7 +34,7 @@
 
         public async Task<IAsyncEnumerable<T>> CreateEnumerableAsync(ITransaction tx)
         {
-            await _lock.Acquire(BeginTransaction(tx), LockMode.Default, default(TimeSpan), CancellationToken.None);
+            await _lock.Acquire(BeginTransaction(tx).TransactionId, LockMode.Default, default(TimeSpan), CancellationToken.None);
             return new MockAsyncEnumerable<T>(_queue);
         }
 
@@ -45,14 +45,14 @@
 
         public async Task EnqueueAsync(ITransaction tx, T item, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            await _lock.Acquire(BeginTransaction(tx), LockMode.Update, timeout, cancellationToken);
+            await _lock.Acquire(BeginTransaction(tx).TransactionId, LockMode.Update, timeout, cancellationToken);
             _queue.Enqueue(item);
             AddAbortAction(tx, () => { _queue.Dequeue(); return true; });
         }
 
         public async Task<long> GetCountAsync(ITransaction tx)
         {
-            await _lock.Acquire(BeginTransaction(tx), LockMode.Default, default(TimeSpan), CancellationToken.None);
+            await _lock.Acquire(BeginTransaction(tx).TransactionId, LockMode.Default, default(TimeSpan), CancellationToken.None);
 
             return _queue.Count;
         }
@@ -64,7 +64,7 @@
 
         public async Task<ConditionalValue<T>> TryDequeueAsync(ITransaction tx, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            await _lock.Acquire(BeginTransaction(tx), LockMode.Update, timeout, cancellationToken);
+            await _lock.Acquire(BeginTransaction(tx).TransactionId, LockMode.Update, timeout, cancellationToken);
             if (_queue.Count > 0)
             {
                 T item = _queue.Dequeue();
@@ -93,7 +93,7 @@
 
         public async Task<ConditionalValue<T>> TryPeekAsync(ITransaction tx, LockMode lockMode, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            await _lock.Acquire(BeginTransaction(tx), lockMode, timeout, cancellationToken);
+            await _lock.Acquire(BeginTransaction(tx).TransactionId, lockMode, timeout, cancellationToken);
             if (_queue.Count > 0)
             {
                 return new ConditionalValue<T>(true, _queue.Peek());

@@ -4,7 +4,6 @@
     using Microsoft.ServiceFabric.Data.Collections;
     using Microsoft.ServiceFabric.Data.Notifications;
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
@@ -128,7 +127,7 @@
                 {
                     if (filter == null || filter(key))
                     {
-                        await LockManager.AcquireLock(tx, key, LockMode.Default);
+                        await LockManager.AcquireLock(tx.TransactionId, key, LockMode.Default);
                         keys.Add(key);
                     }
                 }
@@ -145,7 +144,7 @@
             {
                 foreach (var key in keys)
                 {
-                    LockManager.ReleaseLock(tx, key);
+                    LockManager.ReleaseLock(tx.TransactionId, key);
                 }
 
                 throw;
