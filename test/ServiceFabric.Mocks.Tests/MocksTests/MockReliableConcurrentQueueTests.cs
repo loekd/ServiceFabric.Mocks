@@ -21,23 +21,6 @@
             }
         }
 
-        /// <summary>
-        /// Service Fabric doesn't currently allow a transaction to dequeue its own uncommited enqueues. But since I foolishly coded up 
-        /// support for it, I thought I'd keep it in case SF adds support for it.
-        /// </summary>
-        /// <returns></returns>
-        [TestMethod]
-        public async Task DequeueOwnEnqueueTest_Unsupported()
-        {
-            var q = new MockReliableConcurrentQueue<int>(new Uri("test://queue"), true);
-            using (var tx = _stateManager.CreateTransaction())
-            {
-                await q.EnqueueAsync(tx, 1);
-                Task<ConditionalValue<int>> task = q.TryDequeueAsync(tx);
-                Assert.AreEqual(1, (await task).Value);
-            }
-        }
-
         [TestMethod]
         public async Task DequeueOwnEnqueueTest()
         {

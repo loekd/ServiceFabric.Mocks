@@ -15,29 +15,16 @@
     public class MockReliableConcurrentQueue<T> : TransactedCollection, IReliableConcurrentQueue<T>
     {
         private List<T> _queue = new List<T>();
-        private Dictionary<long, Queue<T>> _pendingEnqueueItems = new Dictionary<long, Queue<T>>();
         private long _queueEmptyTransactionId = -1;
         private Lock<long> _queueEmptyLock = new Lock<long>();
-        private bool _canTxSeeOwnEnqueues;
 
         /// <summary>
         /// The constructor.
         /// </summary>
         /// <param name="uri">Uri</param>
         public MockReliableConcurrentQueue(Uri uri)
-            : this(uri, false)
-        { }
-
-        /// <summary>
-        /// The constructor.
-        /// </summary>
-        /// <param name="uri">Uri</param>
-        /// <param name="canTxSeeOwnEnqueues">Can a transaction see its own enqueues?</param>
-        public MockReliableConcurrentQueue(Uri uri, bool canTxSeeOwnEnqueues = false)
             : base(uri)
-        {
-            _canTxSeeOwnEnqueues = canTxSeeOwnEnqueues;
-        }
+        { }
 
         /// <summary>
         /// Release any locks the transaction may have on _queueEmptyLock.
@@ -61,25 +48,7 @@
         {
             BeginTransaction(tx);
 
-            Queue<T> queue;
-            lock (_pendingEnqueueItems)
-            {
-                if (!_pendingEnqueueItems.ContainsKey(tx.TransactionId))
-                {
-                    queue = new Queue<T>();
-                    _pendingEnqueueItems.Add(tx.TransactionId, queue);
-                    AddCommitAction(tx, () => OnCommit(tx));
-                }
-                else
-                {
-                    queue = _pendingEnqueueItems[tx.TransactionId];
-                }
-
-                Monitor.Enter(queue);
-            }
-
-            queue.Enqueue(value);
-            Monitor.Exit(queue);
+            AddCommitAction(tx, () => OnCommit(tx, value));
 
             return Task.FromResult(true);
         }
@@ -98,29 +67,6 @@
             long totalMilliseconds = (long)(timeout ?? Constants.DefaultTimeout).TotalMilliseconds;
             Stopwatch sw = new Stopwatch();
             sw.Start();
-
-            if (_canTxSeeOwnEnqueues)
-            {
-                // Try to get an uncommitted item on the transaction
-                Queue<T> queue;
-                lock (_pendingEnqueueItems)
-                {
-                    if (_pendingEnqueueItems.TryGetValue(tx.TransactionId, out queue))
-                    {
-                        Monitor.Enter(queue);
-                    }
-                }
-
-                if (queue != null)
-                {
-                    ConditionalValue<T> value = queue.Count > 0 ? new ConditionalValue<T>(true, queue.Dequeue()) : default(ConditionalValue<T>);
-                    Monitor.Exit(queue);
-                    if (value.HasValue)
-                    {
-                        return value;
-                    }
-                }
-            }
 
             // Try to get committed item from the queue
             for (long milliseconds = totalMilliseconds; milliseconds > 0; milliseconds = totalMilliseconds - sw.ElapsedMilliseconds)
@@ -175,30 +121,12 @@
         /// </summary>
         /// <param name="tx"></param>
         /// <returns></returns>
-        private bool OnCommit(ITransaction tx)
+        private bool OnCommit(ITransaction tx, T value)
         {
-            Queue<T> queue = null;
-            lock(_pendingEnqueueItems)
+            lock (_queue)
             {
-                if (_pendingEnqueueItems.TryGetValue(tx.TransactionId, out queue))
-                {
-                    _pendingEnqueueItems.Remove(tx.TransactionId);
-                }
-            }
-
-            lock(_queue)
-            {
-                bool enqueued = false;
-                while (queue.Count > 0)
-                {
-                    enqueued = true;
-                    _queue.Add(queue.Dequeue());
-                }
-
-                if (enqueued)
-                {
-                    _queueEmptyLock.Release(_queueEmptyTransactionId);
-                }
+                _queue.Add(value);
+                _queueEmptyLock.Release(_queueEmptyTransactionId);
             }
 
             return true;
@@ -213,11 +141,6 @@
         /// <returns></returns>
         private bool OnAbort(ITransaction tx, T value)
         {
-            lock (_pendingEnqueueItems)
-            {
-                _pendingEnqueueItems.Remove(tx.TransactionId);
-            }
-
             lock (_queue)
             {
                 _queue.Insert(0, value);
