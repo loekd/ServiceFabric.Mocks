@@ -1,22 +1,25 @@
-﻿namespace ServiceFabric.Mocks
-{
-    using Microsoft.ServiceFabric.Data;
-    using Microsoft.ServiceFabric.Data.Collections;
-    using Microsoft.ServiceFabric.Data.Notifications;
-    using ServiceFabric.Mocks.ReliableCollections;
-    using System;
-    using System.Fabric;
-    using System.IO;
-    using System.Threading;
-    using System.Threading.Tasks;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.ServiceFabric.Data;
+using Microsoft.ServiceFabric.Data.Collections;
+using Microsoft.ServiceFabric.Data.Notifications;
+using ServiceFabric.Mocks.ReliableCollections;
+using System;
+using System.Fabric;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
+namespace ServiceFabric.Mocks
+{
     /// <summary>
     /// Defines replica of a reliable state provider.
     /// </summary>
     public class MockReliableStateManager : IReliableStateManagerReplica2
     {
-        private int _totalTransactionInstanceCount = 0;
-        private TransactedConcurrentDictionary<Uri, IReliableState> _store;
+        private long _totalTransactionInstanceCount;
+        private readonly TransactedConcurrentDictionary<Uri, IReliableState> _store;
 
         public MockReliableStateManager()
         {
@@ -72,6 +75,36 @@
         }
         #endregion
 
+        /// <summary>
+        /// Keeps all created transactions.
+        /// </summary>
+        private readonly ConcurrentDictionary<long, MockTransaction> _allTransactions = new ConcurrentDictionary<long, MockTransaction>();
+
+        /// <summary>
+        /// Returns all created transactions ordered by instance count (asc).
+        /// </summary>
+        public IEnumerable<MockTransaction> AllTransactions => _allTransactions.Values;
+
+        /// <summary>
+        /// Gets the last known <see cref="Transaction"/>.
+        /// </summary>
+        public MockTransaction Transaction => _allTransactions[_allTransactions.Keys.Last()];
+
+        /// <summary>
+        /// Gets a bool that indicates whether the last known <see cref="Transaction"/> is set.
+        /// </summary>
+        public bool TransanctionsIsCreated => Transaction != null;
+
+        /// <summary>
+        /// Gets a bool that indicates whether the last known <see cref="Transaction"/> is committed.
+        /// </summary>
+        public bool TransactionIsCommitted => Transaction != null && Transaction.IsCommitted;
+
+        /// <summary>
+        /// Gets a bool that indicates whether the last known <see cref="Transaction"/> is aborted.
+        /// </summary>
+        public bool TransactionIsAborted => Transaction != null && Transaction.IsAborted;
+
         #region IReliableStateManager
         /// <summary>
         /// Occurs when State Manager's state changes.
@@ -86,7 +119,10 @@
 
         public ITransaction CreateTransaction()
         {
-            return new MockTransaction(this, Interlocked.Increment(ref _totalTransactionInstanceCount));
+            long instanceCount = Interlocked.Increment(ref _totalTransactionInstanceCount);
+            var tran=  new MockTransaction(this, instanceCount);
+            _allTransactions.TryAdd(instanceCount, tran);
+            return tran;
         }
 
         #region GetOrAddAsync
@@ -133,7 +169,7 @@
 
         public async Task<T> GetOrAddAsync<T>(ITransaction tx, Uri name, TimeSpan timeout) where T : IReliableState
         {
-            IReliableState constructed = null;
+            IReliableState constructed;
 
             var result = await _store.GetOrAddAsync(tx, name, collectionName =>
             {

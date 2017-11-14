@@ -10,8 +10,8 @@
     /// </summary>
     public class MockTransaction : ITransaction
     {
-        private MockReliableStateManager _stateManager;
-        private ConcurrentDictionary<Uri, ReliableCollections.TransactedCollection> _transactedCollections = new ConcurrentDictionary<Uri, ReliableCollections.TransactedCollection>();
+        private readonly MockReliableStateManager _stateManager;
+        private readonly ConcurrentDictionary<Uri, ReliableCollections.TransactedCollection> _transactedCollections = new ConcurrentDictionary<Uri, ReliableCollections.TransactedCollection>();
 
         public bool TryAddTransactedCollection(ReliableCollections.TransactedCollection collection)
         {
@@ -26,7 +26,9 @@
 
         public bool IsCompleted => IsCommitted || IsAborted;
 
-        public long TransactionId { get; private set; }
+        public long TransactionId { get; }
+
+        public int InstanceCount => (int)TransactionId;
 
         public MockTransaction(MockReliableStateManager stateManager, long transactionId)
         {
