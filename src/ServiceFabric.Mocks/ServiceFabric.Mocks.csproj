@@ -22,7 +22,6 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IncludeSymbols>true</IncludeSymbols>
     <Platforms>x64</Platforms>
-    <Version>2.4.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
