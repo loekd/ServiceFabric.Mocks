@@ -20,7 +20,9 @@ Or [donate](https://paypal.me/lduys/5) a cup of coffee.
 The VSTS Agent lagged behind in Service Fabric SDK version, this caused runtime errors. This issue is now resolved. 
 
 ## Release notes
-- 2.4.1
+- 3.0.0
+	- Merged PR by ralphcu
+	- Breaking change: list of past Transactions replaced by events (`MockTransactionChanged`)
     - Created Lock and LockManager classes to try to simulate the locking and blocking of SF transactions. Added unit tests.
 	- Created TransactedConcurrentDictionary class which is now used by MockReliableDictionary and MockReliableStateManager. Added unit tests.
 	  o OnStateManagerChanged is now fired on CommitAsync() of transaction used to add or remove.
