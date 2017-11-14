@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.ServiceFabric.Services.Runtime;
+using Microsoft.ServiceFabric.Data.Notifications;
 
 namespace ServiceFabric.Mocks.Tests.Services
 {
