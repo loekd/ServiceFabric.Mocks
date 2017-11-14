@@ -1,14 +1,22 @@
-﻿using System.Threading.Tasks;
-using Microsoft.ServiceFabric.Data;
+﻿namespace ServiceFabric.Mocks
+{
+    using System.Threading.Tasks;
+    using Microsoft.ServiceFabric.Data;
+    using System.Collections.Concurrent;
+    using System;
 
-namespace ServiceFabric.Mocks
-{  
     /// <summary>
     /// A sequence of operations performed as a single logical unit of work.
     /// </summary>
     public class MockTransaction : ITransaction
     {
-        public int InstanceCount { get; }
+        private MockReliableStateManager _stateManager;
+        private ConcurrentDictionary<Uri, ReliableCollections.TransactedCollection> _transactedCollections = new ConcurrentDictionary<Uri, ReliableCollections.TransactedCollection>();
+
+        public bool TryAddTransactedCollection(ReliableCollections.TransactedCollection collection)
+        {
+            return _transactedCollections.TryAdd(collection.Name, collection);
+        }
 
         public long CommitSequenceNumber => 0L;
 
@@ -18,35 +26,55 @@ namespace ServiceFabric.Mocks
 
         public bool IsCompleted => IsCommitted || IsAborted;
 
-        public long TransactionId => 0L;
+        public long TransactionId { get; private set; }
 
-        public MockTransaction(int instanceCount)
+        public MockTransaction(MockReliableStateManager stateManager, long transactionId)
         {
-            InstanceCount = instanceCount;
+            _stateManager = stateManager;
+            TransactionId = transactionId;
         }
 
         public void Abort()
         {
-            if (!IsCommitted)
+            if (IsCompleted)
             {
-                IsAborted = true;
+                throw new InvalidOperationException();
             }
+
+            foreach (var collection in _transactedCollections.Values)
+            {
+                collection.EndTransaction(this, false);
+                collection.ReleaseLocks(this);
+            }
+
+            IsAborted = true;
+            _stateManager?.OnTransactionChanged(this, false);
         }
 
         public Task CommitAsync()
         {
-            if (!IsAborted)
+            if (IsCompleted)
             {
-                IsCommitted = true;
+                throw new InvalidOperationException();
             }
+
+            foreach (var collection in _transactedCollections.Values)
+            {
+                collection.EndTransaction(this, true);
+                collection.ReleaseLocks(this);
+            }
+
+            IsCommitted = true;
+            _stateManager?.OnTransactionChanged(this, true);
+
             return Task.FromResult(true);
         }
 
         public void Dispose()
         {
-            if (!IsCommitted)
+            if (!IsCompleted)
             {
-                IsAborted = true;
+                Abort();
             }
         }
 
