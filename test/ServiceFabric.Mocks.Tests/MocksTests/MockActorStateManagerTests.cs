@@ -99,6 +99,16 @@ namespace ServiceFabric.Mocks.Tests.MocksTests
 		}
 
         [TestMethod]
+        public async Task Int_DuplicateTryAddStateAsyncTest()
+        {
+            var instance = new MockActorStateManager();
+            await instance.TryAddStateAsync("existing", 6);
+            var result = await instance.TryAddStateAsync("existing", 6);
+
+            Assert.IsFalse(result);
+        }
+
+        [TestMethod]
         public async Task MultiType_SetStateAsyncTest()
         {
             var instance = new MockActorStateManager();
