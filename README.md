@@ -20,6 +20,9 @@ Or [donate](https://paypal.me/lduys/5) a cup of coffee.
 The VSTS Agent lagged behind in Service Fabric SDK version, this caused runtime errors. This issue is now resolved. 
 
 ## Release notes
+- 3.0.1
+	- Merged PR by esbenbach, fix `ActorStateManager` `TryAddStateAsync` behavior not same as actual implementation. Added unit test.
+
 - 3.0.0
 	- Merged PR by ralphcu
 	- Breaking change: list of past Transactions replaced by events (`MockTransactionChanged`)
