@@ -94,7 +94,7 @@ namespace ServiceFabric.Mocks
         /// <inheritdoc />
         public Task<bool> TryAddStateAsync<T>(string stateName, T value, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return (Task<bool>)AddStateAsync(stateName, value, cancellationToken);
+            return Task.FromResult(_state.TryAdd(stateName, value));
         }
 
         /// <inheritdoc />
