@@ -244,3 +244,4 @@ ModelManifest.xml
 # FAKE - F# Make
 .fake/
 /publish nuget.bat
+/src/ServiceFabric.Mocks/ServiceFabric.Mocks.snk
