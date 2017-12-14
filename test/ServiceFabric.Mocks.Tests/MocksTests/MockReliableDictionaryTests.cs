@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 using ServiceFabric.Mocks.ReliableCollections;
+using System.Threading;
 
 namespace ServiceFabric.Mocks.Tests.MocksTests
 {
@@ -35,6 +36,24 @@ namespace ServiceFabric.Mocks.Tests.MocksTests
             var actual = await dictionary.TryGetValueAsync(tx, key);
 
             Assert.AreEqual(actual.Value, value);
+        }
+
+        [TestMethod]
+        public async Task DictionaryCreateKeyEnumerableAsyncTest()
+        {
+            const string key = "key";
+            const string value = "value";
+
+            var dictionary = new MockReliableDictionary<string, string>(new Uri("fabric://MockReliableDictionary"));
+            var tx = new MockTransaction(null, 1);
+
+            await dictionary.AddAsync(tx, key, value);
+            var enumerable = await dictionary.CreateKeyEnumerableAsync(tx);
+            var enumerator = enumerable.GetAsyncEnumerator();
+            await enumerator.MoveNextAsync(CancellationToken.None);
+            var actual = enumerator.Current;
+
+            Assert.AreEqual(key, actual);
         }
     }
 }
