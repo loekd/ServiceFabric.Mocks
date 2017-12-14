@@ -20,6 +20,9 @@ Or [donate](https://paypal.me/lduys/5) a cup of coffee.
 The VSTS Agent lagged behind in Service Fabric SDK version, this caused runtime errors. This issue is now resolved. 
 
 ## Release notes
+ 3.1.2
+	- Add support for `IReliableDictionary2`
+
 - 3.1.1
 	- Sign assembly
 
