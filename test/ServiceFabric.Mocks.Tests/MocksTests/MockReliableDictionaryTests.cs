@@ -39,6 +39,21 @@ namespace ServiceFabric.Mocks.Tests.MocksTests
         }
 
         [TestMethod]
+        public async Task DictionaryCountTest()
+        {
+            const string key = "key";
+            const string value = "value";
+
+            var dictionary = new MockReliableDictionary<string, string>(new Uri("fabric://MockReliableDictionary"));
+            var tx = new MockTransaction(null, 1);
+
+            await dictionary.AddAsync(tx, key, value);
+            var actual = dictionary.Count;
+
+            Assert.AreEqual(1, actual);
+        }
+
+        [TestMethod]
         public async Task DictionaryCreateKeyEnumerableAsyncTest()
         {
             const string key = "key";
