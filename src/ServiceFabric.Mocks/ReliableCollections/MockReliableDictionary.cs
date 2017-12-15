@@ -14,7 +14,7 @@
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TValue"></typeparam>
-    public class MockReliableDictionary<TKey, TValue> : TransactedConcurrentDictionary<TKey, TValue>, IReliableDictionary<TKey, TValue>, IReliableDictionary2<TKey, TValue>
+    public class MockReliableDictionary<TKey, TValue> : TransactedConcurrentDictionary<TKey, TValue>, IReliableDictionary2<TKey, TValue>
         where TKey : IEquatable<TKey>, IComparable<TKey>
     {
         public long Count => Dictionary.Count;
@@ -28,7 +28,7 @@
                 {
                     if (DictionaryChanged != null)
                     {
-                        NotifyDictionaryChangedEventArgs<TKey, TValue> e = null;
+                        NotifyDictionaryChangedEventArgs<TKey, TValue> e;
                         switch (c.ChangeType)
                         {
                             case ChangeType.Added:

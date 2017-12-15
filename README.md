@@ -21,7 +21,7 @@ The VSTS Agent lagged behind in Service Fabric SDK version, this caused runtime 
 
 ## Release notes
  3.1.2
-	- Add support for `IReliableDictionary2`
+	- Merged PR by Jaah. Add support for `IReliableDictionary2`
 
 - 3.1.1
 	- Sign assembly
