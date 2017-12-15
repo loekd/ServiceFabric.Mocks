@@ -14,9 +14,11 @@
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TValue"></typeparam>
-    public class MockReliableDictionary<TKey, TValue> : TransactedConcurrentDictionary<TKey, TValue>, IReliableDictionary<TKey, TValue>
+    public class MockReliableDictionary<TKey, TValue> : TransactedConcurrentDictionary<TKey, TValue>, IReliableDictionary2<TKey, TValue>
         where TKey : IEquatable<TKey>, IComparable<TKey>
     {
+        public long Count => Dictionary.Count;
+
         public MockReliableDictionary(Uri uri)
             : base(uri, null)
         {
@@ -26,7 +28,7 @@
                 {
                     if (DictionaryChanged != null)
                     {
-                        NotifyDictionaryChangedEventArgs<TKey, TValue> e = null;
+                        NotifyDictionaryChangedEventArgs<TKey, TValue> e;
                         switch (c.ChangeType)
                         {
                             case ChangeType.Added:
@@ -52,6 +54,8 @@
         }
 
         public Func<IReliableDictionary<TKey, TValue>, NotifyDictionaryRebuildEventArgs<TKey, TValue>, Task> RebuildNotificationAsyncCallback { set => throw new NotImplementedException(); }
+
+
 
         public event EventHandler<NotifyDictionaryChangedEventArgs<TKey, TValue>> DictionaryChanged;
         public event EventHandler<DictionaryChange> MockDictionaryChanged;
@@ -138,6 +142,51 @@
                 }
 
                 IAsyncEnumerable<KeyValuePair<TKey, TValue>> result = new MockAsyncEnumerable<KeyValuePair<TKey, TValue>>(keys.Select(k => new KeyValuePair<TKey, TValue>(k, Dictionary[k])));
+                return result;
+            }
+            catch
+            {
+                foreach (var key in keys)
+                {
+                    LockManager.ReleaseLock(tx.TransactionId, key);
+                }
+
+                throw;
+            }
+        }
+
+        #endregion
+
+        #region CreateKeyEnumerableAsync
+        public Task<IAsyncEnumerable<TKey>> CreateKeyEnumerableAsync(ITransaction tx)
+        {
+            return CreateKeyEnumerableAsync(tx, EnumerationMode.Unordered, default(TimeSpan), CancellationToken.None);
+        }
+
+        public Task<IAsyncEnumerable<TKey>> CreateKeyEnumerableAsync(ITransaction tx, EnumerationMode enumerationMode)
+        {
+            return CreateKeyEnumerableAsync(tx, enumerationMode, default(TimeSpan), CancellationToken.None);
+        }
+
+        public async Task<IAsyncEnumerable<TKey>> CreateKeyEnumerableAsync(ITransaction tx, EnumerationMode enumerationMode, TimeSpan timeout, CancellationToken cancellationToken)
+        {
+            List<TKey> keys = new List<TKey>();
+
+            try
+            {
+                BeginTransaction(tx);
+                foreach (var key in Dictionary.Keys)
+                {
+                    await LockManager.AcquireLock(tx.TransactionId, key, LockMode.Default, timeout, cancellationToken);
+                    keys.Add(key);
+                }
+
+                if (enumerationMode == EnumerationMode.Ordered)
+                {
+                    keys.Sort();
+                }
+
+                IAsyncEnumerable<TKey> result = new MockAsyncEnumerable<TKey>(keys);
                 return result;
             }
             catch
