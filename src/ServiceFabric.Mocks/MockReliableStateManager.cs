@@ -144,6 +144,10 @@
                 {
                     constructed = ConstructMockCollection(collectionName, typeof(MockReliableDictionary<,>), typeArguments);
                 }
+                else if (typeof(IReliableDictionary2<,>).IsAssignableFrom(typeDefinition))
+                {
+                    constructed = ConstructMockCollection(collectionName, typeof(MockReliableDictionary<,>), typeArguments);
+                }
                 else if (typeof(IReliableConcurrentQueue<>).IsAssignableFrom(typeDefinition))
                 {
                     constructed = ConstructMockCollection(collectionName, typeof(MockReliableConcurrentQueue<>), typeArguments);
