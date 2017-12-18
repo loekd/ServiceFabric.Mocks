@@ -31,25 +31,6 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
         }
 
         [TestMethod]
-        public async Task TestServiceState_Dictionary2()
-        {
-            var context = MockStatefulServiceContextFactory.Default;
-            var stateManager = new MockReliableStateManager();
-            var service = new MyStatefulService(context, stateManager);
-
-            const string stateName = "test";
-            var payload = new Payload(StatePayload);
-
-            //create state
-            await service.InsertAsync(stateName, payload);
-
-            //get state
-            var dictionary = await stateManager.TryGetAsync<IReliableDictionary2<string, Payload>>(MyStatefulService.StateManagerDictionaryKey);
-            var actual = (await dictionary.Value.TryGetValueAsync(stateManager.CreateTransaction(), stateName)).Value;
-            Assert.AreEqual(StatePayload, actual.Content);
-        }
-
-        [TestMethod]
         public async Task TestServiceState_Queue()
         {
             var context = MockStatefulServiceContextFactory.Default;
