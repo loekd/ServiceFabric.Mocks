@@ -140,11 +140,8 @@
                 var typeArguments = typeof(T).GetGenericArguments();
                 var typeDefinition = typeof(T).GetGenericTypeDefinition();
 
-                if (typeof(IReliableDictionary<,>).IsAssignableFrom(typeDefinition))
-                {
-                    constructed = ConstructMockCollection(collectionName, typeof(MockReliableDictionary<,>), typeArguments);
-                }
-                else if (typeof(IReliableDictionary2<,>).IsAssignableFrom(typeDefinition))
+                if (typeof(IReliableDictionary<,>).IsAssignableFrom(typeDefinition)
+                || typeof(IReliableDictionary2<,>).IsAssignableFrom(typeDefinition))
                 {
                     constructed = ConstructMockCollection(collectionName, typeof(MockReliableDictionary<,>), typeArguments);
                 }
