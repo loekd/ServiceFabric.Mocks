@@ -186,12 +186,34 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
 
             using (var tx = _stateManager.CreateTransaction())
             {
-                await Assert.ThrowsExceptionAsync<ArgumentException>(
-                    async () =>
-                    {
-                        await d.SetAsync(tx, 1, "One");
-                    }
-                );
+                await d.SetAsync(tx, 1, "Zero");
+            }
+            using (var tx = _stateManager.CreateTransaction())
+            {
+                ConditionalValue<string> value = await d.TryGetValueAsync(tx, 1, LockMode.Default);
+                Assert.IsFalse(value.HasValue);
+            }
+
+            using (var tx = _stateManager.CreateTransaction())
+            {
+                await d.SetAsync(tx, 1, "One");
+                await tx.CommitAsync();
+                Assert.AreEqual("One", change.Added);
+                Assert.AreEqual(null, change.Removed);
+            }
+
+            using (var tx = _stateManager.CreateTransaction())
+            {
+                await d.SetAsync(tx, 1, "Two");
+            }
+            using (var tx = _stateManager.CreateTransaction())
+            {
+                ConditionalValue<string> value = await d.TryGetValueAsync(tx, 1, LockMode.Default);
+                Assert.AreEqual("One", value.Value);
+            }
+
+            using (var tx = _stateManager.CreateTransaction())
+            {
                 await d.AddAsync(tx, 2, "Two");
                 await tx.CommitAsync();
             }
@@ -204,7 +226,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
                 Assert.AreEqual("Three", change.Added);
             }
 
-            Assert.AreEqual(1, await GetCount(d));
+            Assert.AreEqual(2, await GetCount(d));
         }
 
         [TestMethod]
