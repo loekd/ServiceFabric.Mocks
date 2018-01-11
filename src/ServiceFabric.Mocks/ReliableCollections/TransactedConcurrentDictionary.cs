@@ -187,19 +187,23 @@
         {
             await LockManager.AcquireLock(BeginTransaction(tx).TransactionId, key, LockMode.Update, timeout, cancellationToken);
 
-            TValue oldValue;
-            try
-            {
-                oldValue = Dictionary[key];
-            }
-            catch(KeyNotFoundException)
-            {
-                throw new ArgumentException();
-            }
+            bool oldValueExisted = Dictionary.TryGetValue(key, out TValue oldValue);
 
             Dictionary[key] = value;
 
-            AddAbortAction(tx, () => { Dictionary[key] = oldValue; return true; });
+            AddAbortAction(tx, () =>
+            {
+                if (oldValueExisted)
+                {
+                    Dictionary[key] = oldValue;
+                }
+                else
+                {
+                    Dictionary.TryRemove(key, out TValue removedValue);
+                }
+
+                return true;
+            });
             AddCommitAction(tx, () => { OnDictionaryChanged(new DictionaryChange(tx, ChangeType.Updated, key, added: value, removed: oldValue)); return true; });
         }
 
