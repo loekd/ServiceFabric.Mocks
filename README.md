@@ -23,6 +23,7 @@ The VSTS Agent lagged behind in Service Fabric SDK version, this caused runtime 
  - 3.1.4
     - Fixed bug in TransactedConcurrentDictionary.SetAsync which threw ArgumentException when key was not already present. Updated to follow MS documentation:
 	  Adds a key/value pair to the Reliable Dictionary if the key does not already exist, or updates a key/value pair in the Reliable Dictionary if the key already exists.
+	  Fixes issue #44.
 
  - 3.1.3
 	- Merged PR by Jaah. Fix creation of `IReliableDictionary2` collections
