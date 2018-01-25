@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
@@ -69,5 +71,29 @@ namespace ServiceFabric.Mocks.Tests.ActorTests
 		    context = MockActorMethodContextFactory.CreateForReminder(nameof(actor.ActorOperation));
 		    Assert.IsInstanceOfType(context, typeof(ActorMethodContext));
 		}
-	}
+
+        [TestMethod]
+        public async Task TestGetActorRemindersExtensionMethod()
+        {
+            var svc = MockActorServiceFactory.CreateActorServiceForActor<ReminderTimerActor>();
+            var actor = svc.Activate(new ActorId(Guid.NewGuid()));
+            string reminderName = "reminder";
+            IEnumerable<IActorReminder> reminderCollection = null;
+
+            // Test empty when no reminders
+            reminderCollection = actor.GetActorReminders();
+            Assert.IsFalse(reminderCollection.Any());
+
+            // Test non-empty when reminder registered
+            await actor.RegisterReminderAsync(reminderName);
+            reminderCollection = actor.GetActorReminders();
+            Assert.IsTrue(reminderCollection.Any(r => string.Equals(r.Name, reminderName)));
+
+            // Test non-empty when reminder registered
+            await actor.UnregisterReminderAsync(reminderName);
+            reminderCollection = actor.GetActorReminders();
+            Assert.IsFalse(reminderCollection.Any(r => string.Equals(r.Name, reminderName)));
+        }
+
+    }
 }

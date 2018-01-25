@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors.Runtime;
@@ -91,7 +92,10 @@ namespace ServiceFabric.Mocks
 		public static IEnumerable<IActorReminder> GetActorReminders(this ActorBase actor)
 		{
 			var reminderCollection = actor.ActorService.StateProvider.LoadRemindersAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-			return reminderCollection[actor.Id];
+            if (reminderCollection.ContainsKey(actor.Id))
+			    return reminderCollection[actor.Id];
+
+		    return new ReadOnlyCollection<IActorReminderState>(new List<IActorReminderState>());
 		}
 	}
 
