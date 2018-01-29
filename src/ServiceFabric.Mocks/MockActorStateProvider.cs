@@ -180,6 +180,7 @@ namespace ServiceFabric.Mocks
             var timeOfDay = utcNow.TimeOfDay;
 
             var reminderState = new MockActorReminderState(new MockActorReminderData(actorId, reminder, timeOfDay), timeOfDay);
+            _reminders.Delete(actorId, reminderState.Name);
             _reminders.Add(actorId, reminderState);
             return Task.FromResult(reminderState);
         }

@@ -20,6 +20,10 @@ Or [donate](https://paypal.me/lduys/5) a cup of coffee.
 The VSTS Agent lagged behind in Service Fabric SDK version, this caused runtime errors. This issue is now resolved. 
 
 ## Release notes
+ - 3.1.5
+    - Fixed bug in SaveReminderAsync which did not update existing reminder if called multiple times with same reminder name. Now updates existing reminder, if any.
+	- Fixed bug in GetActorReminders which threw exception if called when no reminders had been registered at all. Now returns empty collection.
+
  - 3.1.4
     - Fixed bug in TransactedConcurrentDictionary.SetAsync which threw ArgumentException when key was not already present. Updated to follow MS documentation:
 	  Adds a key/value pair to the Reliable Dictionary if the key does not already exist, or updates a key/value pair in the Reliable Dictionary if the key already exists.
