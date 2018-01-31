@@ -20,6 +20,9 @@ Or [donate](https://paypal.me/lduys/5) a cup of coffee.
 The VSTS Agent lagged behind in Service Fabric SDK version, this caused runtime errors. This issue is now resolved. 
 
 ## Release notes
+ - 3.2.0
+	- Upgraded to new SDK (SF 3.0.456)
+
  - 3.1.5
     - Fixed bug in SaveReminderAsync which did not update existing reminder if called multiple times with same reminder name. Now updates existing reminder, if any.
 	- Fixed bug in GetActorReminders which threw exception if called when no reminders had been registered at all. Now returns empty collection.
