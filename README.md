@@ -21,6 +21,9 @@ The VSTS Agent lagged behind in Service Fabric SDK version, this caused runtime 
 
 ## Release notes
 
+ - 3.1.7
+	- Add `ServiceExtensions` to invoke non-public operations on Services.
+
  - 3.1.6
 	- Upgraded to new SDK (SF 3.0.456)
 
