@@ -6,7 +6,7 @@
     <AssemblyTitle>ServiceFabric.Mocks</AssemblyTitle>
     <VersionPrefix>3.1.7</VersionPrefix>
     <Authors>Loek Duys</Authors>
-    <TargetFrameworks>net451;net46</TargetFrameworks>
+    <TargetFrameworks>net451;net46;netcoreapp2.0;netstandard2.0</TargetFrameworks>
     <PlatformTarget>x64</PlatformTarget>
     <AssemblyName>ServiceFabric.Mocks</AssemblyName>
     <PackageId>ServiceFabric.Mocks</PackageId>
