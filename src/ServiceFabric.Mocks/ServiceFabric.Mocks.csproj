@@ -45,10 +45,4 @@
     <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="3.0.456" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="System.Numerics" />
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-
 </Project>
