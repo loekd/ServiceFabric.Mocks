@@ -13,6 +13,7 @@ using Microsoft.ServiceFabric.Services.Remoting.V1;
 using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
 #endif
 using Microsoft.ServiceFabric.Services.Remoting.V2;
+using ServiceFabric.Mocks.RemotingV2;
 
 namespace ServiceFabric.Mocks
 {
@@ -132,7 +133,7 @@ namespace ServiceFabric.Mocks
 
         public IServiceRemotingMessageBodyFactory GetRemotingMessageBodyFactory()
         {
-            throw new NotImplementedException();
+            return new MockServiceRemotingMessageBodyFactory();
         }
     }
 
