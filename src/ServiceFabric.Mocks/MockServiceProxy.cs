@@ -19,7 +19,7 @@ namespace ServiceFabric.Mocks
 
         public Type ServiceInterfaceType => typeof(TService);
 
-#if !(NETCOREAPP2_0 || NETSTANDARD2_0)
+#if !(NETSTANDARD2_0)
         public Microsoft.ServiceFabric.Services.Remoting.V1.Client.IServiceRemotingPartitionClient ServicePartitionClient { get { throw new NotImplementedException(); } }
 #endif
         public Microsoft.ServiceFabric.Services.Remoting.V2.Client.IServiceRemotingPartitionClient ServicePartitionClient2 { get { throw new NotImplementedException(); } }

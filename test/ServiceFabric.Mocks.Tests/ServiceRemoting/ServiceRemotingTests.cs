@@ -10,12 +10,7 @@ using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Services.Client;
 using Microsoft.ServiceFabric.Services.Communication.Client;
 using Microsoft.ServiceFabric.Services.Remoting;
-#if (NETCOREAPP2_0 || NETSTANDARD2_0)
-using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
-#else
-using Microsoft.ServiceFabric.Services.Remoting.V1;
 using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
-#endif
 using Microsoft.ServiceFabric.Services.Runtime;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceFabric.Mocks.Tests.Actors;

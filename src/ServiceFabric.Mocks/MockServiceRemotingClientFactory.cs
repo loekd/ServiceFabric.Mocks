@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !(NETSTANDARD2_0)
+using System;
 using System.Collections.Generic;
 using System.Fabric;
 using System.Threading;
@@ -6,19 +7,13 @@ using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.ServiceFabric.Services.Client;
 using Microsoft.ServiceFabric.Services.Communication.Client;
-#if (NETCOREAPP2_0 || NETSTANDARD2_0)
-using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
-#else
 using Microsoft.ServiceFabric.Services.Remoting.V1;
 using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
-#endif
-using Microsoft.ServiceFabric.Services.Remoting.V2;
-using ServiceFabric.Mocks.RemotingV2;
 
 namespace ServiceFabric.Mocks
 {
     /// <summary>
-    /// Mock implementation of <see cref="IServiceRemotingClientFactory"/>.
+    /// Mock implementation of <see cref="IServiceRemotingClientFactory"/> v1.
     /// Defines the interface that must be implemented for providing the remoting communication client factory.
     /// </summary>
     public class MockActorServiceRemotingClientFactory : IServiceRemotingClientFactory
@@ -131,21 +126,14 @@ namespace ServiceFabric.Mocks
             _operationRetryControls[client] = control;
         }
 
-        public IServiceRemotingMessageBodyFactory GetRemotingMessageBodyFactory()
-        {
-            return new MockServiceRemotingMessageBodyFactory();
-        }
+       
     }
 
     /// <summary>
-    /// Mock implementation of <see cref="IServiceRemotingClient"/>. (returned from <see cref="MockActorServiceRemotingClientFactory"/>)
+    /// Mock implementation of <see cref="IServiceRemotingClient"/> v1. (returned from <see cref="MockActorServiceRemotingClientFactory"/>)
     /// Defines the interface that must be implemented to provide a client for Service Remoting communication.
     /// </summary>
-    public class MockActorServiceRemotingClient
-        : IServiceRemotingClient
-#if !(NETCOREAPP2_0 || NETSTANDARD2_0)
-        , Microsoft.ServiceFabric.Services.Remoting.V2.Client.IServiceRemotingClient
-#endif
+    public class MockActorServiceRemotingClient : IServiceRemotingClient
     {
         /// <summary>
         /// Null
@@ -176,7 +164,7 @@ namespace ServiceFabric.Mocks
         public OperationRetrySettings RetrySettings { get; set; }
 
         /// <summary>
-        /// Gets or sets the wrapped <see cref="IService"/>.
+        /// Gets or sets the wrapped <see cref="ActorService"/>.
         /// </summary>
         public ActorService WrappedService { get; }
 
@@ -186,51 +174,18 @@ namespace ServiceFabric.Mocks
             if (wrappedService == null) throw new ArgumentNullException(nameof(wrappedService));
             WrappedService = wrappedService;
         }
-#if !(NETCOREAPP2_0 || NETSTANDARD2_0)
-
+        
         /// <inheritdoc />
         public Task<byte[]> RequestResponseAsync(ServiceRemotingMessageHeaders messageHeaders, byte[] requestBody)
-		{
-			return Task.FromResult(new byte[0]);
-		}
-
-		/// <inheritdoc />
-		public void SendOneWay(ServiceRemotingMessageHeaders messageHeaders, byte[] requestBody)
-		{
-		}
-#endif
-        public Task<IServiceRemotingResponseMessage> RequestResponseAsync(IServiceRemotingRequestMessage requestRequestMessage)
         {
-            return Task.FromResult<IServiceRemotingResponseMessage>(new MockServiceRemotingResponseMessage());
+            return Task.FromResult(new byte[0]);
         }
 
-        public void SendOneWay(IServiceRemotingRequestMessage requestMessage)
+        /// <inheritdoc />
+        public void SendOneWay(ServiceRemotingMessageHeaders messageHeaders, byte[] requestBody)
         {
-        }
-    }
-
-    public class MockServiceRemotingResponseMessage : IServiceRemotingResponseMessage
-    {
-        public IServiceRemotingResponseMessageHeader Header { get; set; }
-        public IServiceRemotingResponseMessageBody MsgBody { get; set; }
-
-        public MockServiceRemotingResponseMessage()
-        { }
-
-        public MockServiceRemotingResponseMessage(IServiceRemotingResponseMessageHeader header, IServiceRemotingResponseMessageBody msgBody)
-        {
-            Header = header;
-            MsgBody = msgBody;
-        }
-
-        public IServiceRemotingResponseMessageHeader GetHeader()
-        {
-            return Header;
-        }
-
-        public IServiceRemotingResponseMessageBody GetBody()
-        {
-            return MsgBody;
         }
     }
 }
+
+#endif
