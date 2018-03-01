@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Fabric;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors.Runtime;
@@ -20,10 +19,14 @@ namespace ServiceFabric.Mocks.RemotingV2
         private readonly Dictionary<IServiceRemotingClient, OperationRetryControl> _operationRetryControls = new Dictionary<IServiceRemotingClient, OperationRetryControl>();
 
         /// <summary>
-        /// The <see cref="IServiceRemotingMessageBodyFactory"/> to return from <see cref="GetRemotingMessageBodyFactory"/>.
+        /// The <see cref="IServiceRemotingMessageBodyFactory"/> v2 to return from <see cref="GetRemotingMessageBodyFactory"/>.
         /// </summary>
         public IServiceRemotingMessageBodyFactory MockServiceRemotingMessageBodyFactory { get; set; }
 
+        /// <summary>
+        /// Gets or sets the <see cref="IServiceRemotingClient"/> to return from GetClientAsync
+        /// </summary>
+        public IServiceRemotingClient ServiceRemotingClient { get; set; }
 
         /// <summary>
         /// Manually invoke using <see cref="OnClientConnected"/>
@@ -46,7 +49,7 @@ namespace ServiceFabric.Mocks.RemotingV2
         public Task<IServiceRemotingClient> GetClientAsync(Uri serviceUri, ServicePartitionKey partitionKey, TargetReplicaSelector targetReplicaSelector,
             string listenerName, OperationRetrySettings retrySettings, CancellationToken cancellationToken)
         {
-            var remotingClient = new MockActorServiceRemotingClient(_wrappedService)
+            var remotingClient = ServiceRemotingClient ?? new MockActorServiceRemotingClient(_wrappedService)
             {
                 ListenerName = listenerName,
                 PartitionKey = partitionKey,
@@ -118,6 +121,7 @@ namespace ServiceFabric.Mocks.RemotingV2
             if (client == null) throw new ArgumentNullException(nameof(client));
             _operationRetryControls[client] = control;
         }
+
         public IServiceRemotingMessageBodyFactory GetRemotingMessageBodyFactory()
         {
             return MockServiceRemotingMessageBodyFactory;
@@ -127,67 +131,165 @@ namespace ServiceFabric.Mocks.RemotingV2
 
     public class MockServiceRemotingMessageBodyFactory : IServiceRemotingMessageBodyFactory
     {
+        /// <summary>
+        /// Gets or sets the request to return from <see cref="CreateRequest"/>.
+        /// </summary>
+        public IServiceRemotingRequestMessageBody Request { get; set; }
+
+        /// <summary>
+        /// Gets or sets the response to return from <see cref="CreateResponse"/>.
+        /// </summary>
+        public IServiceRemotingResponseMessageBody Response { get; set; }
+
         public IServiceRemotingRequestMessageBody CreateRequest(string interfaceName, string methodName, int numberOfParameters)
         {
-            return new MockServiceRemotingRequestMessageBody(interfaceName, methodName, numberOfParameters);
+            return Request;
         }
 
         public IServiceRemotingResponseMessageBody CreateResponse(string interfaceName, string methodName)
         {
-            return new MockServiceRemotingResponseMessageBody(interfaceName, methodName);
+            return Response;
         }
     }
 
     public class MockServiceRemotingRequestMessageBody : IServiceRemotingRequestMessageBody
     {
-        public string InterfaceName { get; }
-        public string MethodName { get; }
-        public int NumberOfParameters { get; }
+        //public int Positition { get; set; }
 
-        private readonly List<Tuple<int, string, object>> _parameters = new List<Tuple<int, string, object>>();
+        //public string ParameName { get; set; }
 
-        public MockServiceRemotingRequestMessageBody(string interfaceName, string methodName, int numberOfParameters)
-        {
-            InterfaceName = interfaceName;
-            MethodName = methodName;
-            NumberOfParameters = numberOfParameters;
-        }
+        //public object Parameter { get; set; }
+
+        public Dictionary<int, Dictionary<string, object>> StoredValues { get; } = new Dictionary<int, Dictionary<string, object>>();
+
         public void SetParameter(int position, string parameName, object parameter)
         {
-            _parameters.Add(new Tuple<int, string, object>(position, parameName, parameter));
+            if (!StoredValues.TryGetValue(position, out var dict))
+            {
+                dict = new Dictionary<string, object>();
+                StoredValues.Add(position, dict);
+            }
+            if (!dict.TryGetValue(parameName, out var val))
+            {
+                dict.Add(parameName, parameter);
+            }
+            else
+            {
+                dict[parameName] = val;
+            }
         }
 
         public object GetParameter(int position, string parameName, Type paramType)
         {
-            return _parameters.FirstOrDefault(p => p.Item1 == position && p.Item2 == parameName)?.Item3;
+            if (StoredValues.TryGetValue(position, out var dict)
+                && dict.TryGetValue(parameName, out var val))
+            {
+                return val;
+            }
+            return null;
         }
     }
 
     public class MockServiceRemotingResponseMessageBody : IServiceRemotingResponseMessageBody
     {
-        public string InterfaceName { get; }
-        public string MethodName { get; }
-
-        private readonly Dictionary<Type, object> _values = new Dictionary<Type, object>();
-
-        public MockServiceRemotingResponseMessageBody(string interfaceName, string methodName)
-        {
-            InterfaceName = interfaceName;
-            MethodName = methodName;
-        }
+        public object Response { get; set; }
 
         public void Set(object response)
         {
-            _values.Add(response.GetType(), response);
+            Response = response;
         }
 
         public object Get(Type paramType)
         {
-            if (_values.TryGetValue(paramType, out var result))
-            {
-                return result;
-            }
-            return null;
+            return Response;
+        }
+    }
+
+
+    /// <summary>
+    /// Mock implementation of <see cref="IServiceRemotingClient"/> v2. (returned from <see cref="MockActorServiceRemotingClientFactory"/>)
+    /// Defines the interface that must be implemented to provide a client for Service Remoting communication.
+    /// </summary>
+    public class MockActorServiceRemotingClient : IServiceRemotingClient
+    {
+        /// <summary>
+        /// Null
+        /// </summary>
+        public ResolvedServiceEndpoint Endpoint { get; set; }
+
+        /// <inheritdoc />
+        public string ListenerName { get; set; }
+
+        /// <summary>
+        /// Null
+        /// </summary>
+        public ResolvedServicePartition ResolvedServicePartition { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="ServicePartitionKey"/>.
+        /// </summary>
+        public ServicePartitionKey PartitionKey { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="TargetReplicaSelector"/>.
+        /// </summary>
+        public TargetReplicaSelector TargetReplicaSelector { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="OperationRetrySettings"/>.
+        /// </summary>
+        public OperationRetrySettings RetrySettings { get; set; }
+
+        /// <summary>
+        /// Gets or sets the wrapped <see cref="ActorService"/>.
+        /// </summary>
+        public ActorService WrappedService { get; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="IServiceRemotingResponseMessage"/> to return from <see cref="RequestResponseAsync"/>
+        /// Hint; use <see cref="MockServiceRemotingResponseMessage"/>
+        /// </summary>
+        public IServiceRemotingResponseMessage ServiceRemotingResponseMessage { get; set; }
+
+
+        public MockActorServiceRemotingClient(ActorService wrappedService)
+        {
+            if (wrappedService == null) throw new ArgumentNullException(nameof(wrappedService));
+            WrappedService = wrappedService;
+        }
+
+
+        /// <inheritdoc />
+        public Task<IServiceRemotingResponseMessage> RequestResponseAsync(IServiceRemotingRequestMessage requestRequestMessage)
+        {
+            return Task.FromResult(ServiceRemotingResponseMessage);
+
+        }
+
+        /// <inheritdoc />
+        public void SendOneWay(IServiceRemotingRequestMessage requestMessage)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Mock implementation of <see cref="IServiceRemotingResponseMessage"/>
+    /// </summary>
+    public class MockServiceRemotingResponseMessage : IServiceRemotingResponseMessage
+    {
+        public IServiceRemotingResponseMessageHeader Header { get; set; }
+
+        public IServiceRemotingResponseMessageBody Body { get; set; }
+
+        public IServiceRemotingResponseMessageHeader GetHeader()
+        {
+            return Header;
+        }
+
+        public IServiceRemotingResponseMessageBody GetBody()
+        {
+            return Body;
         }
     }
 }

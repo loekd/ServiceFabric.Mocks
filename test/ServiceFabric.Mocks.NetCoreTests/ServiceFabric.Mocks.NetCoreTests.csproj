@@ -1,15 +1,16 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>ServiceFabric.Mocks contains many Mock and helper classes to facilitate and simplify unit testing of Service Fabric Actors and Services.</Description>
-    <Copyright>2017</Copyright>
-    <AssemblyTitle>ServiceFabric.Mocks</AssemblyTitle>
-    <VersionPrefix>3.2.0</VersionPrefix>
+    <Description>ServiceFabric.Mocks contains Mock classes to enable unit testing of Actors and Services</Description>
+    <Copyright>2018</Copyright>
+    <AssemblyTitle>ServiceFabric.Mocks.NetCoreTests</AssemblyTitle>
+    <VersionPrefix>1.0.0</VersionPrefix>
     <Authors>Loek Duys</Authors>
-    <TargetFrameworks>net451;net46;netstandard2.0</TargetFrameworks>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
     <PlatformTarget>x64</PlatformTarget>
-    <AssemblyName>ServiceFabric.Mocks</AssemblyName>
-    <PackageId>ServiceFabric.Mocks</PackageId>
+    <AssemblyName>ServiceFabric.Mocks.Tests</AssemblyName>
+    <PackageId>ServiceFabric.Mocks.Tests</PackageId>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <PackageTags>ServiceFabric;Service;Fabric;Actor;Mock;Unit;Test</PackageTags>
     <PackageProjectUrl>https://github.com/loekd/ServiceFabric.Mocks</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/loekd/ServiceFabric.Mocks/blob/master/LICENSE.md</PackageLicenseUrl>
@@ -19,30 +20,32 @@
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <IncludeSymbols>true</IncludeSymbols>
     <Platforms>x64</Platforms>
+    <ApplicationIcon />
+    <OutputTypeEx>Exe</OutputTypeEx>
+    <StartupObject />
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release'">
-    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-    <DelaySign>False</DelaySign>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>ServiceFabric.Mocks.snk</AssemblyOriginatorKeyFile>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="Content\readme.md">
-      <Pack>true</Pack>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.ServiceFabric" Version="6.1.456" />
     <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="3.0.456" />
     <PackageReference Include="Microsoft.ServiceFabric.Data" Version="3.0.456" />
     <PackageReference Include="Microsoft.ServiceFabric.Services" Version="3.0.456" />
     <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="3.0.456" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.1.18" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.1.18" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ServiceFabric.Mocks\ServiceFabric.Mocks.csproj" />
   </ItemGroup>
 
 </Project>
