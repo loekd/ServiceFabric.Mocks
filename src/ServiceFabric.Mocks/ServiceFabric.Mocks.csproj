@@ -6,7 +6,7 @@
     <AssemblyTitle>ServiceFabric.Mocks</AssemblyTitle>
     <VersionPrefix>3.2.0</VersionPrefix>
     <Authors>Loek Duys</Authors>
-    <TargetFrameworks>net451;net46;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net452;net46;netstandard2.0</TargetFrameworks>
     <PlatformTarget>x64</PlatformTarget>
     <AssemblyName>ServiceFabric.Mocks</AssemblyName>
     <PackageId>ServiceFabric.Mocks</PackageId>
@@ -38,11 +38,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ServiceFabric" Version="6.1.456" />
-    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="3.0.456" />
-    <PackageReference Include="Microsoft.ServiceFabric.Data" Version="3.0.456" />
-    <PackageReference Include="Microsoft.ServiceFabric.Services" Version="3.0.456" />
-    <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="3.0.456" />
+    <PackageReference Include="Microsoft.ServiceFabric" Version="6.1.467" />
+    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="3.0.467" />
+    <PackageReference Include="Microsoft.ServiceFabric.Data" Version="3.0.467" />
+    <PackageReference Include="Microsoft.ServiceFabric.Services" Version="3.0.467" />
+    <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="3.0.467" />
   </ItemGroup>
 
 </Project>

@@ -21,166 +21,169 @@ The VSTS Agent lagged behind in Service Fabric SDK version, this caused runtime 
 
 ## Release notes
 
+ - 3.2.1
+     - Upgraded to new SDK (SF 3.0.467). Bumped .NET Fx min version to 4.5.2
+
  - 3.2.0
-        - Add support for netstandard 2.0. Thanks @Scythen and @Eli Pulsifer.
+    - Add support for netstandard 2.0. Thanks @Scythen and @Eli Pulsifer.
 
  - 3.1.7
-	- Add `ServiceExtensions` to invoke non-public operations on Services.
+    - Add `ServiceExtensions` to invoke non-public operations on Services.
 
  - 3.1.6
-	- Upgraded to new SDK (SF 3.0.456)
+    - Upgraded to new SDK (SF 3.0.456)
 
  - 3.1.5
     - Fixed bug in SaveReminderAsync which did not update existing reminder if called multiple times with same reminder name. Now updates existing reminder, if any.
-	- Fixed bug in GetActorReminders which threw exception if called when no reminders had been registered at all. Now returns empty collection.
+    - Fixed bug in GetActorReminders which threw exception if called when no reminders had been registered at all. Now returns empty collection.
 
  - 3.1.4
     - Fixed bug in TransactedConcurrentDictionary.SetAsync which threw ArgumentException when key was not already present. Updated to follow MS documentation:
-	  Adds a key/value pair to the Reliable Dictionary if the key does not already exist, or updates a key/value pair in the Reliable Dictionary if the key already exists.
-	  Fixes issue #44.
+      Adds a key/value pair to the Reliable Dictionary if the key does not already exist, or updates a key/value pair in the Reliable Dictionary if the key already exists.
+      Fixes issue #44.
 
  - 3.1.3
-	- Merged PR by Jaah. Fix creation of `IReliableDictionary2` collections
+    - Merged PR by Jaah. Fix creation of `IReliableDictionary2` collections
 
  - 3.1.2
-	- Merged PR by Jaah. Add support for `IReliableDictionary2`
+    - Merged PR by Jaah. Add support for `IReliableDictionary2`
 
 - 3.1.1
-	- Sign assembly
+    - Sign assembly
 
 - 3.1.0
-	- Upgraded nuget packages (SF 2.8.232)
+    - Upgraded nuget packages (SF 2.8.232)
 
 - 3.0.1
-	- Merged PR by esbenbach, fix `ActorStateManager` `TryAddStateAsync` behavior not same as actual implementation. Added unit test.
+    - Merged PR by esbenbach, fix `ActorStateManager` `TryAddStateAsync` behavior not same as actual implementation. Added unit test.
 
 - 3.0.0
-	- Merged PR by ralphcu
-	- Breaking change: list of past Transactions replaced by events (`MockTransactionChanged`)
+    - Merged PR by ralphcu
+    - Breaking change: list of past Transactions replaced by events (`MockTransactionChanged`)
     - Created Lock and LockManager classes to try to simulate the locking and blocking of SF transactions. Added unit tests.
-	- Created TransactedConcurrentDictionary class which is now used by MockReliableDictionary and MockReliableStateManager. Added unit tests.
-	  o OnStateManagerChanged is now fired on CommitAsync() of transaction used to add or remove.
-	  o OndictionaryChanged is now fired on CommitAsync() of transaction used for add, remove, update.
+    - Created TransactedConcurrentDictionary class which is now used by MockReliableDictionary and MockReliableStateManager. Added unit tests.
+      o OnStateManagerChanged is now fired on CommitAsync() of transaction used to add or remove.
+      o OndictionaryChanged is now fired on CommitAsync() of transaction used for add, remove, update.
     - Add transaction support to MockReliableQueue and MockReliableConcurrentQueue.
-	- Reworked MockreliableDictionary changes to work with above changes.
+    - Reworked MockreliableDictionary changes to work with above changes.
 
 
 - 2.4.0
-	- Upgraded nuget packages (SF 2.8.219)
-	
+    - Upgraded nuget packages (SF 2.8.219)
+    
 - 2.3.2
-	- Merged PR by huesie, fix exception type thrown for duplicate key in `MockReliableDictionary`. Added unit tests.
+    - Merged PR by huesie, fix exception type thrown for duplicate key in `MockReliableDictionary`. Added unit tests.
 
 - 2.3.1
-	- Merged PR by Izzmo, adding a list of past Transactions to the `MockReliableStateManager`. Added unit tests
+    - Merged PR by Izzmo, adding a list of past Transactions to the `MockReliableStateManager`. Added unit tests
 
 - 2.3.0
-	- Merged PR by dotnetgator, upgrading to SF 2.8.211
+    - Merged PR by dotnetgator, upgrading to SF 2.8.211
 
 - 2.2.4
-	- Added `InvokeOnPreActorMethodAsync` & `InvokeOnPostActorMethodAsync` on `ActorBaseExtensions`, requested by JefSchraag.
+    - Added `InvokeOnPreActorMethodAsync` & `InvokeOnPostActorMethodAsync` on `ActorBaseExtensions`, requested by JefSchraag.
 
 - 2.2.4
-	- Fixed `MockActorStateManager` issue, when calling `SetStateAsync` with different types for T. Found by samneirinck.
+    - Fixed `MockActorStateManager` issue, when calling `SetStateAsync` with different types for T. Found by samneirinck.
 
 - 2.2.3
-	- Added `MockConfigurationPackage` to mock service configuration for CharlesZhong
+    - Added `MockConfigurationPackage` to mock service configuration for CharlesZhong
 
 - 2.2.2
-	- Upgraded nuget packages (SF 2.7.198)
+    - Upgraded nuget packages (SF 2.7.198)
 
 - 2.2.1
-	- Allow MockActorServiceFactory to create several actors
+    - Allow MockActorServiceFactory to create several actors
 
 - 2.2.0
-	- Upgraded nuget packages (SF 2.6.220, MSTest 1.1.18)
+    - Upgraded nuget packages (SF 2.6.220, MSTest 1.1.18)
 
 - 2.1.0
-	- Upgraded nuget packages (SF 2.6.210)
+    - Upgraded nuget packages (SF 2.6.210)
 
 - 2.0.0
-	- Upgraded sln to VS2017
+    - Upgraded sln to VS2017
 
 - 1.9.0
-	- Upgraded nuget packages (SF 2.6.204)
-	- ReliableConcurrentQueue no longer preview
+    - Upgraded nuget packages (SF 2.6.204)
+    - ReliableConcurrentQueue no longer preview
 
 - 1.8.1
-	- Fix issue in MockActorStateManager.AddStateAsync not throwing on duplicate keys, found by mackgyver2k.
+    - Fix issue in MockActorStateManager.AddStateAsync not throwing on duplicate keys, found by mackgyver2k.
 
 - 1.8.0
-	- Added MockActorServiceRemotingClientFactory and MockActorServiceRemotingClient to mock the IServiceRemotingCallbackClient of ActorProxyFactory.
-	  (still looking for a way to mock remoting though)
-	- Added example use of MockActorEventSubscriptionHelper for VDBorovikov
+    - Added MockActorServiceRemotingClientFactory and MockActorServiceRemotingClient to mock the IServiceRemotingCallbackClient of ActorProxyFactory.
+      (still looking for a way to mock remoting though)
+    - Added example use of MockActorEventSubscriptionHelper for VDBorovikov
 
 - 1.7.0
-	- Upgraded nuget packages (SF 2.5.216)
+    - Upgraded nuget packages (SF 2.5.216)
 
 - 1.6.3
-	- Merged PR by kotvisbj. Added 'MissingActor' event to MockActorProxyFactory, to dynamically resolve Actor instances if needed. 
-	- Fixed some code quality issues.
+    - Merged PR by kotvisbj. Added 'MissingActor' event to MockActorProxyFactory, to dynamically resolve Actor instances if needed. 
+    - Fixed some code quality issues.
 
 - 1.6.2
-	- MockReliableConcurrentQueue Name property now has public get and set.
+    - MockReliableConcurrentQueue Name property now has public get and set.
 
 - 1.6.1
-	- merged PR by Scythen that sets the Name of a ReliableCollection when it's created.
+    - merged PR by Scythen that sets the Name of a ReliableCollection when it's created.
 
 - 1.6.0
-	- upgraded to new SDK (2.4.164)
-	- added MockActorEventSubscriptionHelper to assist with testing Actor Events, as suggested by ThiemeNL.
+    - upgraded to new SDK (2.4.164)
+    - added MockActorEventSubscriptionHelper to assist with testing Actor Events, as suggested by ThiemeNL.
 
 - 1.5.0 
-	- Added support for custom ActorServices. (For andrejohansson)
-	  (See 'CustomActorServiceTests' for details on using custom ActorServices.)
-	- Added ActorServiceExtensions class to enable Actor activation from any ActorService implementation.
+    - Added support for custom ActorServices. (For andrejohansson)
+      (See 'CustomActorServiceTests' for details on using custom ActorServices.)
+    - Added ActorServiceExtensions class to enable Actor activation from any ActorService implementation.
 
 - 1.4.1
-	- Fixed issue in ActorStateManager TryGetStateAsync using valuetype, found by massimobonanni 
+    - Fixed issue in ActorStateManager TryGetStateAsync using valuetype, found by massimobonanni 
 
 - 1.4.0 
-	- upgraded to new SDK (2.4.145)
+    - upgraded to new SDK (2.4.145)
 
 - 1.3.2
-	- Add MockServicePartitionFactory to create mock service partitions.
-	- Add option to invoke OnActivateAsync while creating an Actor.
+    - Add MockServicePartitionFactory to create mock service partitions.
+    - Add option to invoke OnActivateAsync while creating an Actor.
 
 - 1.3.1 
-	- Merged pull request from moswald to allow multiple instances of different Actor types share the same ActorId
+    - Merged pull request from moswald to allow multiple instances of different Actor types share the same ActorId
 
 - 1.3.0
-	- upgraded to new SDK (2.3.311)
+    - upgraded to new SDK (2.3.311)
 
 - 1.2.0
-	- Merged pull request from WonderPanda
-	- add customizable service context factories
-	- add some unit test 
+    - Merged pull request from WonderPanda
+    - add customizable service context factories
+    - add some unit test 
 
 - 1.1.0 
-	- add MockActorStateProvider to unit test reminder registration **(Note: Reminders are not automatically triggered by the mock.)**
-	- add MockActorService with a method that creates Actor instances
-	- changed MockActorServiceFactory to support MockActorStateProvider and MockActorService
-	- add ReminderTimerActor to demo unit tests for timers and reminders (registration)
+    - add MockActorStateProvider to unit test reminder registration **(Note: Reminders are not automatically triggered by the mock.)**
+    - add MockActorService with a method that creates Actor instances
+    - changed MockActorServiceFactory to support MockActorStateProvider and MockActorService
+    - add ReminderTimerActor to demo unit tests for timers and reminders (registration)
 
 - 1.0.0 
-	- upgraded to new SDK and packages (2.3.301) 
+    - upgraded to new SDK and packages (2.3.301) 
 
 - 0.9.4 
-	- add MockActorProxyFactory, MockActorServiceFactory, MockStatelessServiceContextFactory
-	- added samples to Mock Service and Actor proxies.
+    - add MockActorProxyFactory, MockActorServiceFactory, MockStatelessServiceContextFactory
+    - added samples to Mock Service and Actor proxies.
 
 - 0.9.3 
-	- add support for the preview collection type 'IReliableConcurrentQueue<T>' using MockReliableConcurrentQueue<T>
+    - add support for the preview collection type 'IReliableConcurrentQueue<T>' using MockReliableConcurrentQueue<T>
 
 - 0.9.2 
-	- no longer preview
+    - no longer preview
 
 - 0.9.1-preview 
-	- Fixed issue in MockReliableStateManager. 
-	- Added unit tests.
+    - Fixed issue in MockReliableStateManager. 
+    - Added unit tests.
 
 - 0.9.0-preview 
-	- First implementation.  
+    - First implementation.  
 
 ## Unit Testing Actors
 
@@ -527,26 +530,26 @@ An actor is created from the ActorCallerActor and we need to test that it is the
 ``` csharp
 public class ActorCallerActor : Actor, IMyStatefulActor
 {
-	public static readonly Uri CalledServiceName = new Uri("fabric:/MockApp/MyStatefulActor");
-	public const string ChildActorIdKeyName = "ChildActorIdKeyName";
+    public static readonly Uri CalledServiceName = new Uri("fabric:/MockApp/MyStatefulActor");
+    public const string ChildActorIdKeyName = "ChildActorIdKeyName";
 
-	public IActorProxyFactory ActorProxyFactory { get; }
+    public IActorProxyFactory ActorProxyFactory { get; }
 
-	public ActorCallerActor(ActorService actorService, ActorId actorId, IActorProxyFactory actorProxyFactory) 
-	: base(actorService, actorId)
-	{
-		ActorProxyFactory = actorProxyFactory ?? new ActorProxyFactory();
-	}
+    public ActorCallerActor(ActorService actorService, ActorId actorId, IActorProxyFactory actorProxyFactory) 
+    : base(actorService, actorId)
+    {
+        ActorProxyFactory = actorProxyFactory ?? new ActorProxyFactory();
+    }
 
-	public Task InsertAsync(string stateName, Payload value)
-	{
-		var actorProxy = ActorProxyFactory.CreateActorProxy<IMyStatefulActor>(CalledServiceName, new ActorId(Guid.NewGuid()));
+    public Task InsertAsync(string stateName, Payload value)
+    {
+        var actorProxy = ActorProxyFactory.CreateActorProxy<IMyStatefulActor>(CalledServiceName, new ActorId(Guid.NewGuid()));
 
-		this.StateManager.SetStateAsync(ChildActorIdKeyName, actorProxy.GetActorId());
+        this.StateManager.SetStateAsync(ChildActorIdKeyName, actorProxy.GetActorId());
 
-		return actorProxy.InsertAsync(stateName, value);
+        return actorProxy.InsertAsync(stateName, value);
 
-	}
+    }
 }
 ```
 
@@ -557,40 +560,40 @@ Here a callback is used when the actor is requested and not found that will allo
 [TestMethod]
 public async Task TestServiceProxyFactory()
 {
-	//mock out the called service
+    //mock out the called service
 
-	var mockProxyFactory = new MockActorProxyFactory();
-	mockProxyFactory.MissingActor += MockProxyFactory_MissingActorId;
-	
+    var mockProxyFactory = new MockActorProxyFactory();
+    mockProxyFactory.MissingActor += MockProxyFactory_MissingActorId;
+    
 
-	//prepare the actor:
-	Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new ActorCallerActor(service, actorId, mockProxyFactory);
-	var svc = MockActorServiceFactory.CreateActorServiceForActor<ActorCallerActor>(actorFactory);
-	var actor = svc.Activate(ActorId.CreateRandom());
+    //prepare the actor:
+    Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new ActorCallerActor(service, actorId, mockProxyFactory);
+    var svc = MockActorServiceFactory.CreateActorServiceForActor<ActorCallerActor>(actorFactory);
+    var actor = svc.Activate(ActorId.CreateRandom());
 
-	//act:
-	await actor.InsertAsync("test", new Payload("some other value"));
+    //act:
+    await actor.InsertAsync("test", new Payload("some other value"));
 
-	//check if the other actor was called
-	var statefulActorId = await actor.StateManager.GetStateAsync<ActorId>(ActorCallerActor.ChildActorIdKeyName);
+    //check if the other actor was called
+    var statefulActorId = await actor.StateManager.GetStateAsync<ActorId>(ActorCallerActor.ChildActorIdKeyName);
 
-	Func<ActorService, ActorId, ActorBase> statefulActorFactory = (service, actorId) => new MyStatefulActor(service, actorId);
-	var statefulActor = mockProxyFactory.CreateActorProxy<IMyStatefulActor>(ActorCallerActor.CalledServiceName, statefulActorId);
-	
-	var payload = await ((MyStatefulActor)statefulActor).StateManager.GetStateAsync<Payload>("test");
+    Func<ActorService, ActorId, ActorBase> statefulActorFactory = (service, actorId) => new MyStatefulActor(service, actorId);
+    var statefulActor = mockProxyFactory.CreateActorProxy<IMyStatefulActor>(ActorCallerActor.CalledServiceName, statefulActorId);
+    
+    var payload = await ((MyStatefulActor)statefulActor).StateManager.GetStateAsync<Payload>("test");
 
-	//assert:
-	Assert.AreEqual("some other value", payload.Content);
+    //assert:
+    Assert.AreEqual("some other value", payload.Content);
 }
 
 private void MockProxyFactory_MissingActorId(object sender, MissingActorEventArgs args)
 {
-	var registrar = (MockActorProxyFactory)sender;
+    var registrar = (MockActorProxyFactory)sender;
 
-	Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new MyStatefulActor(service, actorId);
-	var svc = MockActorServiceFactory.CreateActorServiceForActor<MyStatefulActor>(actorFactory);
-	var actor = svc.Activate(args.Id);
-	registrar.RegisterActor(actor);
+    Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new MyStatefulActor(service, actorId);
+    var svc = MockActorServiceFactory.CreateActorServiceForActor<MyStatefulActor>(actorFactory);
+    var actor = svc.Activate(args.Id);
+    registrar.RegisterActor(actor);
 }
 ```
 
@@ -622,7 +625,7 @@ public class ReminderTimerActor : Actor, IRemindable, IReminderTimerActor
         RegisterTimer(TimerCallbackAsync, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(-1));
         return Task.FromResult(true);
     }
-	    
+        
     private Task TimerCallbackAsync(object state)
     {
         //will not be called automatically.
@@ -677,13 +680,13 @@ You can use a custom ActorService implementations to create your Actor instances
 ``` csharp
 public class CustomActorService : ActorService
 {
-	//no additional constructor parameters
-	public CustomActorService(StatefulServiceContext context, ActorTypeInformation actorTypeInfo, Func<ActorService, ActorId, 
-		ActorBase> actorFactory = null, Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory = null, 
-		IActorStateProvider stateProvider = null, ActorServiceSettings settings = null) : base(context, actorTypeInfo, 
-		actorFactory, stateManagerFactory, stateProvider, settings)
-	{
-	}
+    //no additional constructor parameters
+    public CustomActorService(StatefulServiceContext context, ActorTypeInformation actorTypeInfo, Func<ActorService, ActorId, 
+        ActorBase> actorFactory = null, Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory = null, 
+        IActorStateProvider stateProvider = null, ActorServiceSettings settings = null) : base(context, actorTypeInfo, 
+        actorFactory, stateManagerFactory, stateProvider, settings)
+    {
+    }
 }
 ``` 
 
@@ -747,10 +750,10 @@ To inject a configuration section into the MockCodePackageActivationContext, you
             
             //Build ConfigurationPackage
             ConfigurationPackage configPackage = CreateConfigurationPackage(configSettings, nameof(configPackage.Path));
-	    
-	    [..]
-	    }
-	 }
+        
+        [..]
+        }
+     }
 }
-	 
+     
 ```
