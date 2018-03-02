@@ -22,7 +22,7 @@ The VSTS Agent lagged behind in Service Fabric SDK version, this caused runtime 
 ## Release notes
 
  - 3.2.0
-    - Add support for netstandard 2.0.
+        - Add support for netstandard 2.0. Thanks @Scythen and @Eli Pulsifer.
 
  - 3.1.7
 	- Add `ServiceExtensions` to invoke non-public operations on Services.
