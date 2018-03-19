@@ -20,6 +20,8 @@ Or [donate](https://paypal.me/lduys/5) a cup of coffee.
 The VSTS Agent lagged behind in Service Fabric SDK version, this caused runtime errors. This issue is now resolved. 
 
 ## Release notes
+ - 3.2.2
+     - Upgraded to new SDK (SF 3.0.472).
 
  - 3.2.1
      - Upgraded to new SDK (SF 3.0.467). Bumped .NET Fx min version to 4.5.2
