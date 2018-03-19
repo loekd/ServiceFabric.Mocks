@@ -4,7 +4,7 @@
     <Description>ServiceFabric.Mocks contains many Mock and helper classes to facilitate and simplify unit testing of Service Fabric Actors and Services.</Description>
     <Copyright>2018</Copyright>
     <AssemblyTitle>ServiceFabric.Mocks</AssemblyTitle>
-    <VersionPrefix>3.2.1</VersionPrefix>
+    <VersionPrefix>3.2.2</VersionPrefix>
     <Authors>Loek Duys</Authors>
     <TargetFrameworks>net452;net46;netstandard2.0</TargetFrameworks>
     <PlatformTarget>x64</PlatformTarget>
@@ -22,6 +22,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IncludeSymbols>true</IncludeSymbols>
     <Platforms>x64</Platforms>
+    <Version>3.2.2</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release'">
@@ -38,11 +39,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ServiceFabric" Version="6.1.467" />
-    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="3.0.467" />
-    <PackageReference Include="Microsoft.ServiceFabric.Data" Version="3.0.467" />
-    <PackageReference Include="Microsoft.ServiceFabric.Services" Version="3.0.467" />
-    <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="3.0.467" />
+    <PackageReference Include="Microsoft.ServiceFabric" Version="6.1.472" />
+    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="3.0.472" />
+    <PackageReference Include="Microsoft.ServiceFabric.Data" Version="3.0.472" />
+    <PackageReference Include="Microsoft.ServiceFabric.Services" Version="3.0.472" />
+    <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="3.0.472" />
   </ItemGroup>
 
 </Project>
