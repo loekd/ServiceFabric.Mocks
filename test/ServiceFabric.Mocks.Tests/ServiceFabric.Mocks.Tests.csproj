@@ -27,20 +27,19 @@
     <OutputType>Library</OutputType>
   </PropertyGroup>
 
-
   <ItemGroup>
     <ProjectReference Include="..\..\src\ServiceFabric.Mocks\ServiceFabric.Mocks.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
-    <PackageReference Include="Microsoft.ServiceFabric" Version="6.1.472" />
-    <PackageReference Include="Microsoft.ServiceFabric.Data" Version="3.0.472" />
-    <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="3.0.472" />
+    <PackageReference Include="Microsoft.ServiceFabric" Version="6.1.480" />
+    <PackageReference Include="Microsoft.ServiceFabric.Data" Version="3.0.480" />
+    <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="3.0.480" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.1.18" />
     <PackageReference Include="MSTest.TestFramework" Version="1.1.18" />
-    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="3.0.472" />
-    <PackageReference Include="Microsoft.ServiceFabric.Services" Version="3.0.472" />
+    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="3.0.480" />
+    <PackageReference Include="Microsoft.ServiceFabric.Services" Version="3.0.480" />
   </ItemGroup>
 
   <ItemGroup>
@@ -49,7 +48,6 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
-  
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
