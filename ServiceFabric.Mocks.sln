@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2027
+VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{991DEBD8-1717-46A5-AA9C-967AC7DC4EFA}"
 EndProject
@@ -17,6 +17,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceFabric.Mocks.Tests", "test\ServiceFabric.Mocks.Tests\ServiceFabric.Mocks.Tests.csproj", "{EF866F8D-0FF7-4BE2-B292-21527F56FF02}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceFabric.Mocks.NetCoreTests", "test\ServiceFabric.Mocks.NetCoreTests\ServiceFabric.Mocks.NetCoreTests.csproj", "{8409D69F-8033-400D-9956-75A7467B3716}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceFabric.Shift", "src\ServiceFabric.Shift\ServiceFabric.Shift.csproj", "{6987F098-D6F2-443B-9571-FF5381D9ED7B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,6 +46,12 @@ Global
 		{8409D69F-8033-400D-9956-75A7467B3716}.Release|Any CPU.ActiveCfg = Release|x64
 		{8409D69F-8033-400D-9956-75A7467B3716}.Release|x64.ActiveCfg = Release|x64
 		{8409D69F-8033-400D-9956-75A7467B3716}.Release|x64.Build.0 = Release|x64
+		{6987F098-D6F2-443B-9571-FF5381D9ED7B}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{6987F098-D6F2-443B-9571-FF5381D9ED7B}.Debug|x64.ActiveCfg = Debug|x64
+		{6987F098-D6F2-443B-9571-FF5381D9ED7B}.Debug|x64.Build.0 = Debug|x64
+		{6987F098-D6F2-443B-9571-FF5381D9ED7B}.Release|Any CPU.ActiveCfg = Release|x64
+		{6987F098-D6F2-443B-9571-FF5381D9ED7B}.Release|x64.ActiveCfg = Release|x64
+		{6987F098-D6F2-443B-9571-FF5381D9ED7B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -52,6 +60,7 @@ Global
 		{2832EB4C-6B37-4CEA-9F8B-7896757E69A7} = {991DEBD8-1717-46A5-AA9C-967AC7DC4EFA}
 		{EF866F8D-0FF7-4BE2-B292-21527F56FF02} = {6D7E4666-FC1F-413B-AA35-41B85D2DD4AB}
 		{8409D69F-8033-400D-9956-75A7467B3716} = {6D7E4666-FC1F-413B-AA35-41B85D2DD4AB}
+		{6987F098-D6F2-443B-9571-FF5381D9ED7B} = {991DEBD8-1717-46A5-AA9C-967AC7DC4EFA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {ED369FF5-3D87-4AD0-BAB3-5E8872560179}
