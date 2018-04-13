@@ -1,41 +1,39 @@
-﻿using Microsoft.ServiceFabric.Data;
-using Microsoft.ServiceFabric.Services.Runtime;
-using ServiceFabric.Shift;
+﻿using Microsoft.ServiceFabric.Services.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Fabric;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace ServiceFabric.Mocks.ReplicaSet
 {
     public class MockStatefulServiceReplicaSet<TStatefulService>
-        where TStatefulService : StatefulService, IReplica, IMockStatefulService
+        where TStatefulService : StatefulService
     {
         private readonly List<MockStatefulServiceReplica<TStatefulService>> _replicas = new List<MockStatefulServiceReplica<TStatefulService>>();
-        private readonly IReliableStateManagerReplica _stateManager;
         private readonly Func<StatefulServiceContext, TStatefulService> _serviceFactory;
         private readonly Random _random;
 
         public MockStatefulServiceReplicaSet(
-            IReliableStateManagerReplica stateManager,
-            Func<StatefulServiceContext, TStatefulService> serviceFactory,
-            ICodePackageActivationContext codePackageActivationContext = null
-            )
+            Func<StatefulServiceContext, TStatefulService> serviceFactory, 
+            string serviceTypeName = MockStatefulServiceContextFactory.ServiceTypeName, 
+            string ServiceName = MockStatefulServiceContextFactory.ServiceName, 
+            ICodePackageActivationContext codePackageActivationContext = null)
         {
-            _stateManager = stateManager;
             _serviceFactory = serviceFactory;
             _random = new Random();
+            CodePackageActivationContext = codePackageActivationContext ?? MockCodePackageActivationContext.Default;
+            serviceTypeName = MockStatefulServiceContextFactory.ServiceTypeName;
+            ServiceName = MockStatefulServiceContextFactory.ServiceName;            
         }
 
-        public string ServiceTypeName { get; set; } = MockStatefulServiceContextFactory.ServiceTypeName;
+        public string ServiceTypeName { get; } = MockStatefulServiceContextFactory.ServiceTypeName;
 
         public Uri ServiceUri { get { return new Uri(ServiceName); } }
 
-        public string ServiceName { get; set; } = MockStatefulServiceContextFactory.ServiceName;
+        public string ServiceName { get; }
 
-        public ICodePackageActivationContext CodePackageActivationContext { get; set; } = MockCodePackageActivationContext.Default;
+        public ICodePackageActivationContext CodePackageActivationContext { get; }
 
         public IEnumerable<MockStatefulServiceReplica<TStatefulService>> Replicas => _replicas;
 
@@ -72,86 +70,25 @@ namespace ServiceFabric.Mocks.ReplicaSet
         public async Task AddReplicaAsync(ReplicaRole role, long? replicaId = null, int activationDelayMs = 0)
         {
             var serviceContext = MockStatefulServiceContextFactory.Create(CodePackageActivationContext, ServiceTypeName, ServiceUri, Guid.NewGuid(), replicaId ?? _random.Next());
-            var serviceInstance = _serviceFactory.Invoke(serviceContext);
-            var replica = new MockStatefulServiceReplica<TStatefulService>(serviceInstance);
+            var replica = new MockStatefulServiceReplica<TStatefulService>(_serviceFactory, serviceContext);
+            await replica.CreateAsync(role);
             _replicas.Add(replica);
-
-            await serviceInstance.OpenAsync(ReplicaOpenMode.New, replica.OpenCancellation.Token);
-
-            if (role == ReplicaRole.Primary)
-            {
-                await serviceInstance.OpenServiceReplicaListeners(replica.OpenCancellation.Token);
-                await serviceInstance.ChangeRoleAsync(role, replica.ChangeRoleCancellation.Token);
-                await serviceInstance.RunAsync(replica.RunCancellation.Token);
-            }
-            else
-                await NotifyReplicaRoleChange(replica, role);
         }
 
-        public async Task PromoteIdleSecondaryToActiveSecondaryAsync(long? replicaId = null)
-        {
-            var replica = GetIdleSecondary(replicaId);
-            await replica.ServiceInstance.OpenServiceReplicaListeners(replica.OpenCancellation.Token);
-            await replica.ServiceInstance.ChangeRoleAsync(System.Fabric.ReplicaRole.ActiveSecondary, replica.ChangeRoleCancellation.Token);
-        }
-
-        public async Task DeleteReplicaAsync(int replicaId)
-        {
-            var replica = Replicas.Single(r => r.ReplicaId == replicaId);
-            await NotifyReplicaRoleChange(replica, ReplicaRole.None);
-
-            await Task.WhenAll(
-                replica.ServiceInstance.CloseServiceReplicaListeners(replica.CloseCancellation.Token),
-                Task.Run(() => replica.RunCancellation.Cancel())
-                );
-
-            await replica.ServiceInstance.CloseAsync(replica.CloseCancellation.Token);
-        }
+        public Task PromoteIdleSecondaryToActiveSecondaryAsync(long? replicaId = null) => GetIdleSecondary(replicaId).PromoteToPrimaryAsync();
 
         public async Task PromoteActiveSecondaryToPrimaryAsync(long? replicaId = null)
         {
             var primary = Primary;
             var activeSecondary = GetActiveSecondary(replicaId);
             if (primary != null)
-                await DemotePrimaryToActiveSecondaryAsync();
+                await primary.DemoteToActiveSecondaryAsync();
 
-            if (activeSecondary.RunCancellation.IsCancellationRequested)
-                activeSecondary.RunCancellation = new CancellationTokenSource();
-
-            await activeSecondary.ServiceInstance.OpenServiceReplicaListeners(activeSecondary.OpenCancellation.Token);
-            await NotifyReplicaRoleChange(activeSecondary, ReplicaRole.Primary);
-            await activeSecondary.ServiceInstance.RunAsync(activeSecondary.RunCancellation.Token);
+            await activeSecondary.PromoteToPrimaryAsync();
         }
 
-        public async Task DemotePrimaryToActiveSecondaryAsync()
-        {
-            var primary = Primary;
-            await NotifyReplicaRoleChange(primary, ReplicaRole.ActiveSecondary);
+        public Task DeletePrimaryAsync() => Primary.DeleteAsync();
 
-            await Task.WhenAll(
-                primary.ServiceInstance.CloseServiceReplicaListeners(primary.CloseCancellation.Token),
-                Task.Run(() => primary.RunCancellation.Cancel())
-                );
-        }
-
-        public async Task DeletePrimaryAsync()
-        {
-            var primary = Primary;
-            await NotifyReplicaRoleChange(primary, ReplicaRole.None);
-
-            await Task.WhenAll(
-                primary.ServiceInstance.CloseServiceReplicaListeners(primary.CloseCancellation.Token),
-                Task.Run(() => primary.RunCancellation.Cancel())
-                );
-
-            await primary.ServiceInstance.CloseAsync(primary.CloseCancellation.Token);
-        }
-
-        private Task NotifyReplicaRoleChange(MockStatefulServiceReplica<TStatefulService> replica, ReplicaRole newRole) =>
-            replica.ServiceInstance.ChangeRoleAsync(newRole, replica.ChangeRoleCancellation.Token)
-                .ContinueWith(t => { if (t.IsCompleted) NotifyStateManagerRoleChange(newRole, replica.ChangeRoleCancellation.Token); });
-
-        private Task NotifyStateManagerRoleChange(ReplicaRole newRole, CancellationToken cancellationToken) =>
-            _stateManager is MockReliableStateManager ? ((MockReliableStateManager)_stateManager).ChangeRoleAsync(newRole, cancellationToken) : Task.Delay(0);
+        public Task DeleteReplicaAsync(int replicaId) => Replicas.Single(r => r.ReplicaId == replicaId).DeleteAsync();
     }
 }
