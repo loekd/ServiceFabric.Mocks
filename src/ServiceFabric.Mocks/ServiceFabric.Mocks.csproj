@@ -45,8 +45,4 @@
     <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="3.0.480" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\ServiceFabric.Shift\ServiceFabric.Shift.csproj" />
-  </ItemGroup>
-
 </Project>
