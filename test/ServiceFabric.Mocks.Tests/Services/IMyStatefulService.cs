@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Services.Remoting;
 
 namespace ServiceFabric.Mocks.Tests.Services
@@ -12,5 +13,9 @@ namespace ServiceFabric.Mocks.Tests.Services
         Task InsertAsync(string stateName, Payload value);
 
         Task InsertAndAbortAsync(string stateName, Payload value);
+
+        Task<IEnumerable<Payload>> GetPayloadsAsync();
+
+        Task UpdatePayloadAsync(string stateName, string content);
     }
 }

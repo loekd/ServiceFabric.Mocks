@@ -1,4 +1,5 @@
-﻿using Microsoft.ServiceFabric.Services.Communication.Runtime;
+﻿using Microsoft.ServiceFabric.Data;
+using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
 using System;
 using System.Collections.Generic;
@@ -13,16 +14,16 @@ namespace ServiceFabric.Mocks.ReplicaSet
     public class MockStatefulServiceReplica<TStatefulService>
         where TStatefulService : StatefulService
     {
-        private readonly Func<StatefulServiceContext, TStatefulService> _serviceFactory;
+        private readonly Func<StatefulServiceContext, IReliableStateManagerReplica2, TStatefulService> _serviceFactory;
         private readonly TStatefulService _serviceInstance;
         private readonly StatefulServiceContext _context;
         private IEnumerable<ICommunicationListener> _openListeners = new List<ICommunicationListener>();        
 
-        public MockStatefulServiceReplica(Func<StatefulServiceContext, TStatefulService> serviceFactory, StatefulServiceContext context)
+        public MockStatefulServiceReplica(Func<StatefulServiceContext, IReliableStateManagerReplica2, TStatefulService> serviceFactory, StatefulServiceContext context, IReliableStateManagerReplica2 stateManager)
         {
             _context = context;
             _serviceFactory = serviceFactory;       
-            _serviceInstance = _serviceFactory.Invoke(context);
+            _serviceInstance = _serviceFactory.Invoke(context, stateManager);
         }
 
         public TStatefulService ServiceInstance => _serviceInstance;
