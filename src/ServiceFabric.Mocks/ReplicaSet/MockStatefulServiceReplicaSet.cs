@@ -1,4 +1,5 @@
-﻿using Microsoft.ServiceFabric.Services.Runtime;
+﻿using Microsoft.ServiceFabric.Data;
+using Microsoft.ServiceFabric.Services.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Fabric;
@@ -11,23 +12,26 @@ namespace ServiceFabric.Mocks.ReplicaSet
         where TStatefulService : StatefulService
     {
         private readonly List<MockStatefulServiceReplica<TStatefulService>> _replicas = new List<MockStatefulServiceReplica<TStatefulService>>();
-        private readonly Func<StatefulServiceContext, TStatefulService> _serviceFactory;
+        private readonly Func<StatefulServiceContext, IReliableStateManagerReplica2, TStatefulService> _serviceFactory;
+        private readonly IReliableStateManagerReplica2 _stateManager;
         private readonly Random _random;
 
         public MockStatefulServiceReplicaSet(
-            Func<StatefulServiceContext, TStatefulService> serviceFactory, 
+            Func<StatefulServiceContext, IReliableStateManagerReplica2, TStatefulService> serviceFactory,
+            IReliableStateManagerReplica2 stateManager,
             string serviceTypeName = MockStatefulServiceContextFactory.ServiceTypeName, 
-            string ServiceName = MockStatefulServiceContextFactory.ServiceName, 
+            string serviceName = MockStatefulServiceContextFactory.ServiceName, 
             ICodePackageActivationContext codePackageActivationContext = null)
         {
             _serviceFactory = serviceFactory;
+            _stateManager = stateManager;
             _random = new Random();
             CodePackageActivationContext = codePackageActivationContext ?? MockCodePackageActivationContext.Default;
-            serviceTypeName = MockStatefulServiceContextFactory.ServiceTypeName;
-            ServiceName = MockStatefulServiceContextFactory.ServiceName;            
+            ServiceTypeName = serviceTypeName;
+            ServiceName = serviceName;            
         }
 
-        public string ServiceTypeName { get; } = MockStatefulServiceContextFactory.ServiceTypeName;
+        public string ServiceTypeName { get; }
 
         public Uri ServiceUri { get { return new Uri(ServiceName); } }
 
@@ -70,12 +74,15 @@ namespace ServiceFabric.Mocks.ReplicaSet
         public async Task AddReplicaAsync(ReplicaRole role, long? replicaId = null, int activationDelayMs = 0)
         {
             var serviceContext = MockStatefulServiceContextFactory.Create(CodePackageActivationContext, ServiceTypeName, ServiceUri, Guid.NewGuid(), replicaId ?? _random.Next());
-            var replica = new MockStatefulServiceReplica<TStatefulService>(_serviceFactory, serviceContext);
+            var replica = new MockStatefulServiceReplica<TStatefulService>(_serviceFactory, serviceContext, _stateManager);
             await replica.CreateAsync(role);
             _replicas.Add(replica);
         }
 
-        public Task PromoteIdleSecondaryToActiveSecondaryAsync(long? replicaId = null) => GetIdleSecondary(replicaId).PromoteToPrimaryAsync();
+        public Task PromoteIdleSecondaryToActiveSecondaryAsync(long? replicaId = null)
+        {
+            return GetIdleSecondary(replicaId).PromoteToActiveSecondaryAsync();
+        }
 
         public async Task PromoteActiveSecondaryToPrimaryAsync(long? replicaId = null)
         {
@@ -87,8 +94,17 @@ namespace ServiceFabric.Mocks.ReplicaSet
             await activeSecondary.PromoteToPrimaryAsync();
         }
 
-        public Task DeletePrimaryAsync() => Primary.DeleteAsync();
+        public async Task PromoteNewReplicaToPrimaryAsync(long? newReplicaId = null)
+        {
+            newReplicaId = newReplicaId ?? _random.Next();
+            long? primaryReplicaId = Primary?.ReplicaId;
 
-        public Task DeleteReplicaAsync(int replicaId) => Replicas.Single(r => r.ReplicaId == replicaId).DeleteAsync();
+            await AddReplicaAsync(ReplicaRole.IdleSecondary, newReplicaId);
+            await PromoteIdleSecondaryToActiveSecondaryAsync(newReplicaId);
+            await PromoteActiveSecondaryToPrimaryAsync(newReplicaId);
+
+            if (primaryReplicaId.HasValue)
+                await this[primaryReplicaId.Value].DeleteAsync();
+        }
     }
 }
