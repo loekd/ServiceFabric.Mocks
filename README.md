@@ -15,11 +15,16 @@ Please also make sure all feature additions have a corresponding unit test.
 
 Or [donate](https://paypal.me/lduys/5) a cup of coffee.
 
+Thank you for contributing!
+
 ## VSTS users
 
 The VSTS Agent lagged behind in Service Fabric SDK version, this caused runtime errors. This issue is now resolved. 
 
 ## Release notes
+  - 3.3.0
+     - Merged PR by charleszipp. Adds stateful service role change test options.
+
  - 3.2.3
      - Upgraded to new SDK (SF 3.0.480).
 
