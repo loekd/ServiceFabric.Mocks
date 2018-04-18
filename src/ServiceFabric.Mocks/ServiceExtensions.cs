@@ -74,6 +74,22 @@ namespace ServiceFabric.Mocks
             return (Task)method.Invoke(service, new object[] { cancellationToken ?? CancellationToken.None });
         }
 
+
+        /// <summary>
+        /// Invokes OnChangeRoleAsync on the provided <paramref name="service"/>.
+        /// </summary>
+        /// <param name="service"></param>
+        /// <param name="newRole"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public static Task InvokeOnChangeRoleAsync(this StatefulServiceBase service, ReplicaRole newRole, CancellationToken? cancellationToken = null)
+        {
+            if (service == null) throw new ArgumentNullException(nameof(service));
+            //protected virtual Task RunAsync(CancellationToken cancellationToken)
+            var method = FindMethodInfo(service, "OnChangeRoleAsync");
+            return (Task)method.Invoke(service, new object[] { newRole, cancellationToken ?? CancellationToken.None });
+        }
+
         /// <summary>
         /// Invokes OnCloseAsync on the provided <paramref name="service"/>.
         /// </summary>

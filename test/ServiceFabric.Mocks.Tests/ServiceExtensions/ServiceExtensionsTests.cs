@@ -70,6 +70,14 @@ namespace ServiceFabric.Mocks.Tests.ServiceExtensions
         }
 
         [TestMethod]
+        public async Task TestStatefulInvokeOnChangeRoleAsync()
+        {
+            var serviceInstance = new NestedStatefulService(MockStatefulServiceContextFactory.Default);
+            await serviceInstance.InvokeOnChangeRoleAsync(ReplicaRole.Primary);
+            Assert.IsTrue(serviceInstance.OnChangeRoleCalled);
+        }
+
+        [TestMethod]
         public void TestInvokeInvokeCreateServiceReplicaListeners()
         {
             var serviceInstance = new NestedStatefulService(MockStatefulServiceContextFactory.Default);
@@ -116,6 +124,7 @@ namespace ServiceFabric.Mocks.Tests.ServiceExtensions
         {
             public bool OnOpenCalled { get; private set; }
             public bool OnCloseCalled { get; private set; }
+            public bool OnChangeRoleCalled { get; private set; }
             public bool RunAsyncCalled { get; private set; }
 
             public NestedStatefulService(StatefulServiceContext serviceContext) : base(serviceContext)
@@ -145,7 +154,11 @@ namespace ServiceFabric.Mocks.Tests.ServiceExtensions
                 return Task.FromResult(true);
             }
 
-
+            protected override Task OnChangeRoleAsync(ReplicaRole newRole, CancellationToken cancellationToken)
+            {
+                OnChangeRoleCalled = true;
+                return Task.FromResult(true);
+            }
         }
     }
 }

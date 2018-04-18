@@ -1,10 +1,8 @@
-﻿using System;
-using System.Fabric;
+﻿using System.Fabric;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
-using Microsoft.ServiceFabric.Services.Runtime;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceFabric.Mocks.ReplicaSet;
 using ServiceFabric.Mocks.Tests.Services;
@@ -89,15 +87,15 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
             //promote one of the secondaries to primary
             await replicaSet.PromoteActiveSecondaryToPrimaryAsync(2);
             //get data
-            var payloads = await replicaSet.Primary.ServiceInstance.GetPayloadsAsync();
+            var payloads = (await replicaSet.Primary.ServiceInstance.GetPayloadsAsync()).ToList();
 
             //data should match what was inserted against the primary
-            Assert.IsTrue(payloads.Count() == 1);
-            Assert.IsTrue(payloads.First().Content == payload.Content);
+            Assert.IsTrue(payloads.Count == 1);
+            Assert.IsTrue(payloads[0].Content == payload.Content);
 
             //the primary should not have any in-memory state
             var payloadsFromOldPrimary = await replicaSet[1].ServiceInstance.GetPayloadsAsync();
-            Assert.IsTrue(payloadsFromOldPrimary.Count() == 0);
+            Assert.IsTrue(!payloadsFromOldPrimary.Any());
         }
 
         [TestMethod]
@@ -117,11 +115,11 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
             //promote one of the secondaries to primary
             await replicaSet.PromoteNewReplicaToPrimaryAsync(4);
             //get data
-            var payloads = await replicaSet.Primary.ServiceInstance.GetPayloadsAsync();
+            var payloads = (await replicaSet.Primary.ServiceInstance.GetPayloadsAsync()).ToList();
 
             //data should match what was inserted against the primary
-            Assert.IsTrue(payloads.Count() == 1);
-            Assert.IsTrue(payloads.First().Content == payload.Content);
+            Assert.IsTrue(payloads.Count == 1);
+            Assert.IsTrue(payloads[0].Content == payload.Content);
 
             //the primary should not have any in-memory state
             var payloadsFromOldPrimary = await replicaSet[1].ServiceInstance.GetPayloadsAsync();
