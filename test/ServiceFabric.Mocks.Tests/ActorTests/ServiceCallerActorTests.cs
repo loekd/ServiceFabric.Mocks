@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
@@ -52,6 +53,16 @@ namespace ServiceFabric.Mocks.Tests.ActorTests
             }
 
             public Task InsertAndAbortAsync(string stateName, Payload value)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task<IEnumerable<Payload>> GetPayloadsAsync()
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task UpdatePayloadAsync(string stateName, string content)
             {
                 throw new NotImplementedException();
             }

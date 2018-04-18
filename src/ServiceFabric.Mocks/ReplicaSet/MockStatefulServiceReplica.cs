@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Fabric;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,7 +13,6 @@ namespace ServiceFabric.Mocks.ReplicaSet
     public class MockStatefulServiceReplica<TStatefulService>
         where TStatefulService : StatefulService
     {
-        private readonly Func<StatefulServiceContext, IReliableStateManagerReplica2, TStatefulService> _serviceFactory;
         private readonly TStatefulService _serviceInstance;
         private readonly StatefulServiceContext _context;
         private IEnumerable<ICommunicationListener> _openListeners = new List<ICommunicationListener>();        
@@ -22,8 +20,7 @@ namespace ServiceFabric.Mocks.ReplicaSet
         public MockStatefulServiceReplica(Func<StatefulServiceContext, IReliableStateManagerReplica2, TStatefulService> serviceFactory, StatefulServiceContext context, IReliableStateManagerReplica2 stateManager)
         {
             _context = context;
-            _serviceFactory = serviceFactory;       
-            _serviceInstance = _serviceFactory.Invoke(context, stateManager);
+            _serviceInstance = serviceFactory.Invoke(context, stateManager);
         }
 
         public TStatefulService ServiceInstance => _serviceInstance;
@@ -97,12 +94,9 @@ namespace ServiceFabric.Mocks.ReplicaSet
         private async Task ChangeRoleAsync(ReplicaRole newRole)
         {
             ReplicaRole = newRole;
-            await (Task)_serviceInstance
-                .GetType()
-                .GetMethod("OnChangeRoleAsync", BindingFlags.NonPublic | BindingFlags.Instance)
-                .Invoke(_serviceInstance, new object[] { newRole, ChangeRoleCancellation.Token });
+            await _serviceInstance.InvokeOnChangeRoleAsync(newRole, ChangeRoleCancellation.Token);
 
-            if(_serviceInstance.StateManager is MockReliableStateManager)
+            if (_serviceInstance.StateManager is MockReliableStateManager)
             {
                 await ((MockReliableStateManager)_serviceInstance.StateManager).ChangeRoleAsync(newRole, ChangeRoleCancellation.Token);
             }
@@ -110,37 +104,26 @@ namespace ServiceFabric.Mocks.ReplicaSet
 
         private Task CloseAsync()
         {
-            return (Task)_serviceInstance
-                .GetType()
-                .GetMethod("OnCloseAsync", BindingFlags.NonPublic | BindingFlags.Instance)
-                .Invoke(_serviceInstance, new object[] { CloseCancellation.Token });
+            return _serviceInstance.InvokeOnCloseAsync(CloseCancellation.Token);
         }
 
         private Task OpenAsync(ReplicaOpenMode mode)
         {
-            return (Task)_serviceInstance
-                .GetType()
-                .GetMethod("OnOpenAsync", BindingFlags.NonPublic | BindingFlags.Instance)
-                .Invoke(_serviceInstance, new object[] { mode, OpenCancellation.Token });
+            return _serviceInstance.InvokeOnOpenAsync(mode, OpenCancellation.Token);
         }
 
         private Task RunAsync()
         {
-            return (Task)_serviceInstance
-                .GetType()
-                .GetMethod("RunAsync", BindingFlags.NonPublic | BindingFlags.Instance)
-                .Invoke(_serviceInstance, new object[] { RunCancellation.Token });
+            return _serviceInstance.InvokeRunAsync(RunCancellation.Token);
         }
 
         private Task OpenServiceReplicaListeners()
         {
-            var serviceReplicaListeners = (IEnumerable<ServiceReplicaListener>)_serviceInstance
-                .GetType()
-                .GetMethod("CreateServiceReplicaListeners", BindingFlags.NonPublic | BindingFlags.Instance)
-                .Invoke(_serviceInstance, new object[] { });
+            var serviceReplicaListeners = _serviceInstance.InvokeCreateServiceReplicaListeners();
 
             _openListeners = serviceReplicaListeners
-                .Where(rl => (ReplicaRole == ReplicaRole.ActiveSecondary && rl.ListenOnSecondary == true) || ReplicaRole == ReplicaRole.Primary)
+                .Where(rl => ReplicaRole == ReplicaRole.ActiveSecondary && rl.ListenOnSecondary
+                    || ReplicaRole == ReplicaRole.Primary)
                 .Select(rl => rl.CreateCommunicationListener(_context))
                 .ToList();
 
