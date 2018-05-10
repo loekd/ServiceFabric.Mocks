@@ -19,7 +19,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
         [TestMethod]
         public async Task AddAsyncTest()
         {
-            DictionaryChange change = null;
+            DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
                 (c) =>
@@ -65,7 +65,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
         [TestMethod]
         public async Task AddOrUpdateAsyncTest()
         {
-            DictionaryChange change = null;
+            DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
                 (c) =>
@@ -96,7 +96,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
         [TestMethod]
         public async Task ClearAsyncTest()
         {
-            DictionaryChange change = null;
+            DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
                 (c) =>
@@ -122,7 +122,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
         [TestMethod]
         public async Task ContainsKeyAsyncTest()
         {
-            DictionaryChange change = null;
+            DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
                 (c) =>
@@ -149,7 +149,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
         [TestMethod]
         public async Task GetOrAddAsyncTest()
         {
-            DictionaryChange change = null;
+            DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
                 (c) =>
@@ -174,7 +174,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
         [TestMethod]
         public async Task SetAsyncTest()
         {
-            DictionaryChange change = null;
+            DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
                 (c) =>
@@ -232,7 +232,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
         [TestMethod]
         public async Task TryAddAsyncTest()
         {
-            DictionaryChange change = null;
+            DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
                 (c) =>
@@ -279,7 +279,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
         [TestMethod]
         public async Task TryGetValueAsyncTest()
         {
-            DictionaryChange change = null;
+            DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
                 (c) =>
@@ -312,7 +312,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
         [TestMethod]
         public async Task TryRemoveAsyncTest()
         {
-            DictionaryChange change = null;
+            DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
                 (c) =>
@@ -355,7 +355,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
         [TestMethod]
         public async Task TryUpdateAsyncTest()
         {
-            DictionaryChange change = null;
+            DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
                 (c) =>
