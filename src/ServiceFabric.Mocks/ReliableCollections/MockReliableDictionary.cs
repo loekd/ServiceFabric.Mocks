@@ -20,15 +20,15 @@
         public long Count => Dictionary.Count;
 
         public MockReliableDictionary(Uri uri)
-            : base(uri, null)
+            : base(uri)
         {
             // Set the OnDictionaryChanged callback to fire the DictionaryChanged event.
-            OnDictionaryChanged =
-                (c) =>
+            base.DictionaryChanged +=
+                (sender, c) =>
                 {
                     if (DictionaryChanged != null)
                     {
-                        NotifyDictionaryChangedEventArgs<TKey, TValue> e;
+                        NotifyDictionaryChangedEventArgs<TKey, TValue> e = null;
                         switch (c.ChangeType)
                         {
                             case ChangeType.Added:
@@ -40,16 +40,12 @@
                             case ChangeType.Updated:
                                 e = new NotifyDictionaryItemUpdatedEventArgs<TKey, TValue>(c.Transaction, c.Key, c.Added);
                                 break;
-                            default:
-                                return false;
                         }
 
                         DictionaryChanged.Invoke(this, e);
                     }
 
                     MockDictionaryChanged?.Invoke(this, c);
-
-                    return true;
                 };
         }
 
@@ -58,7 +54,7 @@
 
 
         public event EventHandler<NotifyDictionaryChangedEventArgs<TKey, TValue>> DictionaryChanged;
-        public event EventHandler<DictionaryChange> MockDictionaryChanged;
+        public event EventHandler<DictionaryChangedEvent<TKey, TValue>> MockDictionaryChanged;
 
         #region AddAsync
         public Task AddAsync(ITransaction tx, TKey key, TValue value)

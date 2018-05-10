@@ -15,12 +15,14 @@ namespace ServiceFabric.Mocks.ReplicaSet
     {
         private readonly TStatefulService _serviceInstance;
         private readonly StatefulServiceContext _context;
+        private readonly IReliableStateManagerReplica2 _stateManager;
         private IEnumerable<ICommunicationListener> _openListeners = new List<ICommunicationListener>();        
 
         public MockStatefulServiceReplica(Func<StatefulServiceContext, IReliableStateManagerReplica2, TStatefulService> serviceFactory, StatefulServiceContext context, IReliableStateManagerReplica2 stateManager)
         {
             _context = context;
-            _serviceInstance = serviceFactory.Invoke(context, stateManager);
+            _stateManager = stateManager;
+            _serviceInstance = serviceFactory.Invoke(context, _stateManager);
         }
 
         public TStatefulService ServiceInstance => _serviceInstance;
@@ -95,11 +97,7 @@ namespace ServiceFabric.Mocks.ReplicaSet
         {
             ReplicaRole = newRole;
             await _serviceInstance.InvokeOnChangeRoleAsync(newRole, ChangeRoleCancellation.Token);
-
-            if (_serviceInstance.StateManager is MockReliableStateManager)
-            {
-                await ((MockReliableStateManager)_serviceInstance.StateManager).ChangeRoleAsync(newRole, ChangeRoleCancellation.Token);
-            }
+            await _stateManager.ChangeRoleAsync(newRole, ChangeRoleCancellation.Token);
         }
 
         private Task CloseAsync()

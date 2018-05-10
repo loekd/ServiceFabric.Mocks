@@ -18,16 +18,15 @@
         private int _totalTransactionInstanceCount = 0;
         private TransactedConcurrentDictionary<Uri, IReliableState> _store;
 
-        public MockReliableStateManager()
+        public MockReliableStateManager(TransactedConcurrentDictionary<Uri, IReliableState> store = null)
         {
-            // Initialze _store to a TransactedConcurrentDictionary that fires the StateManagerChanged event in the OnDictionaryChanged callback.
-            _store = new TransactedConcurrentDictionary<Uri, IReliableState>(
-                new Uri("fabric://state", UriKind.Absolute),
-                (c) =>
+            _store = store ?? new TransactedConcurrentDictionary<Uri, IReliableState>(new Uri("fabric://state", UriKind.Absolute));
+            _store.DictionaryChanged +=
+                (sender, c) =>
                 {
                     if (StateManagerChanged != null)
                     {
-                        NotifyStateManagerSingleEntityChangedEventArgs changeEvent;
+                        NotifyStateManagerSingleEntityChangedEventArgs changeEvent = null;
                         switch (c.ChangeType)
                         {
                             case ChangeType.Added:
@@ -37,17 +36,11 @@
                             case ChangeType.Removed:
                                 changeEvent = new NotifyStateManagerSingleEntityChangedEventArgs(c.Transaction, c.Removed, NotifyStateManagerChangedAction.Remove);
                                 break;
-
-                            default:
-                                return false;
                         }
 
                         StateManagerChanged.Invoke(this, changeEvent);
                     }
-
-                    return true;
-                }
-            );
+                };
         }
 
         #region TestHooks
