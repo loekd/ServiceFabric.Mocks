@@ -2,7 +2,6 @@
 using Microsoft.ServiceFabric.Services.Runtime;
 using ServiceFabric.Mocks.ReliableCollections;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Fabric;
 using System.Linq;

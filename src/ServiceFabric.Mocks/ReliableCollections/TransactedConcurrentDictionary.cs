@@ -23,19 +23,19 @@
         /// This is fired similar to the DictionaryChanged event on IReliableDictionary except that it provides the
         /// removed value on a remove operation.
         /// </summary>
-        internal event EventHandler<DictionaryChangedEvent<TKey, TValue>> DictionaryChanged;
+        internal event EventHandler<DictionaryChangedEvent<TKey, TValue>> InternalDictionaryChanged;
 
         public IEnumerable<TValue> ValuesEnumerable => Dictionary.Values;
         protected ConcurrentDictionary<TKey, TValue> Dictionary { get; private set; }
-        protected LockManager<TKey, long> LockManager { get; private set; }
+        protected LockManager<TKey, long> LockManager { get; }
 
-        public TransactedConcurrentDictionary(Uri uri, Func<DictionaryChangedEvent<TKey, TValue>, bool> changeCallback = null)
+        public TransactedConcurrentDictionary(Uri uri, EventHandler<DictionaryChangedEvent<TKey, TValue>> changeCallback = null)
             : base(uri)
         {
             Dictionary = new ConcurrentDictionary<TKey, TValue>();
             LockManager = new LockManager<TKey, long>();
             if(changeCallback != null)
-                DictionaryChanged += (sender, args) => changeCallback(args);
+                InternalDictionaryChanged += changeCallback;
         }
 
         /// <summary>
@@ -99,8 +99,8 @@
                 throw new ArgumentException("A value with the same key already exists.", nameof(value));
             }
 
-            AddAbortAction(tx, () => { Dictionary.TryRemove(key, out TValue v); return true; });
-            AddCommitAction(tx, () => { DictionaryChanged?.Invoke(this, new DictionaryChangedEvent<TKey, TValue>(tx, ChangeType.Added, key, added: value)); return true; });
+            AddAbortAction(tx, () => { Dictionary.TryRemove(key, out _); return true; });
+            AddCommitAction(tx, () => { InternalDictionaryChanged?.Invoke(this, new DictionaryChangedEvent<TKey, TValue>(tx, ChangeType.Added, key, added: value)); return true; });
         }
 
         public async Task<TValue> AddOrUpdateAsync(ITransaction tx, TKey key, Func<TKey, TValue> addValueFactory, Func<TKey, TValue, TValue> updateValueFactory, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
@@ -113,12 +113,12 @@
             if (isUpdate)
             {
                 AddAbortAction(tx, () => { Dictionary[key] = oldValue; return true; });
-                AddCommitAction(tx, () => { DictionaryChanged?.Invoke(this, new DictionaryChangedEvent<TKey, TValue>(tx, ChangeType.Updated, key, added: newValue, removed: oldValue)); return true; });
+                AddCommitAction(tx, () => { InternalDictionaryChanged?.Invoke(this, new DictionaryChangedEvent<TKey, TValue>(tx, ChangeType.Updated, key, added: newValue, removed: oldValue)); return true; });
             }
             else
             {
-                AddAbortAction(tx, () => { Dictionary.TryRemove(key, out TValue v); return true; });
-                AddCommitAction(tx, () => { DictionaryChanged?.Invoke(this, new DictionaryChangedEvent<TKey, TValue>(tx, ChangeType.Added, key, added: newValue)); return true; });
+                AddAbortAction(tx, () => { Dictionary.TryRemove(key, out _); return true; });
+                AddCommitAction(tx, () => { InternalDictionaryChanged?.Invoke(this, new DictionaryChangedEvent<TKey, TValue>(tx, ChangeType.Added, key, added: newValue)); return true; });
             }
 
             return newValue;
@@ -148,8 +148,8 @@
                 value = valueFactory(key);
                 Dictionary.TryAdd(key, value);
 
-                AddAbortAction(tx, () => { Dictionary.TryRemove(key, out TValue v); return true; });
-                AddCommitAction(tx, () => { DictionaryChanged?.Invoke(this, new DictionaryChangedEvent<TKey, TValue>(tx, ChangeType.Added, key, added: value)); return true; });
+                AddAbortAction(tx, () => { Dictionary.TryRemove(key, out _); return true; });
+                AddCommitAction(tx, () => { InternalDictionaryChanged?.Invoke(this, new DictionaryChangedEvent<TKey, TValue>(tx, ChangeType.Added, key, added: value)); return true; });
             }
 
             return value;
@@ -171,12 +171,12 @@
                 }
                 else
                 {
-                    Dictionary.TryRemove(key, out TValue removedValue);
+                    Dictionary.TryRemove(key, out _);
                 }
 
                 return true;
             });
-            AddCommitAction(tx, () => { DictionaryChanged?.Invoke(this, new DictionaryChangedEvent<TKey, TValue>(tx, ChangeType.Updated, key, added: value, removed: oldValue)); return true; });
+            AddCommitAction(tx, () => { InternalDictionaryChanged?.Invoke(this, new DictionaryChangedEvent<TKey, TValue>(tx, ChangeType.Updated, key, added: value, removed: oldValue)); return true; });
         }
 
         public async Task<bool> TryAddAsync(ITransaction tx, TKey key, TValue value, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
@@ -185,8 +185,8 @@
             var result = Dictionary.TryAdd(key, value);
             if (result)
             {
-                AddAbortAction(tx, () => { Dictionary.TryRemove(key, out TValue v); return true; });
-                AddCommitAction(tx, () => { DictionaryChanged?.Invoke(this, new DictionaryChangedEvent<TKey, TValue>(tx, ChangeType.Added, key, added: value)); return true; });
+                AddAbortAction(tx, () => { Dictionary.TryRemove(key, out _); return true; });
+                AddCommitAction(tx, () => { InternalDictionaryChanged?.Invoke(this, new DictionaryChangedEvent<TKey, TValue>(tx, ChangeType.Added, key, added: value)); return true; });
             }
             else if (acquireResult == AcquireResult.Acquired)
             {
@@ -217,7 +217,7 @@
             if (hasValue)
             {
                 AddAbortAction(tx, () => { Dictionary.TryAdd(key, value); return true; });
-                AddCommitAction(tx, () => { DictionaryChanged?.Invoke(this, new DictionaryChangedEvent<TKey, TValue>(tx, ChangeType.Removed, key, removed: value)); return true; });
+                AddCommitAction(tx, () => { InternalDictionaryChanged?.Invoke(this, new DictionaryChangedEvent<TKey, TValue>(tx, ChangeType.Removed, key, removed: value)); return true; });
             }
             else if (acquireResult == AcquireResult.Acquired)
             {
@@ -234,7 +234,7 @@
             if (result)
             {
                 AddAbortAction(tx, () => { Dictionary[key] = comparisonValue; return true; });
-                AddCommitAction(tx, () => { DictionaryChanged?.Invoke(this, new DictionaryChangedEvent<TKey, TValue>(tx, ChangeType.Updated, key, added: newValue, removed: comparisonValue)); return true; });
+                AddCommitAction(tx, () => { InternalDictionaryChanged?.Invoke(this, new DictionaryChangedEvent<TKey, TValue>(tx, ChangeType.Updated, key, added: newValue, removed: comparisonValue)); return true; });
             }
             else if (acquireResult == AcquireResult.Acquired)
             {
