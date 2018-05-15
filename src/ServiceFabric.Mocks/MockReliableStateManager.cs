@@ -3,7 +3,7 @@
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
     using Microsoft.ServiceFabric.Data.Notifications;
-    using ServiceFabric.Mocks.ReliableCollections;
+    using ReliableCollections;
     using System;
     using System.Fabric;
     using System.IO;
@@ -15,39 +15,32 @@
     /// </summary>
     public class MockReliableStateManager : IReliableStateManagerReplica2
     {
-        private int _totalTransactionInstanceCount = 0;
-        private TransactedConcurrentDictionary<Uri, IReliableState> _store;
+        private int _totalTransactionInstanceCount;
+        private readonly TransactedConcurrentDictionary<Uri, IReliableState> _store;
 
-        public MockReliableStateManager()
+        public MockReliableStateManager(TransactedConcurrentDictionary<Uri, IReliableState> store = null)
         {
-            // Initialze _store to a TransactedConcurrentDictionary that fires the StateManagerChanged event in the OnDictionaryChanged callback.
-            _store = new TransactedConcurrentDictionary<Uri, IReliableState>(
-                new Uri("fabric://state", UriKind.Absolute),
-                (c) =>
+            _store = store ?? new TransactedConcurrentDictionary<Uri, IReliableState>(new Uri("fabric://state", UriKind.Absolute));
+            _store.InternalDictionaryChanged +=
+                (sender, args) =>
                 {
                     if (StateManagerChanged != null)
                     {
-                        NotifyStateManagerSingleEntityChangedEventArgs changeEvent;
-                        switch (c.ChangeType)
+                        NotifyStateManagerSingleEntityChangedEventArgs changeEvent = null;
+                        switch (args.ChangeType)
                         {
                             case ChangeType.Added:
-                                changeEvent = new NotifyStateManagerSingleEntityChangedEventArgs(c.Transaction, c.Added, NotifyStateManagerChangedAction.Add);
+                                changeEvent = new NotifyStateManagerSingleEntityChangedEventArgs(args.Transaction, args.Added, NotifyStateManagerChangedAction.Add);
                                 break;
 
                             case ChangeType.Removed:
-                                changeEvent = new NotifyStateManagerSingleEntityChangedEventArgs(c.Transaction, c.Removed, NotifyStateManagerChangedAction.Remove);
+                                changeEvent = new NotifyStateManagerSingleEntityChangedEventArgs(args.Transaction, args.Removed, NotifyStateManagerChangedAction.Remove);
                                 break;
-
-                            default:
-                                return false;
                         }
 
                         StateManagerChanged.Invoke(this, changeEvent);
                     }
-
-                    return true;
-                }
-            );
+                };
         }
 
         #region TestHooks
@@ -133,7 +126,7 @@
 
         public async Task<T> GetOrAddAsync<T>(ITransaction tx, Uri name, TimeSpan timeout) where T : IReliableState
         {
-            IReliableState constructed = null;
+            IReliableState constructed;
 
             var result = await _store.GetOrAddAsync(tx, name, collectionName =>
             {

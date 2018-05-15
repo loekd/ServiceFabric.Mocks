@@ -1,9 +1,11 @@
-﻿using System.Fabric;
+﻿using System;
+using System.Fabric;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ServiceFabric.Mocks.ReliableCollections;
 using ServiceFabric.Mocks.ReplicaSet;
 using ServiceFabric.Mocks.Tests.Services;
 
@@ -73,8 +75,7 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
         [TestMethod]
         public async Task TestServiceState_InMemoryState_PromoteActiveSecondary()
         {
-            var stateManager = new MockReliableStateManager();
-            var replicaSet = new MockStatefulServiceReplicaSet<MyStatefulService>(CreateStatefulService, stateManager);
+            var replicaSet = new MockStatefulServiceReplicaSet<MyStatefulService>(CreateStatefulService, CreateStateManagerReplica);
             await replicaSet.AddReplicaAsync(ReplicaRole.Primary, 1);
             await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 2);
             await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 3);
@@ -101,8 +102,7 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
         [TestMethod]
         public async Task TestServiceState_InMemoryState_PromoteNewReplica()
         {
-            var stateManager = new MockReliableStateManager();
-            var replicaSet = new MockStatefulServiceReplicaSet<MyStatefulService>(CreateStatefulService, stateManager);
+            var replicaSet = new MockStatefulServiceReplicaSet<MyStatefulService>(CreateStatefulService, CreateStateManagerReplica);
             await replicaSet.AddReplicaAsync(ReplicaRole.Primary, 1);
             await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 2);
             await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 3);
@@ -129,6 +129,11 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
         private MyStatefulService CreateStatefulService(StatefulServiceContext context, IReliableStateManagerReplica2 stateManager)
         {
             return new MyStatefulService(context, stateManager);
+        }
+
+        private IReliableStateManagerReplica2 CreateStateManagerReplica(StatefulServiceContext ctx, TransactedConcurrentDictionary<Uri, IReliableState> states)
+        {
+            return new MockReliableStateManager(states);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Services.Runtime;
+using ServiceFabric.Mocks.ReliableCollections;
 using System;
 using System.Collections.Generic;
 using System.Fabric;
@@ -13,22 +14,27 @@ namespace ServiceFabric.Mocks.ReplicaSet
     {
         private readonly List<MockStatefulServiceReplica<TStatefulService>> _replicas = new List<MockStatefulServiceReplica<TStatefulService>>();
         private readonly Func<StatefulServiceContext, IReliableStateManagerReplica2, TStatefulService> _serviceFactory;
-        private readonly IReliableStateManagerReplica2 _stateManager;
+        private readonly Func<StatefulServiceContext, TransactedConcurrentDictionary<Uri, IReliableState>, IReliableStateManagerReplica2> _stateManagerFactory;
+        private readonly TransactedConcurrentDictionary<Uri, IReliableState> _reliableStates = new TransactedConcurrentDictionary<Uri, IReliableState>(new Uri("fabric://state", UriKind.Absolute));
         private readonly Random _random;
 
         public MockStatefulServiceReplicaSet(
             Func<StatefulServiceContext, IReliableStateManagerReplica2, TStatefulService> serviceFactory,
-            IReliableStateManagerReplica2 stateManager,
+            Func<StatefulServiceContext, TransactedConcurrentDictionary<Uri, IReliableState>, IReliableStateManagerReplica2> stateManagerFactory = null,
             string serviceTypeName = MockStatefulServiceContextFactory.ServiceTypeName, 
             string serviceName = MockStatefulServiceContextFactory.ServiceName, 
             ICodePackageActivationContext codePackageActivationContext = null)
         {
             _serviceFactory = serviceFactory;
-            _stateManager = stateManager;
             _random = new Random();
             CodePackageActivationContext = codePackageActivationContext ?? MockCodePackageActivationContext.Default;
             ServiceTypeName = serviceTypeName;
-            ServiceName = serviceName;            
+            ServiceName = serviceName;
+
+            if (stateManagerFactory == null)
+                _stateManagerFactory = (ctx, store) => new MockReliableStateManager(store);
+            else
+                _stateManagerFactory = stateManagerFactory;
         }
 
         public string ServiceTypeName { get; }
@@ -74,9 +80,11 @@ namespace ServiceFabric.Mocks.ReplicaSet
         public async Task AddReplicaAsync(ReplicaRole role, long? replicaId = null, int activationDelayMs = 0)
         {
             var serviceContext = MockStatefulServiceContextFactory.Create(CodePackageActivationContext, ServiceTypeName, ServiceUri, Guid.NewGuid(), replicaId ?? _random.Next());
-            var replica = new MockStatefulServiceReplica<TStatefulService>(_serviceFactory, serviceContext, _stateManager);
+            var stateManager = _stateManagerFactory(serviceContext, _reliableStates);
+            var replica = new MockStatefulServiceReplica<TStatefulService>(_serviceFactory, serviceContext, stateManager);
             await replica.CreateAsync(role);
             _replicas.Add(replica);
+
         }
 
         public Task PromoteIdleSecondaryToActiveSecondaryAsync(long? replicaId = null)
