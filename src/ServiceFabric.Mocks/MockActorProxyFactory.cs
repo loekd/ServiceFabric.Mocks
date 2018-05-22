@@ -73,30 +73,39 @@ namespace ServiceFabric.Mocks
             return serviceInterface;
         }
 
-        protected virtual IActor OnMisingActor(object sender, ActorId id, Type actorType)
+        protected virtual void OnMisingActor(object sender, ActorId id, Type actorType)
         {
             var args = new MissingActorEventArgs(actorType, id);
             MissingActor?.Invoke(sender, args);
             if (args.ActorInstance != null)
             {
                 RegisterActor(args.ActorInstance);
-                return args.ActorInstance;
             }
-            return null;
         }
 
-        protected TActorInterface CreateActorProxy<TActorInterface>(ActorId actorId)
+        private TActorInterface CreateActorProxy<TActorInterface>(ActorId actorId)
             where TActorInterface : IActor
         {
-            if (!_actorRegistry.TryGetValue(actorId, out HashSet<IActor> set))
-                return (TActorInterface)OnMisingActor(this, actorId, typeof(TActorInterface));
+            //check for null set, or non existing actor of this type
+            if (!_actorRegistry.TryGetValue(actorId, out var set)
+                || !set.OfType<TActorInterface>().Any())
+            {
+                //opportunity to register an actor on the fly
+                OnMisingActor(this, actorId, typeof(TActorInterface));
+            }
 
-            var actor = set.OfType<TActorInterface>().SingleOrDefault();
+            //re-check
+            _actorRegistry.TryGetValue(actorId, out set);
 
-            if (actor != null)
-                return actor;
+            if (set != null)
+            {
+                return set
+                .OfType<TActorInterface>()
+                .SingleOrDefault();
 
-            return (TActorInterface)OnMisingActor(this, actorId, typeof(TActorInterface));
+            }
+
+            return default(TActorInterface);
         }
     }
 }
