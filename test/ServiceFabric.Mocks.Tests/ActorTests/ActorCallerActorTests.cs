@@ -39,6 +39,40 @@ namespace ServiceFabric.Mocks.Tests.ActorTests
             Assert.AreEqual("some other value", payload.Content);
         }
 
+        [TestMethod]
+        public void TestMissingActorCreatedInEventHandler()
+        {
+            var mockProxyFactory = new MockActorProxyFactory();
+            mockProxyFactory.MissingActor += MockProxyFactory_MisingActorId;
+            var actorId = ActorId.CreateRandom();
+            var instance = mockProxyFactory.CreateActorProxy<IMyStatefulActor>(actorId);
+
+            Assert.IsInstanceOfType(instance, typeof(IMyStatefulActor));
+        }
+
+        [TestMethod]
+        public void TestMissingActorNotCreatedInEventHandler()
+        {
+            var mockProxyFactory = new MockActorProxyFactory();
+            var actorId = ActorId.CreateRandom();
+            var instance = mockProxyFactory.CreateActorProxy<IMyStatefulActor>(actorId);
+            Assert.IsNull(instance);
+        }
+
+        [TestMethod]
+        public void TestMissingActorSecondTypeCreatedInEventHandler()
+        {
+            var mockProxyFactory = new MockActorProxyFactory();
+            mockProxyFactory.MissingActor += MockProxyFactory_MisingActor_TwoTypes;
+            var actorId = ActorId.CreateRandom();
+            var instance1 = mockProxyFactory.CreateActorProxy<IMyStatefulActor>(actorId);
+            var instance2 = mockProxyFactory.CreateActorProxy<IReminderTimerActor>(actorId);
+
+            Assert.IsInstanceOfType(instance1, typeof(IMyStatefulActor));
+            Assert.IsInstanceOfType(instance2, typeof(IReminderTimerActor));
+        }
+
+
         private static void MockProxyFactory_MisingActorId(object sender, MissingActorEventArgs args)
         {
 	        if (args.ActorType != typeof(IMyStatefulActor)) return;
@@ -47,6 +81,26 @@ namespace ServiceFabric.Mocks.Tests.ActorTests
 	        var svc = MockActorServiceFactory.CreateActorServiceForActor<MyStatefulActor>(actorFactory);
 	        var actor = svc.Activate(args.Id);
 	        args.ActorInstance = actor;
+        }
+
+        private static void MockProxyFactory_MisingActor_TwoTypes(object sender, MissingActorEventArgs args)
+        {
+            if (args.ActorType == typeof(IMyStatefulActor))
+            {
+                Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) =>
+                    new MyStatefulActor(service, actorId);
+                var svc = MockActorServiceFactory.CreateActorServiceForActor<MyStatefulActor>(actorFactory);
+                var actor = svc.Activate(args.Id);
+                args.ActorInstance = actor;
+            }
+            else if (args.ActorType == typeof(IReminderTimerActor))
+            {
+                Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) =>
+                    new ReminderTimerActor(service, actorId);
+                var svc = MockActorServiceFactory.CreateActorServiceForActor<ReminderTimerActor>(actorFactory);
+                var actor = svc.Activate(args.Id);
+                args.ActorInstance = actor;
+            }
         }
     }
 }
