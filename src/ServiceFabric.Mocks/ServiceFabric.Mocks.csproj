@@ -4,7 +4,7 @@
     <Description>ServiceFabric.Mocks contains many Mock and helper classes to facilitate and simplify unit testing of Service Fabric Actors and Services.</Description>
     <Copyright>2018</Copyright>
     <AssemblyTitle>ServiceFabric.Mocks</AssemblyTitle>
-    <VersionPrefix>3.3.4</VersionPrefix>
+    <VersionPrefix>3.3.5</VersionPrefix>
     <Authors>Loek Duys</Authors>
     <TargetFrameworks>net452;net46;netstandard2.0</TargetFrameworks>
     <PlatformTarget>x64</PlatformTarget>

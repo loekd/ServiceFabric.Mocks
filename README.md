@@ -23,6 +23,9 @@ The VSTS Agent lagged behind in Service Fabric SDK version, this caused runtime 
 
 ## Release notes
 
+  - 3.3.5
+     - Update required to test DLL signing.
+
   - 3.3.4
      - Merged PR by Scythen. Fix for issue in MissingActor event using multiple Actor types with the same id.
 
