@@ -4,7 +4,7 @@
     <Description>ServiceFabric.Mocks contains many Mock and helper classes to facilitate and simplify unit testing of Service Fabric Actors and Services.</Description>
     <Copyright>2018</Copyright>
     <AssemblyTitle>ServiceFabric.Mocks</AssemblyTitle>
-    <VersionPrefix>3.3.7</VersionPrefix>
+    <VersionPrefix>3.3.8</VersionPrefix>
     <Authors>Loek Duys</Authors>
     <TargetFrameworks>net452;net46;netstandard2.0</TargetFrameworks>
     <PlatformTarget>x64</PlatformTarget>
@@ -38,11 +38,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ServiceFabric" Version="6.2.301" />
-    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="3.1.301" />
-    <PackageReference Include="Microsoft.ServiceFabric.Data" Version="3.1.301" />
-    <PackageReference Include="Microsoft.ServiceFabric.Services" Version="3.1.301" />
-    <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="3.1.301" />
+    <PackageReference Include="Microsoft.ServiceFabric" Version="6.3.162" />
+    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="3.2.162" />
+    <PackageReference Include="Microsoft.ServiceFabric.Data" Version="3.2.162" />
+    <PackageReference Include="Microsoft.ServiceFabric.Services" Version="3.2.162" />
+    <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="3.2.162" />
   </ItemGroup>
 
 </Project>
