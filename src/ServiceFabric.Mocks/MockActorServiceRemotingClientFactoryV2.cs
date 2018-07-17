@@ -141,12 +141,14 @@ namespace ServiceFabric.Mocks.RemotingV2
         /// </summary>
         public IServiceRemotingResponseMessageBody Response { get; set; }
 
-        public IServiceRemotingRequestMessageBody CreateRequest(string interfaceName, string methodName, int numberOfParameters)
+        public IServiceRemotingRequestMessageBody CreateRequest(string interfaceName, string methodName, int numberOfParameters,
+            object wrappedRequestObject)
         {
             return Request;
         }
 
-        public IServiceRemotingResponseMessageBody CreateResponse(string interfaceName, string methodName)
+        public IServiceRemotingResponseMessageBody CreateResponse(string interfaceName, string methodName,
+            object wrappedResponseObject)
         {
             return Response;
         }
