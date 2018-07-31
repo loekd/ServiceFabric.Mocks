@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Fabric.Description;
-using System.Collections.ObjectModel;
 using System.Security;
 using static ServiceFabric.Mocks.MockConfigurationPackage;
 
@@ -66,5 +65,5 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
 
 
         }
-    }   
+    }
 }

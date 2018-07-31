@@ -93,14 +93,14 @@ namespace ServiceFabric.Mocks
 
         public DataPackage DataPackage { get; set; }
         public List<string> DataPackageNames { get; set; }
-        public KeyedCollection<string, EndpointResourceDescription> EndpointResourceDescriptions { get; set; }
+        public KeyedCollection<string, EndpointResourceDescription> EndpointResourceDescriptions { get; set; } = new MockConfigurationPackage.EndpointResourceDescriptionsKeyedCollection();
         public List<HealthInformation> HealthInformations { get; set; } = new List<HealthInformation>();
         public string LogDirectory { get; set; }
 
-        public KeyedCollection<string, ServiceGroupTypeDescription> ServiceGroupTypes { get; set; }
+        public KeyedCollection<string, ServiceGroupTypeDescription> ServiceGroupTypes { get; set; } = new MockConfigurationPackage.ServiceGroupTypeDescriptionKeyedCollection();
         public string ServiceManifestName { get; set; }
         public string ServiceManifestVersion { get; set; }
-        public KeyedCollection<string, ServiceTypeDescription> ServiceTypes { get; set; }
+        public KeyedCollection<string, ServiceTypeDescription> ServiceTypes { get; set; } = new MockConfigurationPackage.ServiceTypeDescriptionKeyedCollection();
         public string TempDirectory { get; set; }
 
         public string WorkDirectory { get; set; }
