@@ -22,11 +22,12 @@ Thank you for contributing!
 The VSTS Agent lagged behind in Service Fabric SDK version, this caused runtime errors. This issue is now resolved. 
 
 ## Release notes
-   - 3.3.8
-     - Upgraded to new SDK (SF 3.2.162).
+
+   - 3.3.9
+     - Added default instances of keyed collections on `MockCodePackageActivationContext`. Requested by tharris29
 
    - 3.3.8
-     - Added default instances of keyed collections on `MockCodePackageActivationContext`. Requested by tharris29
+     - Upgraded to new SDK (SF 3.2.162).
 
    - 3.3.7
      - Upgraded to new SDK (SF 3.1.301).
