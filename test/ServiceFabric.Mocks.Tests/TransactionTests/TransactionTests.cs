@@ -1,11 +1,10 @@
-﻿using System.Threading.Tasks;
-using System.Collections.Generic;
+﻿using Microsoft.ServiceFabric.Data;
+using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceFabric.Mocks.Tests.Services;
-using System.Linq;
-using Microsoft.ServiceFabric.Data;
-using Microsoft.ServiceFabric.Data.Collections;
+using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace ServiceFabric.Mocks.Tests.TransactionTests
 {
@@ -98,7 +97,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
             {
                 //create state
                 tasks.Add(service.InsertAsync(stateName + i.ToString(), payload));
-            };
+            }
             await Task.WhenAll(tasks);
 
             Assert.AreEqual(0, abortedCount);
@@ -131,7 +130,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
             {
                 //create state
                 tasks.Add(service.InsertAsync(stateName + i.ToString(), payload));
-            };
+            }
             await Task.WhenAll(tasks);
             await service.InsertAndAbortAsync(stateName, payload);
 

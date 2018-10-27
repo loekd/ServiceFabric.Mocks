@@ -9,8 +9,8 @@
     /// </summary>
     public abstract class TransactedCollection
     {
-        private ConcurrentDictionary<long, ConcurrentStack<Func<bool>>> _abortActions = new ConcurrentDictionary<long, ConcurrentStack<Func<bool>>>();
-        private ConcurrentDictionary<long, ConcurrentQueue<Func<bool>>> _commitActions = new ConcurrentDictionary<long, ConcurrentQueue<Func<bool>>>();
+        private readonly ConcurrentDictionary<long, ConcurrentStack<Func<bool>>> _abortActions = new ConcurrentDictionary<long, ConcurrentStack<Func<bool>>>();
+        private readonly ConcurrentDictionary<long, ConcurrentQueue<Func<bool>>> _commitActions = new ConcurrentDictionary<long, ConcurrentQueue<Func<bool>>>();
 
         protected TransactedCollection(Uri uri)
         {
@@ -47,9 +47,7 @@
         /// <returns></returns>
         protected MockTransaction BeginTransaction(ITransaction tx)
         {
-            MockTransaction mtx = tx as MockTransaction;
-
-            if (mtx != null)
+            if (tx is MockTransaction mtx)
             {
                 mtx.TryAddTransactedCollection(this);
                 return mtx;
@@ -91,6 +89,6 @@
         /// <summary>
         /// Get the name.
         /// </summary>
-        public Uri Name { get; private set; }
+        public Uri Name { get; }
     }
 }

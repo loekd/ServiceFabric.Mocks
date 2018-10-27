@@ -10,7 +10,7 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    
+
 
     /// <summary>
     /// Implements the core methods of IReliableDictionary, but does not require TKey to be IComparable or IEquatable.
@@ -34,7 +34,7 @@
         {
             Dictionary = new ConcurrentDictionary<TKey, TValue>();
             LockManager = new LockManager<TKey, long>();
-            if(changeCallback != null)
+            if (changeCallback != null)
                 InternalDictionaryChanged += changeCallback;
         }
 
@@ -134,9 +134,8 @@
         public async Task<TValue> GetOrAddAsync(ITransaction tx, TKey key, Func<TKey, TValue> valueFactory, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             var acquireResult = await LockManager.AcquireLock(BeginTransaction(tx).TransactionId, key, LockMode.Update, timeout, cancellationToken);
-            TValue value;
 
-            if (Dictionary.TryGetValue(key, out value))
+            if (Dictionary.TryGetValue(key, out var value))
             {
                 if (acquireResult == AcquireResult.Acquired)
                 {
@@ -212,8 +211,7 @@
         {
             var acquireResult = await LockManager.AcquireLock(BeginTransaction(tx).TransactionId, key, LockMode.Update, timeout, cancellationToken);
 
-            TValue value;
-            bool hasValue = Dictionary.TryRemove(key, out value);
+            bool hasValue = Dictionary.TryRemove(key, out var value);
             if (hasValue)
             {
                 AddAbortAction(tx, () => { Dictionary.TryAdd(key, value); return true; });

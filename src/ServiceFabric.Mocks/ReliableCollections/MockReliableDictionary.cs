@@ -23,7 +23,7 @@
             : base(uri)
         {
             // Set the OnDictionaryChanged callback to fire the DictionaryChanged event.
-            base.InternalDictionaryChanged +=
+            InternalDictionaryChanged +=
                 (sender, c) =>
                 {
                     if (DictionaryChanged != null)

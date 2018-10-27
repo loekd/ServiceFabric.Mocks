@@ -13,8 +13,8 @@
     /// <typeparam name="T"></typeparam>
     public class MockReliableQueue<T> : TransactedCollection, IReliableQueue<T>
     {
-        private Queue<T> _queue = new Queue<T>();
-        private Lock<long> _lock = new Lock<long>();
+        private readonly Queue<T> _queue = new Queue<T>();
+        private readonly Lock<long> _lock = new Lock<long>();
 
         public MockReliableQueue(Uri uri)
             : base(uri)
