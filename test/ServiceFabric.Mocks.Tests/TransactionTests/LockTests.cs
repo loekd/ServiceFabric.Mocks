@@ -146,5 +146,57 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
                 }
             );
         }
+
+       
+        [TestMethod]
+        public void Lock_RaceToAcquire()
+        {
+            var waitToStart = new ManualResetEventSlim(false);
+            var waitToEnd = new ManualResetEventSlim(false);
+            AcquireResult? resultA = null;
+            AcquireResult? resultB = null;
+            Lock<int> l = new Lock<int>();
+
+            Thread a = new Thread(state =>
+            {
+                l.Acquire(1, LockMode.Default, 1000, new CancellationToken(false)).Wait();
+                resultA = l.Acquire(1, LockMode.Default, 1000, new CancellationToken(false)).Result;
+                waitToStart.Set(); //run b
+
+                waitToEnd.Wait(); //wait for b
+                l.Release(1);
+            });
+
+            Thread b = new Thread(state =>
+            {
+                try
+                {
+                    waitToStart.Wait();
+                    ThreadPool.QueueUserWorkItem(_ =>
+                    {
+                        waitToEnd.Set(); //continue a
+                    });
+                    resultB = l.Acquire(2, LockMode.Update, 1000, new CancellationToken(false)).Result;
+                    Assert.AreEqual(AcquireResult.Acquired, resultB.Value);
+                }
+                catch
+                {}
+                });
+
+            a.Start();
+            b.Start();
+
+            a.Join();
+            b.Join();
+
+            Assert.AreEqual(AcquireResult.Owned, resultA.Value);
+            Assert.AreEqual(AcquireResult.Acquired, resultB.Value);
+
+
+            //foreach (var mre in waitToEnd)
+            //{
+            //    mre.Wait();
+            //}//wait for completion
+        }
     }
 }
