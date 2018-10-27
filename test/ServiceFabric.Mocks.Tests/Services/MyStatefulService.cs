@@ -1,13 +1,12 @@
-﻿using System.Fabric;
-using System.Threading.Tasks;
-using Microsoft.ServiceFabric.Data;
+﻿using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.ServiceFabric.Services.Runtime;
-using Microsoft.ServiceFabric.Data.Notifications;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.Threading;
+using System.Collections.Generic;
+using System.Fabric;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ServiceFabric.Mocks.Tests.Services
 {
@@ -116,8 +115,8 @@ namespace ServiceFabric.Mocks.Tests.Services
                             var item = new KeyValuePair<string, Payload>(enumerator.Current.Key, new Payload(enumerator.Current.Value.Content));
                             _cache.AddOrUpdate(item.Key, item.Value, (k, v) => item.Value);
                         }
-                    }                    
-                }                
+                    }
+                }
             }
             else
             {
