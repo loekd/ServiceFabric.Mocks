@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Microsoft.ServiceFabric.Services.Communication.Runtime;
+using Microsoft.ServiceFabric.Services.Runtime;
+using System;
 using System.Collections.Generic;
 using System.Fabric;
+using System.Globalization;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.ServiceFabric.Services.Communication.Runtime;
-using Microsoft.ServiceFabric.Services.Runtime;
 
 namespace ServiceFabric.Mocks
 {
@@ -142,6 +143,60 @@ namespace ServiceFabric.Mocks
             //protected virtual IEnumerable<ServiceInstanceListener> CreateServiceInstanceListeners()
             var method = FindMethodInfo(service, "CreateServiceInstanceListeners");
             return (IEnumerable<ServiceInstanceListener>)method.Invoke(service, null);
+        }
+
+        /// <summary>
+        /// Gets the partition info of the provided <paramref name="service"/>.
+        /// </summary>
+        /// <param name="service"></param>
+        /// <returns></returns>
+        public static IStatefulServicePartition GetPartition(this StatefulServiceBase service)
+        {
+            if (service == null) throw new ArgumentNullException(nameof(service));
+            //protected IStatefulServicePartition Partition { get; private set; }
+            var propertyInfo = typeof(StatefulServiceBase).GetProperty("Partition", BindingFlags.Instance | BindingFlags.NonPublic);
+            return (IStatefulServicePartition)propertyInfo?.GetValue(service, BindingFlags.Instance | BindingFlags.NonPublic, null, null, CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Sets the partition info of the provided <paramref name="service"/>.
+        /// </summary>
+        /// <param name="partition">partition to set</param>
+        /// <param name="service"></param>
+        /// <returns></returns>
+        public static void SetPartition(this StatefulServiceBase service, IStatefulServicePartition partition)
+        {
+            if (service == null) throw new ArgumentNullException(nameof(service));
+            //protected IStatefulServicePartition Partition { get; private set; }
+            var propertyInfo = typeof(StatefulServiceBase).GetProperty("Partition", BindingFlags.Instance | BindingFlags.NonPublic);
+            propertyInfo?.SetValue(service, partition, BindingFlags.Instance | BindingFlags.NonPublic, null, null, CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Gets the partition info of the provided <paramref name="service"/>.
+        /// </summary>
+        /// <param name="service"></param>
+        /// <returns></returns>
+        public static IStatelessServicePartition GetPartition(this StatelessService service)
+        {
+            if (service == null) throw new ArgumentNullException(nameof(service));
+            //protected IStatelessServicePartition Partition { get; private set; }
+            var propertyInfo = typeof(StatelessService).GetProperty("Partition", BindingFlags.Instance | BindingFlags.NonPublic);
+            return (IStatelessServicePartition)propertyInfo?.GetValue(service, BindingFlags.Instance | BindingFlags.NonPublic, null, null, CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Sets the partition info of the provided <paramref name="service"/>.
+        /// </summary>
+        /// <param name="service"></param>
+        /// <param name="partition">partition to set</param>
+        /// <returns></returns>
+        public static void SetPartition(this StatelessService service, IStatelessServicePartition partition)
+        {
+            if (service == null) throw new ArgumentNullException(nameof(service));
+            //protected IStatelessServicePartition Partition { get; private set; }
+            var propertyInfo = typeof(StatelessService).GetProperty("Partition", BindingFlags.Instance | BindingFlags.NonPublic);
+            propertyInfo?.SetValue(service, partition, BindingFlags.Instance | BindingFlags.NonPublic, null, null, CultureInfo.InvariantCulture);
         }
 
         /// <summary>

@@ -85,7 +85,33 @@ namespace ServiceFabric.Mocks.Tests.ServiceExtensions
             Assert.IsInstanceOfType(result, typeof(ServiceReplicaListener[]));
         }
 
+        [TestMethod]
+        public void TestStatefulServiceWithMockPartition()
+        {
+            var partition = new MockStatefulServicePartition();
+            var partitionInfo = MockQueryPartitionFactory.CreateIntPartitonInfo();
+            partition.PartitionInfo = partitionInfo;
+            var statefulServiceContext = MockStatefulServiceContextFactory.Default;
 
+            var sut = new NestedStatefulService(statefulServiceContext);
+            sut.SetPartition(partition);
+
+            Assert.AreEqual(partitionInfo, sut.GetPartition().PartitionInfo);
+        }
+
+        [TestMethod]
+        public void TestStatelessServiceWithMockPartition()
+        {
+            var partition = new MockStatelessServicePartition();
+            var partitionInfo = MockQueryPartitionFactory.CreateSingletonPartitonInfo();
+            partition.PartitionInfo = partitionInfo;
+            var statelessServiceContext = MockStatelessServiceContextFactory.Default;
+
+            var sut = new NestedStatelessService(statelessServiceContext);
+            sut.SetPartition(partition);
+
+            Assert.AreEqual(partitionInfo, sut.GetPartition().PartitionInfo);
+        }
         private class NestedStatelessService : StatelessService
         {
             public bool OnOpenCalled { get; private set; }
