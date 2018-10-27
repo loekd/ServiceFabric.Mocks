@@ -2,14 +2,14 @@
 {
     using Microsoft.ServiceFabric.Data;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using ServiceFabric.Mocks.ReliableCollections;
+    using ReliableCollections;
     using System;
     using System.Threading.Tasks;
 
     [TestClass]
     public class MockReliableConcurrentQueueTests
     {
-        private MockReliableStateManager _stateManager = new MockReliableStateManager();
+        private readonly MockReliableStateManager _stateManager = new MockReliableStateManager();
 
         [TestMethod]
         public async Task DequeueEmptyQueueTest()

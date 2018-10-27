@@ -1,13 +1,10 @@
-﻿using Microsoft.ServiceFabric.Data;
-using Microsoft.ServiceFabric.Data.Collections;
+﻿using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceFabric.Mocks.ReliableCollections;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+// ReSharper disable PossibleInvalidOperationException
 
 namespace ServiceFabric.Mocks.Tests.TransactionTests
 {
@@ -21,9 +18,8 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
         public async Task Lock_DefaultLock()
         {
             Lock<int> l = new Lock<int>();
-            AcquireResult result;
 
-            result = await l.Acquire(1, LockMode.Default);
+            var result = await l.Acquire(1, LockMode.Default);
             Assert.AreEqual(AcquireResult.Acquired, result);
 
             result = await l.Acquire(2, LockMode.Default);
@@ -109,7 +105,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
                 async () =>
                 {
                     CancellationTokenSource tokenSource = new CancellationTokenSource();
-                    var task =  l.Acquire(2, LockMode.Default, cancellationToken: tokenSource.Token);
+                    var task = l.Acquire(2, LockMode.Default, cancellationToken: tokenSource.Token);
                     tokenSource.Cancel();
                     await task;
                 }
@@ -147,9 +143,9 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
             );
         }
 
-       
+
         [TestMethod]
-        public void Lock_RaceToAcquire()
+        public void Lock_RaceToAcquire_Success()
         {
             var waitToStart = new ManualResetEventSlim(false);
             var waitToEnd = new ManualResetEventSlim(false);
@@ -159,8 +155,8 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
 
             Thread a = new Thread(state =>
             {
-                l.Acquire(1, LockMode.Default, 1000, new CancellationToken(false)).Wait();
-                resultA = l.Acquire(1, LockMode.Default, 1000, new CancellationToken(false)).Result;
+                l.Acquire(1, LockMode.Default, 100, new CancellationToken(false)).Wait();
+                resultA = l.Acquire(1, LockMode.Default, 100, new CancellationToken(false)).Result;
                 waitToStart.Set(); //run b
 
                 waitToEnd.Wait(); //wait for b
@@ -169,19 +165,10 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
 
             Thread b = new Thread(state =>
             {
-                try
-                {
-                    waitToStart.Wait();
-                    ThreadPool.QueueUserWorkItem(_ =>
-                    {
-                        waitToEnd.Set(); //continue a
-                    });
-                    resultB = l.Acquire(2, LockMode.Update, 1000, new CancellationToken(false)).Result;
-                    Assert.AreEqual(AcquireResult.Acquired, resultB.Value);
-                }
-                catch
-                {}
-                });
+                waitToStart.Wait();
+                waitToEnd.Set(); //continue a
+                resultB = l.Acquire(2, LockMode.Update, 100, new CancellationToken(false)).Result; //wait for the lock for 100ms
+            });
 
             a.Start();
             b.Start();
@@ -189,14 +176,88 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
             a.Join();
             b.Join();
 
+            Assert.IsTrue(resultA.HasValue);
+            Assert.IsTrue(resultB.HasValue);
             Assert.AreEqual(AcquireResult.Owned, resultA.Value);
             Assert.AreEqual(AcquireResult.Acquired, resultB.Value);
+        }
 
+        [TestMethod]
+        public void Lock_RaceToAcquire_A_Delays_Success()
+        {
+            var waitToStart = new ManualResetEventSlim(false);
+            var waitToEnd = new ManualResetEventSlim(false);
+            AcquireResult? resultA = null;
+            AcquireResult? resultB = null;
+            Lock<int> l = new Lock<int>();
 
-            //foreach (var mre in waitToEnd)
-            //{
-            //    mre.Wait();
-            //}//wait for completion
+            Thread a = new Thread(state =>
+            {
+                l.Acquire(1, LockMode.Default, 100, new CancellationToken(false)).Wait();
+                resultA = l.Acquire(1, LockMode.Default, 100, new CancellationToken(false)).Result;
+                waitToStart.Set(); //run b
+
+                waitToEnd.Wait(); //wait for b
+                Thread.Sleep(90); //keep the lock for 90ms
+                l.Release(1);
+            });
+
+            Thread b = new Thread(state =>
+            {
+                waitToStart.Wait();
+                waitToEnd.Set(); //continue a
+                resultB = l.Acquire(2, LockMode.Update, 100, new CancellationToken(false)).Result; //wait for the lock for 100ms
+            });
+
+            a.Start();
+            b.Start();
+
+            a.Join();
+            b.Join();
+
+            Assert.IsTrue(resultA.HasValue);
+            Assert.IsTrue(resultB.HasValue);
+            Assert.AreEqual(AcquireResult.Owned, resultA.Value);
+            Assert.AreEqual(AcquireResult.Acquired, resultB.Value);
+        }
+
+        [TestMethod]
+        public void Lock_RaceToAcquire_Fail()
+        {
+            var waitToStart = new ManualResetEventSlim(false);
+            var waitToEnd = new ManualResetEventSlim(false);
+            AcquireResult? resultA = null;
+            AcquireResult? resultB = null;
+            Lock<int> l = new Lock<int>();
+
+            Thread a = new Thread(state =>
+            {
+                l.Acquire(1, LockMode.Default, 100, new CancellationToken(false)).Wait();
+                resultA = l.Acquire(1, LockMode.Default, 100, new CancellationToken(false)).Result;
+                waitToStart.Set(); //run b
+
+                waitToEnd.Wait(); //wait for b
+                Thread.Sleep(110); //keep the lock for 110ms
+                l.Release(1);
+            });
+
+            Thread b = new Thread(state =>
+            {
+                waitToStart.Wait();
+                waitToEnd.Set(); //continue a
+                resultB = l.Acquire(2, LockMode.Update, 100, new CancellationToken(false)).Result; //wait for the lock for 100ms
+            });
+
+            a.Start();
+            b.Start();
+
+            a.Join();
+            b.Join();
+
+            Assert.IsTrue(resultA.HasValue);
+            Assert.IsTrue(resultB.HasValue);
+            Assert.AreEqual(AcquireResult.Owned, resultA.Value);
+            Assert.AreEqual(AcquireResult.Denied, resultB.Value);
         }
     }
 }

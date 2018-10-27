@@ -14,9 +14,9 @@
     /// <typeparam name="T"></typeparam>
     public class MockReliableConcurrentQueue<T> : TransactedCollection, IReliableConcurrentQueue<T>
     {
-        private List<T> _queue = new List<T>();
-        private long _queueEmptyTransactionId = -1;
-        private Lock<long> _queueEmptyLock = new Lock<long>();
+        private readonly List<T> _queue = new List<T>();
+        private readonly long _queueEmptyTransactionId = -1;
+        private readonly Lock<long> _queueEmptyLock = new Lock<long>();
 
         /// <summary>
         /// The constructor.
@@ -32,10 +32,22 @@
         /// <param name="tx"></param>
         public override void ReleaseLocks(ITransaction tx)
         {
-            _queueEmptyLock.Release(tx.TransactionId);
+            lock (_queue)
+            {
+                _queueEmptyLock.Release(tx.TransactionId);
+            }
         }
 
-        public long Count => _queue.Count;
+        public long Count
+        {
+            get
+            {
+                lock (_queue)
+                {
+                    return _queue.Count;
+                }
+            }
+        }
 
         /// <summary>
         /// Enqueue value into the queue.
@@ -48,7 +60,7 @@
         {
             BeginTransaction(tx);
 
-            AddCommitAction(tx, () => OnCommit(tx, value));
+            AddCommitAction(tx, () => OnCommit(value));
 
             return Task.FromResult(true);
         }
@@ -80,7 +92,7 @@
                         {
                             T value = _queue[0];
                             _queue.RemoveAt(0);
-                            AddAbortAction(tx, () => OnAbort(tx, value));
+                            AddAbortAction(tx, () => OnAbort(value));
 
                             return new ConditionalValue<T>(true, value);
                         }
@@ -119,9 +131,8 @@
         /// Enqueue any items that were enqueued in the transaction. Release _queueEmptyLock if any items were enqueued to unblock any
         /// threads that are waiting to dequeue an item.
         /// </summary>
-        /// <param name="tx"></param>
         /// <returns></returns>
-        private bool OnCommit(ITransaction tx, T value)
+        private bool OnCommit(T value)
         {
             lock (_queue)
             {
@@ -136,10 +147,9 @@
         /// Re-enqueue any items that were dequeued by the transaction. Release _queueEmptyLock if any items were enqueued to unblock any
         /// threads that are waiting to dequeue an item.
         /// </summary>
-        /// <param name="tx"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        private bool OnAbort(ITransaction tx, T value)
+        private bool OnAbort(T value)
         {
             lock (_queue)
             {

@@ -3,7 +3,6 @@
     using Microsoft.ServiceFabric.Data.Collections;
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -20,7 +19,7 @@
     /// <typeparam name="T">Lock Owner Id Type</typeparam>
     public class Lock<T>
     {
-        private HashSet<T> _lockOwners = new HashSet<T>();
+        private readonly HashSet<T> _lockOwners = new HashSet<T>();
         public CancellationTokenSource TokenSource { get; private set; }
 
         /// <summary>
@@ -116,8 +115,8 @@
 
         /// <summary>
         /// Try to acquire the lock in the specified timeout.
-        /// If the lock was acquired because it was newly Acquired, or already Owned by the transaction, then it retuns the result.
-        /// If the lock was not acquired in the specitied timeout then Denied is returned.
+        /// If the lock was acquired because it was newly Acquired, or already Owned by the transaction, then it returns the result.
+        /// If the lock was not acquired in the specified timeout then Denied is returned.
         /// </summary>
         /// <param name="id">Owner Id</param>
         /// <param name="lockMode">Lock Mode</param>
@@ -126,21 +125,23 @@
         /// <returns>{Acquired|Denied|Owned}</returns>
         public async Task<AcquireResult> Acquire(T id, LockMode lockMode, long milliseconds, CancellationToken cancellationToken)
         {
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
+            DateTime stopAfter = DateTime.UtcNow.AddMilliseconds(milliseconds);
+            int waitTimeMs = (int)milliseconds / 10; //timer resolution of 1/10 wait time
 
-            while (true)
+            while (DateTime.UtcNow < stopAfter)
             {
                 var result = TryAcquire(id, lockMode);
                 if (result != AcquireResult.Denied)
                     return result;
 
-                bool keepWaiting = await Wait((int)(milliseconds - sw.ElapsedMilliseconds), cancellationToken);
+                bool keepWaiting = await Wait(waitTimeMs, cancellationToken);
                 if (!keepWaiting)
                 {
                     return AcquireResult.Denied;
                 }
             }
+            return AcquireResult.Denied;
+
         }
 
         /// <summary>
@@ -188,7 +189,7 @@
         /// Wait until:
         ///   * Cancel is called on the lock's TokenSource, returns true.
         ///   * The caller's CancellationToken is cancelled, throws OperationCancelledException.
-        ///   * The timout delay has elapsed, returns false.
+        ///   * The timout delay has elapsed, returns true to retry.
         /// </summary>
         /// <param name="milliseconds">Timeout delay in milliseconds</param>
         /// <param name="cancellationToken">Caller's Cancellation Token</param>
@@ -217,6 +218,7 @@
                     }
 
                     await Task.Delay(milliseconds, token);
+                    return true;
                 }
                 catch (OperationCanceledException)
                 {

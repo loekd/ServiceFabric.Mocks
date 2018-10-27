@@ -14,8 +14,8 @@
     /// <typeparam name="TId">Lock Owner Id Type</typeparam>
     public class LockManager<TKey, TId>
     {
-        private ConcurrentDictionary<TKey, Lock<TId>> _lockTable = new ConcurrentDictionary<TKey, Lock<TId>>();
-        private ConcurrentDictionary<TId, HashSet<TKey>> _ownerLockKeys = new ConcurrentDictionary<TId, HashSet<TKey>>();
+        private readonly ConcurrentDictionary<TKey, Lock<TId>> _lockTable = new ConcurrentDictionary<TKey, Lock<TId>>();
+        private readonly ConcurrentDictionary<TId, HashSet<TKey>> _ownerLockKeys = new ConcurrentDictionary<TId, HashSet<TKey>>();
 
         /// <summary>
         /// Try to acquire the key lock. If it is newly acquired then add it to the lock table.
@@ -51,12 +51,12 @@
         /// <returns></returns>
         public bool DowngradeLock(TId id, TKey key)
         {
-            if (_ownerLockKeys.TryGetValue(id, out HashSet<TKey> keys))
+            if (_ownerLockKeys.TryGetValue(id, out HashSet<TKey> _))
             {
                 if (_lockTable.TryGetValue(key, out Lock<TId> l))
                 {
                     return l.Downgrade(id);
-                };
+                }
             }
 
             return false;
@@ -70,12 +70,12 @@
         /// <returns></returns>
         public bool ReleaseLock(TId id, TKey key)
         {
-            if (_ownerLockKeys.TryGetValue(id, out HashSet<TKey> keys))
+            if (_ownerLockKeys.TryGetValue(id, out HashSet<TKey> _))
             {
                 if (_lockTable.TryGetValue(key, out Lock<TId> l))
                 {
                     return l.Release(id);
-                };
+                }
             }
 
             return false;

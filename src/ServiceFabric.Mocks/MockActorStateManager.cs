@@ -66,8 +66,7 @@ namespace ServiceFabric.Mocks
         /// <inheritdoc />
         public Task<T> GetStateAsync<T>(string stateName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            object value;
-            _state.TryGetValue(stateName, out value);
+            _state.TryGetValue(stateName, out var value);
             return Task.FromResult((T)value);
         }
 
@@ -80,8 +79,7 @@ namespace ServiceFabric.Mocks
         /// <inheritdoc />
         public Task RemoveStateAsync(string stateName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            object result;
-            return Task.FromResult(_state.TryRemove(stateName, out result));
+            return Task.FromResult(_state.TryRemove(stateName, out _));
         }
 
         /// <inheritdoc />

@@ -136,12 +136,10 @@ namespace ServiceFabric.Mocks
 
         public Task<bool> ContainsStateAsync(ActorId actorId, string stateName, CancellationToken cancellationToken = new CancellationToken())
         {
-            Dictionary<string, object> actorState;
-            if (!_state.TryGetValue(actorId, out actorState))
+            if (!_state.TryGetValue(actorId, out var actorState))
                 return Task.FromResult(false);
 
-            object stateEntry;
-            return Task.FromResult(actorState.TryGetValue(stateName, out stateEntry));
+            return Task.FromResult(actorState.TryGetValue(stateName, out _));
         }
 
         public Task RemoveActorAsync(ActorId actorId, CancellationToken cancellationToken = new CancellationToken())
