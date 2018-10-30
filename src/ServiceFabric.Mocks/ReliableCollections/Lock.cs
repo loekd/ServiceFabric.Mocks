@@ -137,7 +137,10 @@
                 bool keepWaiting = await Wait(waitTimeMs, cancellationToken);
                 if (!keepWaiting)
                 {
-                    return AcquireResult.Denied;
+                    // One last attempt to reacquire the lock
+                    // in case it missed the signal that came
+                    // right before the last Wait.
+                    return TryAcquire(id, LockMode);
                 }
             }
             return AcquireResult.Denied;
