@@ -23,6 +23,9 @@ The VSTS Agent lagged behind in Service Fabric SDK version, this caused runtime 
 
 ## Release notes
 
+   - 3.4.2 
+     - Minor fix; add additional lock attempt. By likevi-MSFT
+     
    - 3.4.1 
      - Add `ServiceExtensions.GetPartition` and `SetPartition` for alexmarshall132.
 
