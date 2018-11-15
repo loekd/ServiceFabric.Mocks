@@ -66,7 +66,7 @@
         }
 
         /// <summary>
-        /// Try to dequeue the next available item in the queue. Try to wait specified timtout if the queue is empty.
+        /// Try to dequeue the next available item in the queue. Try to wait specified timeout if the queue is empty.
         /// </summary>
         /// <param name="tx">Transaction</param>
         /// <param name="cancellationToken">Cancellation Token</param>
@@ -81,7 +81,7 @@
             sw.Start();
 
             // Try to get committed item from the queue
-            for (long milliseconds = totalMilliseconds; milliseconds > 0; milliseconds = totalMilliseconds - sw.ElapsedMilliseconds)
+            for (long milliseconds = totalMilliseconds; milliseconds >= 0; milliseconds = totalMilliseconds - sw.ElapsedMilliseconds)
             {
                 if (AcquireResult.Denied != await _queueEmptyLock.Acquire(tx.TransactionId, LockMode.Default, milliseconds, cancellationToken))
                 {

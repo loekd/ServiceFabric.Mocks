@@ -128,7 +128,7 @@
             DateTime stopAfter = DateTime.UtcNow.AddMilliseconds(milliseconds);
             int waitTimeMs = (int)milliseconds / 10; //timer resolution of 1/10 wait time
 
-            while (DateTime.UtcNow < stopAfter)
+            do
             {
                 var result = TryAcquire(id, lockMode);
                 if (result != AcquireResult.Denied)
@@ -142,7 +142,8 @@
                     // right before the last Wait.
                     return TryAcquire(id, LockMode);
                 }
-            }
+            } while (DateTime.UtcNow < stopAfter);
+
             return AcquireResult.Denied;
 
         }
