@@ -34,6 +34,21 @@
         }
 
         [TestMethod]
+        public async Task DequeueWithZeroTimeoutTest()
+        {
+            var q = new MockReliableConcurrentQueue<int>(new Uri("test://queue"));
+            using (var tx = _stateManager.CreateTransaction())
+            {
+                await q.EnqueueAsync(tx, 1);
+                await tx.CommitAsync();
+            
+                var result = await q.TryDequeueAsync(tx, timeout: TimeSpan.FromMilliseconds(0));
+                Assert.IsTrue(result.HasValue);
+                Assert.AreEqual(1, result.Value);
+            }
+        }
+
+        [TestMethod]
         public async Task DequeueOtherEnqueueTest()
         {
             var q = new MockReliableConcurrentQueue<int>(new Uri("test://queue"));
