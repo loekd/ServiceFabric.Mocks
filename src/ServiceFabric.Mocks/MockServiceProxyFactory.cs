@@ -24,6 +24,13 @@ namespace ServiceFabric.Mocks
 
         }
 
+        /// <inheritdoc />
+        public TServiceInterface CreateNonIServiceProxy<TServiceInterface>(Uri serviceUri, ServicePartitionKey partitionKey = null, TargetReplicaSelector targetReplicaSelector = TargetReplicaSelector.Default, string listenerName = null)
+        {
+            // TODO: Introduce MockServiceProxyForNonServiceInterface
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Registers an instance of a service combined with its name to be able to return it from <see cref="CreateServiceProxy{TServiceInterface}"/>
         /// </summary>

@@ -23,6 +23,9 @@ The VSTS Agent lagged behind in Service Fabric SDK version, this caused runtime 
 
 ## Release notes
 
+   - 3.4.4
+     - Upgraded to new SDK (SF 3.3.624).
+
    - 3.4.3 
      - Minor fix; allow zero wait time for `ReliableConcurrentQueue` dequeue. Reported by CloudStu
 
