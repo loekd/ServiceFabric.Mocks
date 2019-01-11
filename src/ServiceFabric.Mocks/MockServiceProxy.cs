@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.ServiceFabric.Services.Client;
+﻿using Microsoft.ServiceFabric.Services.Client;
 using Microsoft.ServiceFabric.Services.Communication.Client;
-using Microsoft.ServiceFabric.Services.Remoting;
 using Microsoft.ServiceFabric.Services.Remoting.Client;
+using System;
+using System.Collections.Generic;
 
 namespace ServiceFabric.Mocks
 {
     /// <summary>
     /// This is the base Client side interface for Remoting. The framework provides the
-    /// Remoting infrastructure for all the service contracts inheriting from IService through
+    /// Remoting infrastructure for all the service contracts through
     /// ServiceRemotingListener and ServiceProxy.
     /// </summary>
     public class MockServiceProxy<TService> : IServiceProxy
-        where TService : IService
     {
         private readonly IDictionary<Type, Func<Uri, TService>> _serviceBuilders = new Dictionary<Type, Func<Uri, TService>>();
 

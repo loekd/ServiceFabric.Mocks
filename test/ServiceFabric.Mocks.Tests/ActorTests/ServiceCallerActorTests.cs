@@ -31,8 +31,59 @@ namespace ServiceFabric.Mocks.Tests.ActorTests
             //assert:
             Assert.IsTrue(mockService.InsertAsyncCalled);
         }
-        
+
+        [TestMethod]
+        public void TestNonIServiceProxyFactory()
+        {
+            //mock out the called service
+            var mockProxyFactory = new MockServiceProxyFactory();
+            var mockService = new MockTestStatefulServiceWithoutIService();
+            mockProxyFactory.RegisterService(ServiceCallerActor.CalledServiceName, mockService);
+            
+            //act:
+            var instance = mockProxyFactory.CreateNonIServiceProxy<MockTestStatefulServiceWithoutIService>(ServiceCallerActor.CalledServiceName);
+
+            //assert:
+            Assert.AreEqual(mockService, instance);
+        }
+
         private class MockTestStatefulService : IMyStatefulService
+        {
+            public bool InsertAsyncCalled { get; private set; }
+
+            public Task ConcurrentEnqueueAsync(Payload value)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task EnqueueAsync(Payload value)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task InsertAsync(string stateName, Payload value)
+            {
+                InsertAsyncCalled = true;
+                return Task.FromResult(true);
+            }
+
+            public Task InsertAndAbortAsync(string stateName, Payload value)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task<IEnumerable<Payload>> GetPayloadsAsync()
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task UpdatePayloadAsync(string stateName, string content)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        private class MockTestStatefulServiceWithoutIService
         {
             public bool InsertAsyncCalled { get; private set; }
 

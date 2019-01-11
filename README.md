@@ -22,6 +22,8 @@ Thank you for contributing!
 The VSTS Agent lagged behind in Service Fabric SDK version, this caused runtime errors. This issue is now resolved. 
 
 ## Release notes
+   - 3.4.5
+     - Add support for `IServiceProxyFactory.CreateNonIServiceProxy`.
 
    - 3.4.4
      - Upgraded to new SDK (SF 3.3.624).

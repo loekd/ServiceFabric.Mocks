@@ -12,23 +12,21 @@ namespace ServiceFabric.Mocks
     /// </summary>
     public class MockServiceProxyFactory : IServiceProxyFactory
     {
-        private readonly ConcurrentDictionary<Uri, IService> _serviceRegistry = new ConcurrentDictionary<Uri, IService>();
+        private readonly ConcurrentDictionary<Uri, object> _serviceRegistry = new ConcurrentDictionary<Uri, object>();
 
         /// <inheritdoc />
         public TServiceInterface CreateServiceProxy<TServiceInterface>(Uri serviceUri, ServicePartitionKey partitionKey = null, TargetReplicaSelector targetReplicaSelector = TargetReplicaSelector.Default, string listenerName = null)
             where TServiceInterface : IService
         {
-            var serviceProxy = new MockServiceProxy<TServiceInterface>();
-            serviceProxy.AddServiceBuilder(typeof(TServiceInterface), uri => (TServiceInterface)_serviceRegistry[uri]);
-            return serviceProxy.Create(typeof(TServiceInterface), serviceUri, partitionKey, targetReplicaSelector, listenerName);
-
+            return CreateNonIServiceProxy<TServiceInterface>(serviceUri, partitionKey, targetReplicaSelector, listenerName);
         }
 
         /// <inheritdoc />
         public TServiceInterface CreateNonIServiceProxy<TServiceInterface>(Uri serviceUri, ServicePartitionKey partitionKey = null, TargetReplicaSelector targetReplicaSelector = TargetReplicaSelector.Default, string listenerName = null)
         {
-            // TODO: Introduce MockServiceProxyForNonServiceInterface
-            throw new NotImplementedException();
+            var serviceProxy = new MockServiceProxy<TServiceInterface>();
+            serviceProxy.AddServiceBuilder(typeof(TServiceInterface), uri => (TServiceInterface)_serviceRegistry[uri]);
+            return serviceProxy.Create(typeof(TServiceInterface), serviceUri, partitionKey, targetReplicaSelector, listenerName);
         }
 
         /// <summary>
@@ -36,7 +34,7 @@ namespace ServiceFabric.Mocks
         /// </summary>
         /// <param name="serviceName"></param>
         /// <param name="service"></param>
-        public void RegisterService(Uri serviceName, IService service)
+        public void RegisterService(Uri serviceName, object service)
         {
             _serviceRegistry.AddOrUpdate(serviceName, service, (name, svc) => service);
         }
