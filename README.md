@@ -22,6 +22,9 @@ Thank you for contributing!
 The VSTS Agent lagged behind in Service Fabric SDK version, this caused runtime errors. This issue is now resolved. 
 
 ## Release notes
+   - 3.4.7
+     - Upgraded to new SDK (SF 3.3.638).
+
    - 3.4.6
      - Downgraded to old SDK (SF 3.3.622).
   
