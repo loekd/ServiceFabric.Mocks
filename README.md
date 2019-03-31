@@ -18,6 +18,10 @@ Or [donate](https://paypal.me/lduys/5) a cup of coffee.
 Thank you for contributing!
 
 ## Release notes
+
+   - 3.4.9
+     - Upgraded to new SDK (SF 3.3.644).
+
    - 3.4.8
      - Fix ordering issue in TX rollback in `MockReliableQueue`. Reported by ayonalan.
 
