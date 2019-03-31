@@ -17,11 +17,10 @@ Or [donate](https://paypal.me/lduys/5) a cup of coffee.
 
 Thank you for contributing!
 
-## VSTS users
-
-The VSTS Agent lagged behind in Service Fabric SDK version, this caused runtime errors. This issue is now resolved. 
-
 ## Release notes
+   - 3.4.8
+     - Fix ordering issue in TX rollback in `MockReliableQueue`. Reported by ayonalan.
+
    - 3.4.7
      - Upgraded to new SDK (SF 3.3.638).
 

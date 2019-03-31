@@ -65,7 +65,7 @@
         {
             if (_abortActions.TryRemove(tx.TransactionId, out var abortActions) && !isCommit)
             {
-                foreach (var action in abortActions)
+                while (abortActions.TryPop(out var action))
                 {
                     action();
                 }
