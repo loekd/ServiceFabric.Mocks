@@ -100,6 +100,33 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
         }
 
         [TestMethod]
+        public async Task TestServiceState_InMemoryState_PromoteActiveSecondary_WithLongRunAsync()
+        {
+            var replicaSet = new MockStatefulServiceReplicaSet<MyLongRunningStatefulService>(CreateLongRunningStatefulService, CreateStateManagerReplica);
+            await replicaSet.AddReplicaAsync(ReplicaRole.Primary, 1);
+            await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 2);
+            await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 3);
+
+            const string stateName = "test";
+            var payload = new Payload(StatePayload);
+
+            //insert data
+            await replicaSet.Primary.ServiceInstance.InsertAsync(stateName, payload);
+            //promote one of the secondaries to primary
+            await replicaSet.PromoteActiveSecondaryToPrimaryAsync(2);
+            //get data
+            var payloads = (await replicaSet.Primary.ServiceInstance.GetPayloadsAsync()).ToList();
+
+            //data should match what was inserted against the primary
+            Assert.IsTrue(payloads.Count == 1);
+            Assert.IsTrue(payloads[0].Content == payload.Content);
+
+            //the primary should not have any in-memory state
+            var payloadsFromOldPrimary = await replicaSet[1].ServiceInstance.GetPayloadsAsync();
+            Assert.IsTrue(!payloadsFromOldPrimary.Any());
+        }
+
+        [TestMethod]
         public async Task TestServiceState_InMemoryState_PromoteNewReplica()
         {
             var replicaSet = new MockStatefulServiceReplicaSet<MyStatefulService>(CreateStatefulService, CreateStateManagerReplica);
@@ -129,6 +156,11 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
         private MyStatefulService CreateStatefulService(StatefulServiceContext context, IReliableStateManagerReplica2 stateManager)
         {
             return new MyStatefulService(context, stateManager);
+        }
+
+        private MyLongRunningStatefulService CreateLongRunningStatefulService(StatefulServiceContext context, IReliableStateManagerReplica2 stateManager)
+        {
+            return new MyLongRunningStatefulService(context, stateManager);
         }
 
         private IReliableStateManagerReplica2 CreateStateManagerReplica(StatefulServiceContext ctx, TransactedConcurrentDictionary<Uri, IReliableState> states)

@@ -23,7 +23,8 @@ namespace ServiceFabric.Mocks.Tests.Services
         {
         }
 
-        public MyStatefulService(StatefulServiceContext serviceContext, IReliableStateManagerReplica2 reliableStateManagerReplica)
+        public MyStatefulService(StatefulServiceContext serviceContext,
+            IReliableStateManagerReplica2 reliableStateManagerReplica)
             : base(serviceContext, reliableStateManagerReplica)
         {
         }
@@ -35,7 +36,8 @@ namespace ServiceFabric.Mocks.Tests.Services
 
         public async Task UpdatePayloadAsync(string stateName, string content)
         {
-            var dictionary = await StateManager.GetOrAddAsync<IReliableDictionary<string, Payload>>(StateManagerDictionaryKey);
+            var dictionary =
+                await StateManager.GetOrAddAsync<IReliableDictionary<string, Payload>>(StateManagerDictionaryKey);
 
             using (var tx = StateManager.CreateTransaction())
             {
@@ -48,7 +50,8 @@ namespace ServiceFabric.Mocks.Tests.Services
 
         public async Task InsertAsync(string stateName, Payload value)
         {
-            var dictionary = await StateManager.GetOrAddAsync<IReliableDictionary<string, Payload>>(StateManagerDictionaryKey);
+            var dictionary =
+                await StateManager.GetOrAddAsync<IReliableDictionary<string, Payload>>(StateManagerDictionaryKey);
 
             using (var tx = StateManager.CreateTransaction())
             {
@@ -62,7 +65,8 @@ namespace ServiceFabric.Mocks.Tests.Services
 
         public async Task InsertAndAbortAsync(string stateName, Payload value)
         {
-            var dictionary = await StateManager.GetOrAddAsync<IReliableDictionary<string, Payload>>(StateManagerDictionaryKey);
+            var dictionary =
+                await StateManager.GetOrAddAsync<IReliableDictionary<string, Payload>>(StateManagerDictionaryKey);
 
             using (var tx = StateManager.CreateTransaction())
             {
@@ -85,7 +89,8 @@ namespace ServiceFabric.Mocks.Tests.Services
 
         public async Task ConcurrentEnqueueAsync(Payload value)
         {
-            var concurrentQueue = await StateManager.GetOrAddAsync<IReliableConcurrentQueue<Payload>>(StateManagerConcurrentQueueKey);
+            var concurrentQueue =
+                await StateManager.GetOrAddAsync<IReliableConcurrentQueue<Payload>>(StateManagerConcurrentQueueKey);
 
             using (var tx = StateManager.CreateTransaction())
             {
@@ -103,7 +108,8 @@ namespace ServiceFabric.Mocks.Tests.Services
             if (_role == ReplicaRole.Primary)
             {
                 //hydrate the in-memory state
-                var dictionary = await StateManager.GetOrAddAsync<IReliableDictionary<string, Payload>>(StateManagerDictionaryKey);
+                var dictionary =
+                    await StateManager.GetOrAddAsync<IReliableDictionary<string, Payload>>(StateManagerDictionaryKey);
                 using (var tx = StateManager.CreateTransaction())
                 {
                     var enumerable = await dictionary.CreateEnumerableAsync(tx, EnumerationMode.Unordered);
@@ -112,7 +118,8 @@ namespace ServiceFabric.Mocks.Tests.Services
                         while (await enumerator.MoveNextAsync(cancellationToken))
                         {
                             //copy so we dont have the same reference in the model and the reliable collection
-                            var item = new KeyValuePair<string, Payload>(enumerator.Current.Key, new Payload(enumerator.Current.Value.Content));
+                            var item = new KeyValuePair<string, Payload>(enumerator.Current.Key,
+                                new Payload(enumerator.Current.Value.Content));
                             _cache.AddOrUpdate(item.Key, item.Value, (k, v) => item.Value);
                         }
                     }
@@ -135,6 +142,29 @@ namespace ServiceFabric.Mocks.Tests.Services
 
             _role = newRole;
             return base.OnChangeRoleAsync(newRole, cancellationToken);
+        }
+    }
+
+    public class MyLongRunningStatefulService : MyStatefulService
+    {
+        /// <inheritdoc />
+        public MyLongRunningStatefulService(StatefulServiceContext serviceContext) : base(serviceContext)
+        {
+        }
+
+        /// <inheritdoc />
+        public MyLongRunningStatefulService(StatefulServiceContext serviceContext, IReliableStateManagerReplica2 reliableStateManagerReplica) : base(serviceContext, reliableStateManagerReplica)
+        {
+        }
+
+        /// <inheritdoc />
+        protected override async Task RunAsync(CancellationToken cancellationToken)
+        {
+            await base.RunAsync(cancellationToken);
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                await Task.Yield();
+            }
         }
     }
 }

@@ -16,7 +16,8 @@ namespace ServiceFabric.Mocks.ReplicaSet
         private readonly TStatefulService _serviceInstance;
         private readonly StatefulServiceContext _context;
         private readonly IReliableStateManagerReplica2 _stateManager;
-        private IEnumerable<ICommunicationListener> _openListeners = new List<ICommunicationListener>();        
+        private IEnumerable<ICommunicationListener> _openListeners = new List<ICommunicationListener>();
+        private Task _runAsyncTask;
 
         public MockStatefulServiceReplica(Func<StatefulServiceContext, IReliableStateManagerReplica2, TStatefulService> serviceFactory, StatefulServiceContext context, IReliableStateManagerReplica2 stateManager)
         {
@@ -49,7 +50,7 @@ namespace ServiceFabric.Mocks.ReplicaSet
             {
                 await OpenServiceReplicaListeners();
                 await ChangeRoleAsync(role);
-                await RunAsync();
+                RunAsync();
             }
             else
                 await ChangeRoleAsync(role);
@@ -59,12 +60,12 @@ namespace ServiceFabric.Mocks.ReplicaSet
         {
             await ChangeRoleAsync(ReplicaRole.None);            
 
-            await Task.WhenAll(
+            await Task.WhenAll(_runAsyncTask ?? Task.FromResult(true),
                 CloseServiceReplicaListeners(),
-                Task.Run(() => RunCancellation.Cancel())
-                );
+                Task.Run(() => RunCancellation.Cancel()));
 
             await CloseAsync();
+            _runAsyncTask = null;
         }        
 
         public async Task PromoteToPrimaryAsync()
@@ -74,7 +75,7 @@ namespace ServiceFabric.Mocks.ReplicaSet
 
             await OpenServiceReplicaListeners();
             await ChangeRoleAsync(ReplicaRole.Primary);
-            await RunAsync();
+            RunAsync();
         }
 
         public async Task PromoteToActiveSecondaryAsync()
@@ -87,10 +88,11 @@ namespace ServiceFabric.Mocks.ReplicaSet
         {
             await ChangeRoleAsync(ReplicaRole.ActiveSecondary);
 
-            await Task.WhenAll(
+            await Task.WhenAll(_runAsyncTask ?? Task.FromResult(true),
                 CloseServiceReplicaListeners(),
                 Task.Run(() => RunCancellation.Cancel())
                 );
+            _runAsyncTask = null;
         }
 
         private async Task ChangeRoleAsync(ReplicaRole newRole)
@@ -110,9 +112,9 @@ namespace ServiceFabric.Mocks.ReplicaSet
             return _serviceInstance.InvokeOnOpenAsync(mode, OpenCancellation.Token);
         }
 
-        private Task RunAsync()
+        private void RunAsync()
         {
-            return _serviceInstance.InvokeRunAsync(RunCancellation.Token);
+            _runAsyncTask = _serviceInstance.InvokeRunAsync(RunCancellation.Token);
         }
 
         private Task OpenServiceReplicaListeners()

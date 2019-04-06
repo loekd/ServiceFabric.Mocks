@@ -19,6 +19,10 @@ Thank you for contributing!
 
 ## Release notes
 
+    - 3.4.10
+     - Fix for issue 82 'Create Replica never returns if RunAsync is endless.' Reported by sportfort. 
+       RunAsync is now not awaited until the replica is closed or deleted.
+
    - 3.4.9
      - Upgraded to new SDK (SF 3.3.644).
 
