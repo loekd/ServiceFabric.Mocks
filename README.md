@@ -19,6 +19,9 @@ Thank you for contributing!
 
 ## Release notes
 
+	- 3.4.11
+	 - minor fix; parameter set mismatch for stateless service instance
+
     - 3.4.10
      - Fix for issue 82 'Create Replica never returns if RunAsync is endless.' Reported by sportfort. 
        RunAsync is now not awaited until the replica is closed or deleted.

@@ -32,11 +32,11 @@ namespace ServiceFabric.Mocks
 		/// from query <see cref="FabricClient.QueryClient.GetServiceListAsync(System.Uri)"/>.
 		/// </summary>
 		/// <returns></returns>
-		public static StatelessService CreateStatelessServiceInstance(Uri serviceName, string serviceTypeName, string serviceManifestVersion, bool hasPersistedState, HealthState healthState, ServiceStatus serviceStatus, bool isServiceGroup = false)
+		public static StatelessService CreateStatelessServiceInstance(Uri serviceName, string serviceTypeName, string serviceManifestVersion, HealthState healthState, ServiceStatus serviceStatus, bool isServiceGroup = false)
 		{
 			object[] param =
 			{
-				serviceName, serviceTypeName, serviceManifestVersion, hasPersistedState, healthState, serviceStatus, isServiceGroup
+				serviceName, serviceTypeName, serviceManifestVersion, healthState, serviceStatus, isServiceGroup
 			};
 			//new StatelessService(serviceName, "MockServiceType", "manifest", true, HealthState.Ok, ServiceStatus.Active, false)
 			return (StatelessService)Activator.CreateInstance(typeof(StatelessService), BindingFlags.Instance | BindingFlags.NonPublic, null, param, CultureInfo.CurrentCulture);
