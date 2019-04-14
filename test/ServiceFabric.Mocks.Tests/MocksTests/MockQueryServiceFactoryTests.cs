@@ -3,7 +3,7 @@ using System.Fabric.Health;
 using System.Fabric.Query;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
+namespace ServiceFabric.Mocks.Tests.MocksTests
 {
     [TestClass]
     public class MockQueryServiceFactoryTests
