@@ -19,9 +19,12 @@ Thank you for contributing!
 
 ## Release notes
 
-	- 3.4.11
-	 - minor fix; parameter set mismatch for stateless service instance
-	 - upgraded to new SDK (SF 3.3.654)
+    - 3.4.12
+     - minor fix; Open communication listeners after changing role instead of before. Reported by VigoC.
+
+    - 3.4.11
+     - minor fix; parameter set mismatch for stateless service instance
+     - upgraded to new SDK (SF 3.3.654)
 
     - 3.4.10
      - Fix for issue 82 'Create Replica never returns if RunAsync is endless.' Reported by sportfort. 

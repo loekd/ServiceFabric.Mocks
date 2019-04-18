@@ -16,7 +16,6 @@ namespace ServiceFabric.Mocks.ReplicaSet
         private readonly TStatefulService _serviceInstance;
         private readonly StatefulServiceContext _context;
         private readonly IReliableStateManagerReplica2 _stateManager;
-        private IEnumerable<ICommunicationListener> _openListeners = new List<ICommunicationListener>();
         private Task _runAsyncTask;
 
         public MockStatefulServiceReplica(Func<StatefulServiceContext, IReliableStateManagerReplica2, TStatefulService> serviceFactory, StatefulServiceContext context, IReliableStateManagerReplica2 stateManager)
@@ -26,6 +25,8 @@ namespace ServiceFabric.Mocks.ReplicaSet
             _serviceInstance = serviceFactory.Invoke(context, _stateManager);
         }
 
+        public IEnumerable<ICommunicationListener> OpenListeners { get; private set; } = new List<ICommunicationListener>();
+        
         public TStatefulService ServiceInstance => _serviceInstance;
 
         public Exception LastException { get; set; }
@@ -48,8 +49,8 @@ namespace ServiceFabric.Mocks.ReplicaSet
 
             if (role == ReplicaRole.Primary)
             {
-                await OpenServiceReplicaListeners();
                 await ChangeRoleAsync(role);
+                await OpenServiceReplicaListeners();
                 RunAsync();
             }
             else
@@ -73,15 +74,15 @@ namespace ServiceFabric.Mocks.ReplicaSet
             if (RunCancellation.IsCancellationRequested)
                 RunCancellation = new CancellationTokenSource();
 
-            await OpenServiceReplicaListeners();
             await ChangeRoleAsync(ReplicaRole.Primary);
+            await OpenServiceReplicaListeners();
             RunAsync();
         }
 
         public async Task PromoteToActiveSecondaryAsync()
         {
-            await OpenServiceReplicaListeners();
             await ChangeRoleAsync(ReplicaRole.ActiveSecondary);
+            await OpenServiceReplicaListeners();
         }
 
         public async Task DemoteToActiveSecondaryAsync()
@@ -121,15 +122,15 @@ namespace ServiceFabric.Mocks.ReplicaSet
         {
             var serviceReplicaListeners = _serviceInstance.InvokeCreateServiceReplicaListeners();
 
-            _openListeners = serviceReplicaListeners
+            OpenListeners = serviceReplicaListeners
                 .Where(rl => ReplicaRole == ReplicaRole.ActiveSecondary && rl.ListenOnSecondary
                     || ReplicaRole == ReplicaRole.Primary)
                 .Select(rl => rl.CreateCommunicationListener(_context))
                 .ToList();
 
-            return Task.WhenAll(_openListeners.Select(l => l.OpenAsync(OpenCancellation.Token)));
+            return Task.WhenAll(OpenListeners.Select(l => l.OpenAsync(OpenCancellation.Token)));
         }
 
-        private Task CloseServiceReplicaListeners() => Task.WhenAll(_openListeners.Select(l => l.CloseAsync(CloseCancellation.Token)));
+        private Task CloseServiceReplicaListeners() => Task.WhenAll(OpenListeners.Select(l => l.CloseAsync(CloseCancellation.Token)));
     }
 }
