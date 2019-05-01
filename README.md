@@ -328,7 +328,7 @@ public async Task TestActorState()
 
 internal static MyStatefulActor CreateActor(ActorId id)
 {
-    Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new MyStatefulActor(service, id);
+    Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new MyStatefulActor(service, actorId);
     var svc = MockActorServiceFactory.CreateActorServiceForActor<MyStatefulActor>(actorFactory);
     var actor = svc.Activate(id);
     return actor;
