@@ -19,6 +19,9 @@ Thank you for contributing!
 
 ## Release notes
 
+- 3.4.14
+    - upgraded to new SDK (SF 3.3.658)
+
 - 3.4.13
     - minor change; allow setting of `RebuildNotificationAsyncCallback` on MockReliableDictionary. Reported by shanberg1.
     
