@@ -19,118 +19,118 @@ Thank you for contributing!
 
 ## Release notes
 
-    - 3.4.13
-     - minor change; allow setting of `RebuildNotificationAsyncCallback` on MockReliableDictionary. Reported by shanberg1.
-     
-    - 3.4.12
-     - minor fix; Open communication listeners after changing role instead of before. Reported by VigoC.
+- 3.4.13
+    - minor change; allow setting of `RebuildNotificationAsyncCallback` on MockReliableDictionary. Reported by shanberg1.
+    
+- 3.4.12
+    - minor fix; Open communication listeners after changing role instead of before. Reported by VigoC.
 
-    - 3.4.11
-     - minor fix; parameter set mismatch for stateless service instance
-     - upgraded to new SDK (SF 3.3.654)
+- 3.4.11
+    - minor fix; parameter set mismatch for stateless service instance
+    - upgraded to new SDK (SF 3.3.654)
 
-    - 3.4.10
-     - Fix for issue 82 'Create Replica never returns if RunAsync is endless.' Reported by sportfort. 
-       RunAsync is now not awaited until the replica is closed or deleted.
+- 3.4.10
+    - Fix for issue 82 'Create Replica never returns if RunAsync is endless.' Reported by sportfort. 
+    - RunAsync is now not awaited until the replica is closed or deleted.
 
-   - 3.4.9
-     - Upgraded to new SDK (SF 3.3.644).
+- 3.4.9
+    - Upgraded to new SDK (SF 3.3.644).
 
-   - 3.4.8
-     - Fix ordering issue in TX rollback in `MockReliableQueue`. Reported by ayonalan.
+- 3.4.8
+    - Fix ordering issue in TX rollback in `MockReliableQueue`. Reported by ayonalan.
 
-   - 3.4.7
-     - Upgraded to new SDK (SF 3.3.638).
+- 3.4.7
+    - Upgraded to new SDK (SF 3.3.638).
 
-   - 3.4.6
-     - Downgraded to old SDK (SF 3.3.622).
-  
-  - 3.4.5
-     - Add support for `IServiceProxyFactory.CreateNonIServiceProxy`.
+- 3.4.6
+    - Downgraded to old SDK (SF 3.3.622).
 
-   - 3.4.4
-     - Upgraded to new SDK (SF 3.3.624).
+- 3.4.5
+    - Add support for `IServiceProxyFactory.CreateNonIServiceProxy`.
 
-   - 3.4.3 
-     - Minor fix; allow zero wait time for `ReliableConcurrentQueue` dequeue. Reported by CloudStu
+- 3.4.4
+    - Upgraded to new SDK (SF 3.3.624).
 
-   - 3.4.2 
-     - Minor fix; add additional lock attempt. By likevi-MSFT
-     
-   - 3.4.1 
-     - Add `ServiceExtensions.GetPartition` and `SetPartition` for alexmarshall132.
+- 3.4.3 
+    - Minor fix; allow zero wait time for `ReliableConcurrentQueue` dequeue. Reported by CloudStu
 
-   - 3.4.0
-     - Fix issue 70. Racing for a lock could result in incorrect timeout. Thanks shushengli & likevi-MSFT.
+- 3.4.2 
+    - Minor fix; add additional lock attempt. By likevi-MSFT
+    
+- 3.4.1 
+    - Add `ServiceExtensions.GetPartition` and `SetPartition` for alexmarshall132.
 
-   - 3.3.11
-     - Upgraded to new SDK (SF 3.2.187).
+- 3.4.0
+    - Fix issue 70. Racing for a lock could result in incorrect timeout. Thanks shushengli & likevi-MSFT.
 
-   - 3.3.10
-     - Upgraded to new SDK (SF 3.2.167).
+- 3.3.11
+    - Upgraded to new SDK (SF 3.2.187).
 
-   - 3.3.9
-     - Added default instances of keyed collections on `MockCodePackageActivationContext`. Requested by tharris29
+- 3.3.10
+    - Upgraded to new SDK (SF 3.2.167).
 
-   - 3.3.8
-     - Upgraded to new SDK (SF 3.2.162).
+- 3.3.9
+    - Added default instances of keyed collections on `MockCodePackageActivationContext`. Requested by tharris29
 
-   - 3.3.7
-     - Upgraded to new SDK (SF 3.1.301).
+- 3.3.8
+    - Upgraded to new SDK (SF 3.2.162).
 
-   - 3.3.6
-     - Upgraded to new SDK (SF 3.1.283).
+- 3.3.7
+    - Upgraded to new SDK (SF 3.1.301).
 
-  - 3.3.5
-     - Update required to test DLL signing.
+- 3.3.6
+    - Upgraded to new SDK (SF 3.1.283).
 
-  - 3.3.4
-     - Merged PR by Scythen. Fix for issue in MissingActor event using multiple Actor types with the same id.
+- 3.3.5
+    - Update required to test DLL signing.
 
-  - 3.3.3
-     - Upgraded to new SDK (SF 3.1.274).
+- 3.3.4
+    - Merged PR by Scythen. Fix for issue in MissingActor event using multiple Actor types with the same id.
 
-  - 3.3.2
-     - Merged PR by charleszipp. Adds additional stateful service role change test options.
+- 3.3.3
+    - Upgraded to new SDK (SF 3.1.274).
 
-  - 3.3.1
-     - Upgraded to new SDK (SF 3.1.262).
+- 3.3.2
+    - Merged PR by charleszipp. Adds additional stateful service role change test options.
 
-  - 3.3.0
-     - Merged PR by charleszipp. Adds stateful service role change test options.
+- 3.3.1
+    - Upgraded to new SDK (SF 3.1.262).
 
- - 3.2.3
-     - Upgraded to new SDK (SF 3.0.480).
+- 3.3.0
+    - Merged PR by charleszipp. Adds stateful service role change test options.
 
- - 3.2.2
-     - Upgraded to new SDK (SF 3.0.472).
+- 3.2.3
+    - Upgraded to new SDK (SF 3.0.480).
 
- - 3.2.1
-     - Upgraded to new SDK (SF 3.0.467). Bumped .NET Fx min version to 4.5.2
+- 3.2.2
+    - Upgraded to new SDK (SF 3.0.472).
 
- - 3.2.0
-    - Add support for netstandard 2.0. Thanks @Scythen and @Eli Pulsifer.
+- 3.2.1
+    - Upgraded to new SDK (SF 3.0.467). Bumped .NET Fx min version to 4.5.2
 
- - 3.1.7
-    - Add `ServiceExtensions` to invoke non-public operations on Services.
+- 3.2.0
+  - Add support for netstandard 2.0. Thanks @Scythen and @Eli Pulsifer.
 
- - 3.1.6
-    - Upgraded to new SDK (SF 3.0.456)
+- 3.1.7
+  - Add `ServiceExtensions` to invoke non-public operations on Services.
 
- - 3.1.5
-    - Fixed bug in SaveReminderAsync which did not update existing reminder if called multiple times with same reminder name. Now updates existing reminder, if any.
-    - Fixed bug in GetActorReminders which threw exception if called when no reminders had been registered at all. Now returns empty collection.
+- 3.1.6
+  - Upgraded to new SDK (SF 3.0.456)
 
- - 3.1.4
-    - Fixed bug in TransactedConcurrentDictionary.SetAsync which threw ArgumentException when key was not already present. Updated to follow MS documentation:
-      Adds a key/value pair to the Reliable Dictionary if the key does not already exist, or updates a key/value pair in the Reliable Dictionary if the key already exists.
-      Fixes issue #44.
+- 3.1.5
+  - Fixed bug in SaveReminderAsync which did not update existing reminder if called multiple times with same reminder name. Now updates existing reminder, if any.
+- Fixed bug in GetActorReminders which threw exception if called when no reminders had been registered at all. Now returns empty collection.
 
- - 3.1.3
-    - Merged PR by Jaah. Fix creation of `IReliableDictionary2` collections
+- 3.1.4
+  - Fixed bug in TransactedConcurrentDictionary.SetAsync which threw ArgumentException when key was not already present. Updated to follow MS documentation:
+    Adds a key/value pair to the Reliable Dictionary if the key does not already exist, or updates a key/value pair in the Reliable Dictionary if the key already exists.
+    Fixes issue #44.
 
- - 3.1.2
-    - Merged PR by Jaah. Add support for `IReliableDictionary2`
+- 3.1.3
+  - Merged PR by Jaah. Fix creation of `IReliableDictionary2` collections
+
+- 3.1.2
+  - Merged PR by Jaah. Add support for `IReliableDictionary2`
 
 - 3.1.1
     - Sign assembly
