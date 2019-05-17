@@ -19,6 +19,9 @@ Thank you for contributing!
 
 ## Release notes
 
+    - 3.4.13
+     - minor change; allow setting of `RebuildNotificationAsyncCallback` on MockReliableDictionary. Reported by shanberg1.
+     
     - 3.4.12
      - minor fix; Open communication listeners after changing role instead of before. Reported by VigoC.
 
