@@ -4,7 +4,7 @@
     <Description>ServiceFabric.Mocks contains many mocks and helper classes to facilitate and simplify unit testing of your Service Fabric Actor and Service projects.</Description>
     <Copyright>2019</Copyright>
     <AssemblyTitle>ServiceFabric.Mocks</AssemblyTitle>
-    <VersionPrefix>3.4.14</VersionPrefix>
+    <Version>3.4.14</Version>
     <Authors>Loek Duys</Authors>
     <TargetFrameworks>net452;net46;netstandard2.0</TargetFrameworks>
     <PlatformTarget>x64</PlatformTarget>
@@ -22,7 +22,6 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IncludeSymbols>true</IncludeSymbols>
     <Platforms>x64</Platforms>
-    <Version>3.4.12</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release'">
