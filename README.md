@@ -19,6 +19,9 @@ Thank you for contributing!
 
 ## Release notes
 
+- 3.4.16
+    - upgraded to new SDK (SF 3.4.641)
+
 - 3.4.15
     - upgraded to new SDK (SF 3.4.639)
 
