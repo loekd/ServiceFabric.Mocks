@@ -206,7 +206,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
             {
                 waitToStart.Wait();
                 waitToEnd.Set(); //continue a
-                resultB = l.Acquire(2, LockMode.Update, 100, new CancellationToken(false)).Result; //wait for the lock for 100ms
+                resultB = l.Acquire(2, LockMode.Update, 200, new CancellationToken(false)).Result; //wait for the lock for 200ms
             });
 
             a.Start();

@@ -49,7 +49,14 @@
                 };
         }
 
-        public Func<IReliableDictionary<TKey, TValue>, NotifyDictionaryRebuildEventArgs<TKey, TValue>, Task> RebuildNotificationAsyncCallback { set => throw new NotImplementedException(); }
+        /// <summary>
+        /// Never invoked, but settable.
+        /// </summary>
+        public Func<IReliableDictionary<TKey, TValue>, NotifyDictionaryRebuildEventArgs<TKey, TValue>, Task> RebuildNotificationAsyncCallback
+        {
+            get;
+            set;
+        }
 
 
 
