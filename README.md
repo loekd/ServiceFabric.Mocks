@@ -18,6 +18,8 @@ Or [donate](https://paypal.me/lduys/5) a cup of coffee.
 Thank you for contributing!
 
 ## Release notes
+- 3.4.19
+	- minor change; added InitializationData being passed to service context via context factory/replica set
 
 - 3.4.18
     - upgraded to new SDK (SF 3.4.664)
