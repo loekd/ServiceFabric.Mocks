@@ -30,19 +30,20 @@ namespace ServiceFabric.Mocks
 		/// <param name="serviceName">The URI that should be used by the ServiceContext</param>
 		/// <param name="partitionId">PartitionId</param>
 		/// <param name="instanceId">InstanceId</param>
+		/// <param name="initializationData">initialization data</param>
 		/// </summary>
 		public static StatelessServiceContext Create(ICodePackageActivationContext codePackageActivationContext, 
 			string serviceTypeName, 
 			Uri serviceName,
 			Guid partitionId, 
-			long instanceId)
+			long instanceId, byte[] initializationData=null)
 		{
 			return new StatelessServiceContext(
-				new NodeContext("Node0", new NodeId(0, 1), 0, "NodeType1", "MOCK.MACHINE"),
+				new NodeContext("Node0", new NodeId(0, 1), 0, "NodeType1", "localhost"),
 				codePackageActivationContext, 
 				serviceTypeName,
 				serviceName,
-				null,
+				initializationData,
 				partitionId,
 				instanceId);
 		}

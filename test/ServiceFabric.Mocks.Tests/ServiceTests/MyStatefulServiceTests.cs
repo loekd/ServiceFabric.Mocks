@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Fabric;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
@@ -70,6 +71,22 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
             var queue = await stateManager.TryGetAsync<IReliableConcurrentQueue<Payload>>(MyStatefulService.StateManagerConcurrentQueueKey);
             var actual = (await queue.Value.TryDequeueAsync(stateManager.CreateTransaction())).Value;
             Assert.AreEqual(StatePayload, actual.Content);
+        }
+
+        [TestMethod]
+        public async Task ReplicateSet_InitDataPassed()
+        {
+            var initData = Encoding.UTF8.GetBytes("blah");
+
+            var replicaSet = new MockStatefulServiceReplicaSet<MyStatefulService>(CreateStatefulService, CreateStateManagerReplica);
+            await replicaSet.AddReplicaAsync(ReplicaRole.Primary, 1, initializationData: initData);
+            await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 2, initializationData: initData);
+            await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 3, initializationData: initData);
+
+            CollectionAssert.AreEqual(Encoding.UTF8.GetBytes("blah"), replicaSet.Primary.ServiceInstance.Context.InitializationData);
+            foreach (var i in replicaSet.SecondaryReplicas)
+                CollectionAssert.AreEqual(Encoding.UTF8.GetBytes("blah"),
+                i.ServiceInstance.Context.InitializationData);
         }
 
         [TestMethod]

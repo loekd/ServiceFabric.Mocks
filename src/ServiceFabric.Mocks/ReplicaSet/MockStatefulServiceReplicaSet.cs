@@ -77,9 +77,9 @@ namespace ServiceFabric.Mocks.ReplicaSet
 
         public MockStatefulServiceReplica<TStatefulService> GetDeleted(long? replicaId = null) => replicaId.HasValue ? DeletedReplicas.SingleOrDefault(r => r.ReplicaId == replicaId) : FirstDeleted;
 
-        public async Task AddReplicaAsync(ReplicaRole role, long? replicaId = null, int activationDelayMs = 0)
+        public async Task AddReplicaAsync(ReplicaRole role, long? replicaId = null, int activationDelayMs = 0, byte[] initializationData=null)
         {
-            var serviceContext = MockStatefulServiceContextFactory.Create(CodePackageActivationContext, ServiceTypeName, ServiceUri, Guid.NewGuid(), replicaId ?? _random.Next());
+            var serviceContext = MockStatefulServiceContextFactory.Create(CodePackageActivationContext, ServiceTypeName, ServiceUri, Guid.NewGuid(), replicaId ?? _random.Next(), initializationData);
             var stateManager = _stateManagerFactory(serviceContext, _reliableStates);
             var replica = new MockStatefulServiceReplica<TStatefulService>(_serviceFactory, serviceContext, stateManager);
             await replica.CreateAsync(role);
