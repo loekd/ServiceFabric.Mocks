@@ -66,6 +66,7 @@ namespace ServiceFabric.Mocks
         /// <inheritdoc />
         public Task<T> GetStateAsync<T>(string stateName, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (!_state.ContainsKey(stateName)) throw new KeyNotFoundException(stateName);
             _state.TryGetValue(stateName, out var value);
             return Task.FromResult((T)value);
         }
