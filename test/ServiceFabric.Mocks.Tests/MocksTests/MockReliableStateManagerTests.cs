@@ -1,5 +1,8 @@
 ﻿using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ServiceFabric.Mocks.Tests.MocksTests
@@ -115,6 +118,32 @@ namespace ServiceFabric.Mocks.Tests.MocksTests
 
             Assert.IsNotNull(actual);
             Assert.IsFalse(actual.HasValue);
+        }
+
+
+        [TestMethod]
+        public async Task InfiniteLoop_Issue91()
+        {
+            var sut = new MockReliableStateManager();
+
+            var collection = await sut.GetOrAddAsync<IReliableDictionary2<Guid, long>>("Collection");
+
+            using (var tx = sut.CreateTransaction())
+            {
+
+                var query = await collection.CreateEnumerableAsync(tx, key => false, EnumerationMode.Unordered);
+
+                var list = new List<Guid>();
+                //This goes into infinite loop if the query returns an empty collection with a key value pair of null for both the key and the value.
+                Microsoft.ServiceFabric.Data.IAsyncEnumerator<KeyValuePair<Guid, long>> asyncEnumerator = query.GetAsyncEnumerator();
+                while (await asyncEnumerator.MoveNextAsync(CancellationToken.None))
+                {
+                    list.Add(asyncEnumerator.Current.Key);
+                }
+                await tx.CommitAsync();
+            }
+            Assert.IsTrue(true, "Seems to work.");
+            //Assert.Fail("Shouldn't reach here.");
         }
     }
 }
