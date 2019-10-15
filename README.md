@@ -18,6 +18,9 @@ Or [donate](https://paypal.me/lduys/5) a cup of coffee.
 Thank you for contributing!
 
 ## Release notes
+- 3.4.20
+	- minor change; throw KeyNotFound in MockActorStateManager.GetStateAsync when key does not exist
+
 - 3.4.19
 	- minor change; added InitializationData being passed to service context via context factory/replica set
 

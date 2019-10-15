@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -124,5 +125,19 @@ namespace ServiceFabric.Mocks.Tests.MocksTests
             Assert.IsTrue(result.HasValue);
             Assert.AreEqual(utcNow, result.Value);
         }
-	}
+        
+        [TestMethod]
+        public async Task GetStateAsync_NonExistingState_ThrowsKeyNotFound()
+        {
+            var instance = new MockActorStateManager();
+            const string notExisting = "NonExistingState";
+
+            Task Action() => instance.GetStateAsync<int>(notExisting);
+
+            var ex = await Assert.ThrowsExceptionAsync<KeyNotFoundException>(Action);
+            StringAssert.Contains(ex.Message, notExisting);
+        }
+
+
+    }
 }
