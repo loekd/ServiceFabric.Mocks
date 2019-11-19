@@ -35,11 +35,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="3.4.664" />
-    <PackageReference Include="Microsoft.ServiceFabric.Data" Version="3.4.664" />
-    <PackageReference Include="Microsoft.ServiceFabric.Services" Version="3.4.664" />
-    <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="3.4.664" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
+    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="4.0.457" />
+    <PackageReference Include="Microsoft.ServiceFabric.Data" Version="4.0.457" />
+    <PackageReference Include="Microsoft.ServiceFabric.Services" Version="4.0.457" />
+    <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="4.0.457" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.0.0" />
     <PackageReference Include="MSTest.TestFramework" Version="2.0.0" />
   </ItemGroup>

@@ -18,6 +18,10 @@ Or [donate](https://paypal.me/lduys/5) a cup of coffee.
 Thank you for contributing!
 
 ## Release notes
+
+- 4.0.0
+    - upgraded to new SDK (SF 4.0.457)
+
 - 3.4.20
 	- minor change; throw KeyNotFound in MockActorStateManager.GetStateAsync when key does not exist
 
