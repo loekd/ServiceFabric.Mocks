@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Fabric;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
@@ -32,6 +33,7 @@ namespace ServiceFabric.Mocks
             return svc;
         }
 
+		private static Dictionary<ActorId, IActorStateManager> stateManagerMap = new Dictionary<ActorId, IActorStateManager>();
 		/// <summary>
 		/// Creates a new <see cref="TActorService"/> (which is an <see cref="ActorService"/>) using <see cref="MockActorStateManager"/> and <see cref="MockStatefulServiceContextFactory.Default"/>
 		/// which returns instances of <see cref="TActor"/> using the optionally provided <paramref name="actorFactory"/>, <paramref name="actorStateProvider"/> and <paramref name="settings"/>.
@@ -47,8 +49,17 @@ namespace ServiceFabric.Mocks
 			where TActor : Actor
 			where TActorService : ActorService
 		{
-			var stateManager = new MockActorStateManager();
-			Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory = (actr, stateProvider) => stateManager;
+			Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory =
+			(actr, stateProvider) =>
+			{
+				if (!stateManagerMap.TryGetValue(actr.Id, out var actorStateManager))
+				{
+					actorStateManager = new MockActorStateManager();
+					stateManagerMap[actr.Id] = actorStateManager;
+				}
+				return actorStateManager;
+			};
+
 			if (actorStateProvider == null)
 			{
 				actorStateProvider = new MockActorStateProvider();
@@ -56,8 +67,6 @@ namespace ServiceFabric.Mocks
 			}
 
 			context = context ?? MockStatefulServiceContextFactory.Default;
-
-			//StatefulServiceContext context, ActorTypeInformation actorTypeInfo, Func<ActorService, ActorId, ActorBase> actorFactory = null, Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory = null, IActorStateProvider stateProvider = null, ActorServiceSettings settings = null
 
 			var ctor = typeof(TActorService).GetConstructor(Constants.InstancePublicNonPublic, null,
 				new []
