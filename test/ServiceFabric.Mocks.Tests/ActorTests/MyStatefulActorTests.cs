@@ -35,11 +35,16 @@ namespace ServiceFabric.Mocks.Tests.ActorTests
         {
             Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new MyStatefulActor(service, actorId);
             var svc = MockActorServiceFactory.CreateActorServiceForActor<MyStatefulActor>(actorFactory);
-            var actor1 = svc.Activate(new ActorId(Guid.NewGuid()));
+            var sharedId = ActorId.CreateRandom();
+            var actor1 = svc.Activate(sharedId);
             var actor2 = svc.Activate(new ActorId(Guid.NewGuid()));
+            var actor3 = svc.Activate(new ActorId(Guid.NewGuid()));
+            var actor1_2 = svc.Activate(sharedId);
 
             var stateManager1 = (MockActorStateManager)actor1.StateManager;
+            var stateManager1_2 = (MockActorStateManager)actor1.StateManager;
             var stateManager2 = (MockActorStateManager)actor2.StateManager;
+            var stateManager3 = (MockActorStateManager)actor3.StateManager;
 
             const string stateName = "test";
             var payload1 = new Payload(StatePayload);
@@ -49,11 +54,16 @@ namespace ServiceFabric.Mocks.Tests.ActorTests
             await actor1.InsertAsync(stateName, payload1);
             await actor2.InsertAsync(stateName, payload2);
 
+            Assert.AreSame(stateManager1, stateManager1_2);
+            Assert.AreNotSame(stateManager1, stateManager2);
+
             //get states
             var actual1 = await stateManager1.GetStateAsync<Payload>(stateName);
             Assert.AreEqual(StatePayload, actual1.Content);
             var actual2 = await stateManager2.GetStateAsync<Payload>(stateName);
             Assert.AreEqual(OtherStatePayload, actual2.Content);
+            var actual3 = await stateManager3.TryGetStateAsync<Payload>(stateName);
+            Assert.IsFalse(actual3.HasValue);
         }
 
         private static MyStatefulActor CreateActor(ActorId id)
