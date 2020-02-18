@@ -19,6 +19,9 @@ Thank you for contributing!
 
 ## Release notes
 
+- 4.1.1
+    - upgraded to new SDK (SF 4.0.466)
+
 - 4.1.0
     - fixed `CreateCustomActorServiceForActor` to provide unique state managers per actor id
 
