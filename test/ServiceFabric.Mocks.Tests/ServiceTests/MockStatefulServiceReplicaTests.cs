@@ -37,7 +37,57 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
 
             Assert.AreEqual(2, replicaSet.Primary.ReplicaId);
         }
+
     }
+
+    /// <summary>
+    /// Attempt to reproduce concurrency issue. <see cref="MockStatefulServiceReplicaSet"/> is now thread safe.
+    /// </summary>
+    [TestClass]
+    public class TestConcurrencyIssueRepro
+    {
+        [TestMethod]
+        public void TestDeadLock9()
+        {
+            Func<StatefulServiceContext, IReliableStateManagerReplica2, StatefulServiceWithReplicaListener> serviceFactory = (context, stateManagerReplica) =>
+            {
+                var partition = new MockStatefulServicePartition()
+                {
+                    PartitionInfo = MockQueryPartitionFactory.CreateSingletonPartitonInfo(Guid.NewGuid())
+                };
+                context = MockStatefulServiceContextFactory.Create(
+                            context.CodePackageActivationContext,
+                            context.ServiceTypeName,
+                            context.ServiceName,
+                            partition.PartitionInfo.Id,
+                            context.ReplicaId);
+
+                var service = new StatefulServiceWithReplicaListener(context);
+                service.SetPartition(partition);
+                return service;
+            };
+
+            //shared instance, called from multiple threads
+            MockStatefulServiceReplicaSet<StatefulServiceWithReplicaListener> replicaSet;
+
+            Parallel.For(1, 100, async (i) =>
+            {
+                replicaSet = new MockStatefulServiceReplicaSet<StatefulServiceWithReplicaListener>(serviceFactory);
+                await replicaSet.AddReplicaAsync(ReplicaRole.Primary, 1);
+                await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 2);
+                await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 3);
+                await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 4);
+                await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 5);
+                await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 6);
+                await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 7);
+                await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 8);
+                await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 9);
+                await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 10);
+            });
+        }
+    }
+
+
     public class StatefulServiceWithReplicaListener : StatefulService, IService
     {
         public StatefulServiceWithReplicaListener(StatefulServiceContext serviceContext) : base(serviceContext)

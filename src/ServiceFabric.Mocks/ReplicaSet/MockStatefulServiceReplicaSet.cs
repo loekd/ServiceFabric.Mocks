@@ -12,7 +12,9 @@ namespace ServiceFabric.Mocks.ReplicaSet
     public class MockStatefulServiceReplicaSet<TStatefulService>
         where TStatefulService : StatefulService
     {
-        private readonly List<MockStatefulServiceReplica<TStatefulService>> _replicas = new List<MockStatefulServiceReplica<TStatefulService>>();
+        private readonly System.Collections.Concurrent.ConcurrentDictionary<long, MockStatefulServiceReplica<TStatefulService>> _replicaDictionary =
+            new System.Collections.Concurrent.ConcurrentDictionary<long, MockStatefulServiceReplica<TStatefulService>>();
+        private IEnumerable<MockStatefulServiceReplica<TStatefulService>> _replicas => _replicaDictionary.Values;
         private readonly Func<StatefulServiceContext, IReliableStateManagerReplica2, TStatefulService> _serviceFactory;
         private readonly Func<StatefulServiceContext, TransactedConcurrentDictionary<Uri, IReliableState>, IReliableStateManagerReplica2> _stateManagerFactory;
         private readonly TransactedConcurrentDictionary<Uri, IReliableState> _reliableStates = new TransactedConcurrentDictionary<Uri, IReliableState>(new Uri("fabric://state", UriKind.Absolute));
@@ -21,8 +23,8 @@ namespace ServiceFabric.Mocks.ReplicaSet
         public MockStatefulServiceReplicaSet(
             Func<StatefulServiceContext, IReliableStateManagerReplica2, TStatefulService> serviceFactory,
             Func<StatefulServiceContext, TransactedConcurrentDictionary<Uri, IReliableState>, IReliableStateManagerReplica2> stateManagerFactory = null,
-            string serviceTypeName = MockStatefulServiceContextFactory.ServiceTypeName, 
-            string serviceName = MockStatefulServiceContextFactory.ServiceName, 
+            string serviceTypeName = MockStatefulServiceContextFactory.ServiceTypeName,
+            string serviceName = MockStatefulServiceContextFactory.ServiceName,
             ICodePackageActivationContext codePackageActivationContext = null)
         {
             _serviceFactory = serviceFactory;
@@ -67,7 +69,7 @@ namespace ServiceFabric.Mocks.ReplicaSet
 
         public IEnumerable<MockStatefulServiceReplica<TStatefulService>> SecondaryReplicas => ActiveSecondaryReplicas.Union(IdleSecondaryReplicas);
 
-        public MockStatefulServiceReplica<TStatefulService> this[long replicaId] => _replicas.FirstOrDefault(r => r.ReplicaId == replicaId);
+        public MockStatefulServiceReplica<TStatefulService> this[long replicaId] => _replicaDictionary[replicaId];
 
         public MockStatefulServiceReplica<TStatefulService> GetActiveSecondary(long? replicaId = null) => replicaId.HasValue ? ActiveSecondaryReplicas.SingleOrDefault(r => r.ReplicaId == replicaId) : FirstActiveSecondary;
 
@@ -77,14 +79,17 @@ namespace ServiceFabric.Mocks.ReplicaSet
 
         public MockStatefulServiceReplica<TStatefulService> GetDeleted(long? replicaId = null) => replicaId.HasValue ? DeletedReplicas.SingleOrDefault(r => r.ReplicaId == replicaId) : FirstDeleted;
 
-        public async Task AddReplicaAsync(ReplicaRole role, long? replicaId = null, int activationDelayMs = 0, byte[] initializationData=null)
+        public async Task AddReplicaAsync(ReplicaRole role, long? replicaId = null, int activationDelayMs = 0, byte[] initializationData = null)
         {
-            var serviceContext = MockStatefulServiceContextFactory.Create(CodePackageActivationContext, ServiceTypeName, ServiceUri, Guid.NewGuid(), replicaId ?? _random.Next(), initializationData);
+            if (!replicaId.HasValue)
+            {
+                replicaId = _random.Next();
+            }
+            var serviceContext = MockStatefulServiceContextFactory.Create(CodePackageActivationContext, ServiceTypeName, ServiceUri, Guid.NewGuid(), replicaId.Value, initializationData);
             var stateManager = _stateManagerFactory(serviceContext, _reliableStates);
             var replica = new MockStatefulServiceReplica<TStatefulService>(_serviceFactory, serviceContext, stateManager);
             await replica.CreateAsync(role);
-            _replicas.Add(replica);
-
+            _replicaDictionary.TryAdd(replicaId.Value, replica);
         }
 
         public Task PromoteIdleSecondaryToActiveSecondaryAsync(long? replicaId = null)

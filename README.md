@@ -19,6 +19,9 @@ Thank you for contributing!
 
 ## Release notes
 
+- 4.1.3
+    - MockStatefulServiceReplicaSet is now thread safe
+
 - 4.1.2
     - upgraded to new SDK (SF 4.0.470)
 
