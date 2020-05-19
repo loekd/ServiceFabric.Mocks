@@ -19,6 +19,9 @@ Thank you for contributing!
 
 ## Release notes
 
+- 4.1.4
+    - Update Service Fabric SDK to version 4.1.409.
+
 - 4.1.3
     - MockStatefulServiceReplicaSet is now thread safe
 
