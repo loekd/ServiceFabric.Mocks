@@ -2,6 +2,7 @@
 using System.Fabric;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
@@ -90,30 +91,69 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
         }
 
         [TestMethod]
+        public async Task TestServiceStateChangesDuringPromote()
+        {
+            var replicaSet = new MockStatefulServiceReplicaSet<MyStatefulService>(CreateStatefulService, CreateStateManagerReplica);
+            await replicaSet.AddReplicaAsync(ReplicaRole.Primary, 1);
+            var originalPrimary = replicaSet.Primary;
+            await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 2);
+            var originalSecondary = replicaSet.SecondaryReplicas.Single();
+
+            //promote the secondary to primary
+            await replicaSet.PromoteActiveSecondaryToPrimaryAsync(2);
+
+            bool hasRun = originalPrimary.ServiceInstance.RunAsyncHasRun.WaitOne(500);
+            Assert.IsTrue(hasRun, "RunAsync did not run on original primary");
+
+            hasRun = originalSecondary.ServiceInstance.RunAsyncHasRun.WaitOne(500);
+            Assert.IsTrue(hasRun, "RunAsync did not run on new primary");
+
+            bool hasChanged = originalPrimary.ServiceInstance.ChangeRoleAsyncHasRun.WaitOne(500);
+            Assert.IsTrue(hasChanged, "ChangeRole did not run on original primary");
+
+            hasRun = originalSecondary.ServiceInstance.ChangeRoleAsyncHasRun.WaitOne(500);
+            Assert.IsTrue(hasChanged, "ChangeRole did not run on new primary");
+
+
+            bool hasClearedCache = originalPrimary.ServiceInstance.CacheCleared.Wait(500);
+            Assert.IsTrue(hasChanged, "Cache was not cleared on original primary");
+        }
+
+        [TestMethod]
         public async Task TestServiceState_InMemoryState_PromoteActiveSecondary()
         {
             var replicaSet = new MockStatefulServiceReplicaSet<MyStatefulService>(CreateStatefulService, CreateStateManagerReplica);
             await replicaSet.AddReplicaAsync(ReplicaRole.Primary, 1);
+            var originalPrimary = replicaSet.Primary;
             await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 2);
-            await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 3);
+            var originalSecondary = replicaSet.SecondaryReplicas.Single();
 
             const string stateName = "test";
             var payload = new Payload(StatePayload);
 
             //insert data
             await replicaSet.Primary.ServiceInstance.InsertAsync(stateName, payload);
+
             //promote one of the secondaries to primary
             await replicaSet.PromoteActiveSecondaryToPrimaryAsync(2);
+
+            //wait
+            bool hasRun = originalPrimary.ServiceInstance.RunAsyncHasRun.WaitOne(500);
+            Assert.IsTrue(hasRun, "RunAsync did not run on original primary");
+
+            hasRun = originalSecondary.ServiceInstance.RunAsyncHasRun.WaitOne(500);
+            Assert.IsTrue(hasRun, "RunAsync did not run on new primary");
+
             //get data
             var payloads = (await replicaSet.Primary.ServiceInstance.GetPayloadsAsync()).ToList();
 
             //data should match what was inserted against the primary
-            Assert.IsTrue(payloads.Count == 1);
-            Assert.IsTrue(payloads[0].Content == payload.Content);
+            Assert.IsTrue(payloads.Count == 1, "Unexpected payload count");
+            Assert.IsTrue(payloads[0].Content == payload.Content, "Unexpected payload content");
 
-            //the primary should not have any in-memory state
-            var payloadsFromOldPrimary = await replicaSet[1].ServiceInstance.GetPayloadsAsync();
-            Assert.IsTrue(!payloadsFromOldPrimary.Any());
+            //the original primary should not have any in-memory state
+            var payloadsFromOldPrimary = await originalPrimary.ServiceInstance.GetPayloadsAsync();
+            Assert.IsFalse(payloadsFromOldPrimary.Any(), "Original primary payload should have been erased");
         }
 
         [TestMethod]
@@ -121,7 +161,9 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
         {
             var replicaSet = new MockStatefulServiceReplicaSet<MyLongRunningStatefulService>(CreateLongRunningStatefulService, CreateStateManagerReplica);
             await replicaSet.AddReplicaAsync(ReplicaRole.Primary, 1);
+            var originalPrimary = replicaSet.Primary;
             await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 2);
+            var originalSecondary = replicaSet.SecondaryReplicas.Single();
             await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 3);
 
             const string stateName = "test";
@@ -131,16 +173,24 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
             await replicaSet.Primary.ServiceInstance.InsertAsync(stateName, payload);
             //promote one of the secondaries to primary
             await replicaSet.PromoteActiveSecondaryToPrimaryAsync(2);
+
+            //wait
+            bool hasRun = originalPrimary.ServiceInstance.RunAsyncHasRun.WaitOne(500);
+            Assert.IsTrue(hasRun, "RunAsync did not run on original primary");
+
+            hasRun = originalSecondary.ServiceInstance.RunAsyncHasRun.WaitOne(500);
+            Assert.IsTrue(hasRun, "RunAsync did not run on new primary");
+
             //get data
             var payloads = (await replicaSet.Primary.ServiceInstance.GetPayloadsAsync()).ToList();
 
             //data should match what was inserted against the primary
-            Assert.IsTrue(payloads.Count == 1);
-            Assert.IsTrue(payloads[0].Content == payload.Content);
+            Assert.IsTrue(payloads.Count == 1, "Unexpected payload count");
+            Assert.IsTrue(payloads[0].Content == payload.Content, "Unexpected payload content");
 
-            //the primary should not have any in-memory state
-            var payloadsFromOldPrimary = await replicaSet[1].ServiceInstance.GetPayloadsAsync();
-            Assert.IsTrue(!payloadsFromOldPrimary.Any());
+            //the original primary should not have any in-memory state
+            var payloadsFromOldPrimary = await originalPrimary.ServiceInstance.GetPayloadsAsync();
+            Assert.IsFalse(payloadsFromOldPrimary.Any(), "Original primary payload should have been erased");
         }
 
         [TestMethod]
@@ -148,7 +198,9 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
         {
             var replicaSet = new MockStatefulServiceReplicaSet<MyStatefulService>(CreateStatefulService, CreateStateManagerReplica);
             await replicaSet.AddReplicaAsync(ReplicaRole.Primary, 1);
+            var originalPrimary = replicaSet.Primary;
             await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 2);
+            var originalSecondary = replicaSet.SecondaryReplicas.Single();
             await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 3);
 
             const string stateName = "test";
@@ -162,12 +214,12 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
             var payloads = (await replicaSet.Primary.ServiceInstance.GetPayloadsAsync()).ToList();
 
             //data should match what was inserted against the primary
-            Assert.IsTrue(payloads.Count == 1);
-            Assert.IsTrue(payloads[0].Content == payload.Content);
+            Assert.IsTrue(payloads.Count == 1, "Unexpected payload count");
+            Assert.IsTrue(payloads[0].Content == payload.Content, "Unexpected payload content");
 
-            //the primary should not have any in-memory state
-            var payloadsFromOldPrimary = await replicaSet[1].ServiceInstance.GetPayloadsAsync();
-            Assert.IsTrue(payloadsFromOldPrimary.Any() == false);
+            //the original primary should not have any in-memory state
+            var payloadsFromOldPrimary = await originalPrimary.ServiceInstance.GetPayloadsAsync();
+            Assert.IsFalse(payloadsFromOldPrimary.Any(), "Original primary payload should have been erased");
         }
 
         private MyStatefulService CreateStatefulService(StatefulServiceContext context, IReliableStateManagerReplica2 stateManager)

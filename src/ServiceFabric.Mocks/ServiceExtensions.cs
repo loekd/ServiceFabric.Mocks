@@ -58,7 +58,29 @@ namespace ServiceFabric.Mocks
             if (service == null) throw new ArgumentNullException(nameof(service));
             //protected virtual Task RunAsync(CancellationToken cancellationToken)
             var method = FindMethodInfo(service, "RunAsync");
-            return (Task)method.Invoke(service, new object[] { cancellationToken ?? CancellationToken.None });
+            var task = Task.Run(() =>
+            {
+                Task inner = null;
+                try
+                {
+                    inner = (Task)method.Invoke(service, new object[] { cancellationToken ?? CancellationToken.None });
+                }
+                catch (TargetInvocationException ex)
+                {
+                    //If an OperationCanceledException escapes from RunAsync(CancellationToken) and 
+                    //Service Fabric runtime has requested cancellation by signaling cancellationToken 
+                    //passed to RunAsync(CancellationToken), Service Fabric runtime handles this 
+                    //exception and considers it as graceful completion of RunAsync(CancellationToken).
+                    if (!(ex.InnerException is OperationCanceledException))
+                    {
+                        //otherwise, we don't know what happened...
+                        throw;
+                    }
+                    inner = Task.FromResult(true);
+                }
+                return inner;
+            });
+            return task;
         }
 
         /// <summary>
@@ -72,7 +94,28 @@ namespace ServiceFabric.Mocks
             if (service == null) throw new ArgumentNullException(nameof(service));
             //protected virtual Task RunAsync(CancellationToken cancellationToken)
             var method = FindMethodInfo(service, "RunAsync");
-            return (Task)method.Invoke(service, new object[] { cancellationToken ?? CancellationToken.None });
+            var task = Task.Run(() =>
+            {
+                Task inner = null;
+                try
+                {
+                    inner = (Task)method.Invoke(service, new object[] { cancellationToken ?? CancellationToken.None });
+                }
+                catch (TargetInvocationException ex)
+                {
+                    //If an OperationCanceledException escapes from RunAsync(CancellationToken) and 
+                    //Service Fabric runtime has requested cancellation by signaling cancellationToken 
+                    //passed to RunAsync(CancellationToken), Service Fabric runtime handles this 
+                    //exception and considers it as graceful completion of RunAsync(CancellationToken).
+                    if (!(ex.InnerException is OperationCanceledException))
+                    {
+                        //otherwise, we don't know what happened...
+                        throw;
+                    }
+                }
+                return inner;
+            });
+            return task;
         }
 
 

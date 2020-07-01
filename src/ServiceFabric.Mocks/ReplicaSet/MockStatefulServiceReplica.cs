@@ -26,7 +26,7 @@ namespace ServiceFabric.Mocks.ReplicaSet
         }
 
         public IEnumerable<ICommunicationListener> OpenListeners { get; private set; } = new List<ICommunicationListener>();
-        
+
         public TStatefulService ServiceInstance => _serviceInstance;
 
         public Exception LastException { get; set; }
@@ -59,15 +59,17 @@ namespace ServiceFabric.Mocks.ReplicaSet
 
         public async Task DeleteAsync()
         {
-            await ChangeRoleAsync(ReplicaRole.None);            
-
-            await Task.WhenAll(_runAsyncTask ?? Task.FromResult(true),
-                CloseServiceReplicaListeners(),
-                Task.Run(() => RunCancellation.Cancel()));
-
-            await CloseAsync();
+            RunCancellation.Cancel();
+            if (_runAsyncTask != null)
+            {
+                await _runAsyncTask;
+            }
             _runAsyncTask = null;
-        }        
+            
+            await CloseServiceReplicaListeners();
+            await ChangeRoleAsync(ReplicaRole.None);
+            await CloseAsync();
+        }
 
         public async Task PromoteToPrimaryAsync()
         {
@@ -87,13 +89,15 @@ namespace ServiceFabric.Mocks.ReplicaSet
 
         public async Task DemoteToActiveSecondaryAsync()
         {
-            await ChangeRoleAsync(ReplicaRole.ActiveSecondary);
-
-            await Task.WhenAll(_runAsyncTask ?? Task.FromResult(true),
-                CloseServiceReplicaListeners(),
-                Task.Run(() => RunCancellation.Cancel())
-                );
+            RunCancellation.Cancel();
+            if (_runAsyncTask != null)
+            {
+                await _runAsyncTask;
+            }
             _runAsyncTask = null;
+
+            await CloseServiceReplicaListeners();
+            await ChangeRoleAsync(ReplicaRole.ActiveSecondary);
         }
 
         private async Task ChangeRoleAsync(ReplicaRole newRole)
@@ -116,7 +120,7 @@ namespace ServiceFabric.Mocks.ReplicaSet
         private void RunAsync()
         {
             _runAsyncTask = _serviceInstance.InvokeRunAsync(RunCancellation.Token);
-        }
+        }   
 
         private Task OpenServiceReplicaListeners()
         {

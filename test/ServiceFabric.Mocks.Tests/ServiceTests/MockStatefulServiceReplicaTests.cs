@@ -38,6 +38,26 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
             Assert.AreEqual(2, replicaSet.Primary.ReplicaId);
         }
 
+        [TestMethod]
+        public async Task TestPromoteActiveSecondaryToPrimaryWithRunAsyncOverrideAsync()
+        {
+            Func<StatefulServiceContext, IReliableStateManagerReplica2, StatefulServiceWithRunAsyncOverride> serviceFactory = (StatefulServiceContext context, IReliableStateManagerReplica2 stateManager) => new StatefulServiceWithRunAsyncOverride(context);
+            var replicaSet = new MockStatefulServiceReplicaSet<StatefulServiceWithRunAsyncOverride>(serviceFactory);
+            await replicaSet.AddReplicaAsync(ReplicaRole.Primary, 1);
+            var originalPrimaryReplica = replicaSet.Primary;
+            await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 2);
+            var originalSecondaryReplica = replicaSet.SecondaryReplicas.Single();
+
+            await replicaSet.PromoteActiveSecondaryToPrimaryAsync(2);
+
+            bool completed = originalPrimaryReplica.ServiceInstance.RunAsyncCompleted.WaitOne(500, false);
+            Assert.IsTrue(completed);
+            Assert.AreEqual(2, replicaSet.Primary.ReplicaId);
+
+            originalPrimaryReplica.RunCancellation.Cancel();
+            originalSecondaryReplica.RunCancellation.Cancel();
+        }
+
     }
 
     /// <summary>
@@ -101,6 +121,36 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
             };
         }
     }
+
+    public class StatefulServiceWithRunAsyncOverride : StatefulService, IService
+    {
+        public ManualResetEvent RunAsyncCompleted { get; }
+
+        public StatefulServiceWithRunAsyncOverride(StatefulServiceContext serviceContext, ManualResetEvent runAsyncCompleted = null) : base(serviceContext)
+        {
+            RunAsyncCompleted = runAsyncCompleted ?? new ManualResetEvent(false);
+        }
+
+        protected override Task RunAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                RunAsyncCompleted.Reset();
+
+                //run a tight loop to cause an OperationCancelledException as soon as the CancellationToken is cancelled.
+                while (true)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    Thread.Yield();
+                }
+            }
+            finally
+            {
+                RunAsyncCompleted.Set();
+            }
+        }
+    }
+
     public class Listener : ICommunicationListener
     {
         public void Abort()

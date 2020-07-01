@@ -1,6 +1,7 @@
 ﻿using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.ServiceFabric.Services.Runtime;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Fabric;
@@ -18,6 +19,11 @@ namespace ServiceFabric.Mocks.Tests.Services
 
         private readonly ConcurrentDictionary<string, Payload> _cache = new ConcurrentDictionary<string, Payload>();
         private ReplicaRole _role = ReplicaRole.Unknown;
+
+        public ManualResetEvent RunAsyncHasRun { get; } = new ManualResetEvent(false);
+        public ManualResetEvent ChangeRoleAsyncHasRun { get; } = new ManualResetEvent(false);
+
+        public ManualResetEventSlim CacheCleared { get; } = new ManualResetEventSlim(false);
 
         public MyStatefulService(StatefulServiceContext serviceContext) : base(serviceContext)
         {
@@ -44,7 +50,7 @@ namespace ServiceFabric.Mocks.Tests.Services
                 await dictionary.SetAsync(tx, stateName, new Payload(content));
                 await tx.CommitAsync();
             }
-
+            if (CacheCleared.IsSet) throw new InvalidOperationException("Should not happen after clearing the cache.");
             _cache.AddOrUpdate(stateName, new Payload(content), (k, v) => new Payload(content));
         }
 
@@ -60,6 +66,7 @@ namespace ServiceFabric.Mocks.Tests.Services
             }
 
             //copy this so we dont have the same reference in the read model and reliable collection
+            if (CacheCleared.IsSet) throw new InvalidOperationException("Should not happen after clearing the cache.");
             _cache.TryAdd(stateName, new Payload(value.Content));
         }
 
@@ -102,6 +109,8 @@ namespace ServiceFabric.Mocks.Tests.Services
 
         protected override async Task RunAsync(CancellationToken cancellationToken)
         {
+            RunAsyncHasRun.Reset();
+
             await base.RunAsync(cancellationToken);
 
             //this should always be true. RunAsync is only executed for primary replicas
@@ -120,6 +129,7 @@ namespace ServiceFabric.Mocks.Tests.Services
                             //copy so we dont have the same reference in the model and the reliable collection
                             var item = new KeyValuePair<string, Payload>(enumerator.Current.Key,
                                 new Payload(enumerator.Current.Value.Content));
+                            if (CacheCleared.IsSet) throw new InvalidOperationException("Should not happen after clearing the cache.");
                             _cache.AddOrUpdate(item.Key, item.Value, (k, v) => item.Value);
                         }
                     }
@@ -129,19 +139,27 @@ namespace ServiceFabric.Mocks.Tests.Services
             {
                 throw new System.Exception("Invalid state transition. RunAsync executed on non-primary replica!");
             }
+
+            RunAsyncHasRun.Set();
         }
 
         protected override Task OnChangeRoleAsync(ReplicaRole newRole, CancellationToken cancellationToken)
         {
+            ChangeRoleAsyncHasRun.Reset();
+
             //if we are shifting away from primary
             if (_role == ReplicaRole.Primary && newRole != ReplicaRole.Primary)
             {
+                CacheCleared.Reset();
                 //clear out the in-memory state
                 _cache.Clear();
+                CacheCleared.Set();
             }
 
             _role = newRole;
-            return base.OnChangeRoleAsync(newRole, cancellationToken);
+            var task = base.OnChangeRoleAsync(newRole, cancellationToken);
+            ChangeRoleAsyncHasRun.Set();
+            return task;
         }
     }
 
