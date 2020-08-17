@@ -33,13 +33,13 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.0" />
-    <PackageReference Include="Microsoft.ServiceFabric" Version="7.1.417" />
-    <PackageReference Include="Microsoft.ServiceFabric.Data" Version="4.1.417" />
-    <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="4.1.417" />
+    <PackageReference Include="Microsoft.ServiceFabric" Version="7.1.428" />
+    <PackageReference Include="Microsoft.ServiceFabric.Data" Version="4.1.428" />
+    <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="4.1.428" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.1.2" />
     <PackageReference Include="MSTest.TestFramework" Version="2.1.2" />
-    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="4.1.417" />
-    <PackageReference Include="Microsoft.ServiceFabric.Services" Version="4.1.417" />
+    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="4.1.428" />
+    <PackageReference Include="Microsoft.ServiceFabric.Services" Version="4.1.428" />
   </ItemGroup>
 
   <ItemGroup>
