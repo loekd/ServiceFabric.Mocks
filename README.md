@@ -19,6 +19,8 @@ Thank you for contributing!
 
 ## Release notes
 
+- 4.2.1
+    - Update Service Fabric SDK to version 4.1.428.
 - 4.2.0
     - Allow Services to implement RunAsync and throw OperationCancelledException to exit. Reported by jonblankenship. `ServiceExtensions.InvokeRunAsync` now runs a background task, instead of blocking.
 
