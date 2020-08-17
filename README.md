@@ -19,6 +19,8 @@ Thank you for contributing!
 
 ## Release notes
 
+- 4.2.2
+    - Update Service Fabric SDK to version 4.1.456.
 - 4.2.1
     - Update Service Fabric SDK to version 4.1.428.
 - 4.2.0
