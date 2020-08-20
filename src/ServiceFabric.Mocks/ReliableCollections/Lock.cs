@@ -202,15 +202,15 @@
         {
             if (milliseconds > 0)
             {
+                CancellationToken token;
                 lock (_lockOwners)
                 {
                     if (TokenSource == null)
                     {
                         TokenSource = new CancellationTokenSource();
                     }
+                    token = TokenSource.Token;
                 }
-
-                var token = TokenSource.Token;
 
                 CancellationTokenSource linkedTokenSource = null;
                 try

@@ -145,5 +145,32 @@ namespace ServiceFabric.Mocks.Tests.MocksTests
             Assert.IsTrue(true, "Seems to work.");
             //Assert.Fail("Shouldn't reach here.");
         }
+
+
+        //provided as repro, but doesn't repro in mstest
+        [TestMethod][Ignore]
+        public async Task LoadTest()
+        {
+            var stateManager = new MockReliableStateManager();
+            var data = await stateManager.GetOrAddAsync<IReliableDictionary<Guid, string>>("data");
+            var updates = new List<Task>();
+            var id = Guid.NewGuid();
+
+            for (var i = 0; i < 100_000; i++)
+            {
+                updates.Add(Task.Run(async () =>
+                {
+                    using (var tx = stateManager.CreateTransaction())
+                    {
+                        var newValue = DateTime.Now.ToString();
+                        await data.AddOrUpdateAsync(tx, id, newValue, (key, value) => newValue).ConfigureAwait(false);
+
+                        await tx.CommitAsync().ConfigureAwait(false);
+                    }
+                }));
+            }
+
+            await Task.WhenAll(updates);
+        }
     }
 }
