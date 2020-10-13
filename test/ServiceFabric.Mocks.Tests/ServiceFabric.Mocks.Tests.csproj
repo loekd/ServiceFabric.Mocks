@@ -32,7 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
     <PackageReference Include="Microsoft.ServiceFabric" Version="7.1.456" />
     <PackageReference Include="Microsoft.ServiceFabric.Data" Version="4.1.456" />
     <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="4.1.456" />
