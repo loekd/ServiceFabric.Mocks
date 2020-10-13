@@ -19,6 +19,10 @@ Thank you for contributing!
 
 ## Release notes
 
+- 4.2.4
+    - Update Service Fabric SDK to version 4.1.458.
+    - Update Microsoft.NET.Test.Sdk to version 16.7.1.
+    
 - 4.2.3
     - Fix null reference issue reported by kazepreaux. Inside `Lock.Wait`, the reference to `token` is now assigned within the lock.
 
