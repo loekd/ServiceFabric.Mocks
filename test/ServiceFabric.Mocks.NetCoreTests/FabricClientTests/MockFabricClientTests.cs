@@ -10,11 +10,6 @@ namespace ServiceFabric.Mocks.NetCoreTests.FabricClientTests
     [TestClass]
     public class MockFabricClientTests
     {
-        [TestMethod]
-        public void Test()
-        {
-            var client = new ServiceManagementClient();
-            client.AddResolvedServicePartition(new Uri("test://mocks", UriKind.Absolute), MockQueryPartitionFactory.CreateIntPartitonInfo(), new[] { MockQueryPartitionFactory.CreateResolvedServiceEndpoint("test://mocks") });
-        }
+        
     }
 }

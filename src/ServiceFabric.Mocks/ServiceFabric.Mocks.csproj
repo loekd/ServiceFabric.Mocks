@@ -38,11 +38,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ServiceFabric" Version="7.1.456" />
-    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="4.1.456" />
-    <PackageReference Include="Microsoft.ServiceFabric.Data" Version="4.1.456" />
-    <PackageReference Include="Microsoft.ServiceFabric.Services" Version="4.1.456" />
-    <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="4.1.456" />
+    <PackageReference Include="Microsoft.ServiceFabric" Version="7.1.458" />
+    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="4.1.458" />
+    <PackageReference Include="Microsoft.ServiceFabric.Data" Version="4.1.458" />
+    <PackageReference Include="Microsoft.ServiceFabric.Services" Version="4.1.458" />
+    <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="4.1.458" />
   </ItemGroup>
 
 </Project>
