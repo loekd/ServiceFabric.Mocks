@@ -41,7 +41,7 @@
                         LockMode = LockMode.Default;
                         if (TokenSource != null)
                         {
-                            TokenSource.Cancel();
+                            TokenSource.CancelAfter(0);
                             TokenSource = null;
                         }
                     }
@@ -78,7 +78,7 @@
                     LockMode = LockMode.Default;
                     if (TokenSource != null)
                     {
-                        TokenSource.Cancel();
+                        TokenSource.CancelAfter(0);
                         TokenSource = null;
                     }
                 }

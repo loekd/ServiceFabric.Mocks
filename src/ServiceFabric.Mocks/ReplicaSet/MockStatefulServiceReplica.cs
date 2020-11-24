@@ -59,7 +59,7 @@ namespace ServiceFabric.Mocks.ReplicaSet
 
         public async Task DeleteAsync()
         {
-            RunCancellation.Cancel();
+            RunCancellation.CancelAfter(0);
             if (_runAsyncTask != null)
             {
                 await _runAsyncTask;
@@ -89,7 +89,7 @@ namespace ServiceFabric.Mocks.ReplicaSet
 
         public async Task DemoteToActiveSecondaryAsync()
         {
-            RunCancellation.Cancel();
+            RunCancellation.CancelAfter(0);
             if (_runAsyncTask != null)
             {
                 await _runAsyncTask;
