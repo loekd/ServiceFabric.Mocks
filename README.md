@@ -19,6 +19,10 @@ Thank you for contributing!
 
 ## Release notes
 
+- 4.2.7
+    - Cleaned up indirect NuGet-References
+    - Changed NuGet-References to a version range to avoid updating each version.
+
 - 4.2.6
     - Call `CancellationTokenSource.CancelAfter(0)` instead of `CancellationTokenSource.Cancel` to prevent blocking.
 
