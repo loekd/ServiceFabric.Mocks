@@ -19,6 +19,9 @@ Thank you for contributing!
 
 ## Release notes
 
+- 4.2.8
+    - Update Service Fabric SDK to version 4.2.445.
+
 - 4.2.7
     - Update dependency Microsoft.NET.Test.Sdk to version 16.8.3.
 
