@@ -19,6 +19,9 @@ Thank you for contributing!
 
 ## Release notes
 
+- 4.2.7
+    - Update dependency Microsoft.NET.Test.Sdk to version 16.8.3.
+
 - 4.2.6
     - Call `CancellationTokenSource.CancelAfter(0)` instead of `CancellationTokenSource.Cancel` to prevent blocking.
 
