@@ -19,6 +19,9 @@ Thank you for contributing!
 
 ## Release notes
 
+- 4.2.7
+    - Update Service Fabric SDK to version 4.2.445
+
 - 4.2.6
     - Call `CancellationTokenSource.CancelAfter(0)` instead of `CancellationTokenSource.Cancel` to prevent blocking.
 
