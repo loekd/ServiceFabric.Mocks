@@ -19,6 +19,9 @@ Thank you for contributing!
 
 ## Release notes
 
+- 4.2.8
+    - Add support for mocking `MockCodePackageActivationContext.DataPackage` using `MockDataPackage`. See test named 'DataPackageAtMockCodePackageActivationContextTest' .
+
 - 4.2.7
     - Update Service Fabric SDK to version 4.2.445
 

@@ -258,4 +258,17 @@ namespace ServiceFabric.Mocks
             HealthInformations?.Add(healthInformation);
         }
     }
+
+    public static class CodePackageActivationContextExtensions 
+    {
+        /// <summary>
+        /// Assumes the passed instance is really a mock. Sets the <see cref="MockCodePackageActivationContext.DataPackage"/> property.
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <param name="dataPackage"></param>
+        public static void SetDataPackage(this ICodePackageActivationContext instance, DataPackage dataPackage)
+        {
+            ((MockCodePackageActivationContext)instance).DataPackage = dataPackage;
+        }
+    }
 }

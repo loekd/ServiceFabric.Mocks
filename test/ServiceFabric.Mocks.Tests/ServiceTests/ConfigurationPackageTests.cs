@@ -1,12 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Fabric;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Fabric.Description;
-using System.Security;
 using static ServiceFabric.Mocks.MockConfigurationPackage;
 
 namespace ServiceFabric.Mocks.Tests.ServiceTests
@@ -14,6 +9,37 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
     [TestClass]
     public class ConfigurationPackageTests
     {
+
+        [TestMethod]
+        public void DataPackageAtMockCodePackageActivationContextTest()
+        {
+            //arrange
+            const string path = "some://path";
+            var context = MockCodePackageActivationContext.Default;
+            const string name = "name";
+            const string version = "version";
+            const string serviceManifestName = "manifestName";
+            const string serviceManifestVersion = "manifestVersion";
+            var dataPackageDescription = MockDataPackage.CreateDataPackageDescription(name, version, serviceManifestName, serviceManifestVersion, path);
+            var dataPackage = MockDataPackage.CreateDataPackage(path, dataPackageDescription);
+            //act
+            context.SetDataPackage(dataPackage);
+
+            //assert
+            DataPackage actual = context.GetDataPackageObject("<<anything>>");
+            Assert.AreEqual(dataPackage, actual);
+            Assert.AreEqual(path, actual.Path);
+            Assert.AreEqual(name, actual.Description.Name);
+            Assert.AreEqual(version, actual.Description.Version);
+            Assert.AreEqual(serviceManifestName, actual.Description.ServiceManifestName);
+            Assert.AreEqual(serviceManifestVersion, actual.Description.ServiceManifestVersion);
+
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            Assert.AreEqual(path, actual.Description.Path);
+#pragma warning restore CS0618 // Type or member is obsolete
+        }
+
         [TestMethod]
         public void ConfigurationPackageAtMockCodePackageActivationContextTest()
         {
