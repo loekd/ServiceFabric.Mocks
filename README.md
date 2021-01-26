@@ -19,6 +19,10 @@ Thank you for contributing!
 
 ## Release notes
 
+- 4.2.9
+    - Cleaned up indirect NuGet-References
+    - Changed NuGet-References to a version range to avoid updating each version.
+
 - 4.2.8
     - Add support for mocking `MockCodePackageActivationContext.DataPackage` using `MockDataPackage`. See test named 'DataPackageAtMockCodePackageActivationContextTest' .
 
