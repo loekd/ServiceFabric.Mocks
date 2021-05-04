@@ -44,5 +44,9 @@ namespace ServiceFabric.Mocks
         public void ReportInstanceHealth(HealthInformation healthInfo, HealthReportSendOptions sendOptions)
         {
         }
+
+        public void ReportCompletion()
+        {
+        }
     }
 }

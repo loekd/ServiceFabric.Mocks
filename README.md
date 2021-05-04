@@ -21,6 +21,10 @@ Thank you for contributing!
 
 ## Release notes
 
+- 5.0.0
+    - Update Service Fabric SDK to version 5.0.514 (SF v8)
+    - add `IStatelessServicePartition.ReportCompletion` to `MockStatelessServicePartition`. Thanks @JelmerBaas for the contribution!
+
 - 4.2.9
     - Cleaned up indirect NuGet-References
     - Changed NuGet-References to a version range to avoid updating each version.
