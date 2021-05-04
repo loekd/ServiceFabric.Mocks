@@ -44,5 +44,10 @@ namespace ServiceFabric.Mocks
         public void ReportInstanceHealth(HealthInformation healthInfo, HealthReportSendOptions sendOptions)
         {
         }
+
+        /// <inheritdoc />
+        public void ReportCompletion()
+        {
+        }
     }
 }
