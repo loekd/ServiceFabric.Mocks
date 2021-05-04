@@ -20,6 +20,8 @@ Or [donate](https://paypal.me/lduys/5) a cup of coffee.
 Thank you for contributing!
 
 ## Release notes
+- 5.0.0
+    - Updated Microsoft.ServiceFabric.Actors reference to support version 5.0.514 to 6.0.0
 
 - 4.2.9
     - Cleaned up indirect NuGet-References
