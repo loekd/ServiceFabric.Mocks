@@ -4,7 +4,7 @@
     <Description>ServiceFabric.Mocks contains many mocks and helper classes to facilitate and simplify unit testing of your Service Fabric Actor and Service projects.</Description>
     <Copyright>2021</Copyright>
     <AssemblyTitle>ServiceFabric.Mocks</AssemblyTitle>
-    <Version>5.0.0</Version>
+    <Version>5.0.1</Version>
     <Authors>Loek Duys</Authors>
     <TargetFrameworks>net452;net46;netstandard2.0</TargetFrameworks>
     <PlatformTarget>x64</PlatformTarget>
@@ -38,7 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="[5.0,6.0)" />
+    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="[5.0.516,6.0)" />
   </ItemGroup>
 
 </Project>
