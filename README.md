@@ -9,7 +9,8 @@ https://www.nuget.org/packages/ServiceFabric.Mocks/
 ## Contribute!
 Contributions are most welcome:
 
-- Please upgrade the package version with a minor tick if there are no breaking changes, by changing the `<VersionPrefix>X.Y.Z</VersionPrefix>` in the [csproj file](https://github.com/loekd/ServiceFabric.Mocks/blob/master/src/ServiceFabric.Mocks/ServiceFabric.Mocks.csproj#L7) 
+- Please upgrade the package version with a minor tick if there are no breaking changes, by changing the `<VersionPrefix>X.Y.Z</VersionPrefix>` in the main [csproj file](https://github.com/loekd/ServiceFabric.Mocks/blob/master/src/ServiceFabric.Mocks/ServiceFabric.Mocks.csproj#L7) 
+and the two test projects [here](https://github.com/loekd/ServiceFabric.Mocks/blob/master/test/ServiceFabric.Mocks.NetCoreTests/ServiceFabric.Mocks.NetCoreTests.csproj) and [here](https://github.com/loekd/ServiceFabric.Mocks/blob/master/test/ServiceFabric.Mocks.Tests/ServiceFabric.Mocks.Tests.csproj)
 - Add a line to the readme.md, stating the changes, e.g. 'upgraded to SF version x.y.z'. 
 
 Doing so will allow me to simply accept the PR, which will automatically trigger the release of a new package.
