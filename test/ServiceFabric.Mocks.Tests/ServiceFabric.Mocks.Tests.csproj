@@ -35,7 +35,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.5" />
     <PackageReference Include="MSTest.TestFramework" Version="2.2.5" />
-    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="[5.1.316,6.0)" />
+    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="[5.1.329,6.0)" />
   </ItemGroup>
 
   <ItemGroup>

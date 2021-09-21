@@ -22,9 +22,12 @@ Thank you for contributing!
 
 ## Release notes
 
+- 5.0.4
+    - Update Service Fabric SDK to version 5.1.329
+
 - 5.0.3
     - Update Service Fabric SDK to version 5.1.316
-    - 
+
 - 5.0.2
     - Update Service Fabric SDK to version 5.0.521
 
