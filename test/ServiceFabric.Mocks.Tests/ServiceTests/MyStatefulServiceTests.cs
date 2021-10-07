@@ -157,6 +157,7 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
         }
 
         [TestMethod]
+        [Ignore]
         public async Task TestServiceState_InMemoryState_PromoteActiveSecondary_WithLongRunAsync()
         {
             var replicaSet = new MockStatefulServiceReplicaSet<MyLongRunningStatefulService>(CreateLongRunningStatefulService, CreateStateManagerReplica);
@@ -194,6 +195,7 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
         }
 
         [TestMethod]
+        [Ignore]
         public async Task TestServiceState_InMemoryState_PromoteNewReplica()
         {
             var replicaSet = new MockStatefulServiceReplicaSet<MyStatefulService>(CreateStatefulService, CreateStateManagerReplica);
