@@ -10,6 +10,11 @@
     /// </summary>
     public class MockTransaction : ITransaction
     {
+        /// <summary>
+        /// Gets an empty unusable transaction without state manager.
+        /// </summary>
+        public static ITransaction Empty { get; } = new MockTransaction(null, -1);
+
         private readonly MockReliableStateManager _stateManager;
         private readonly ConcurrentDictionary<Uri, ReliableCollections.TransactedCollection> _transactedCollections = new ConcurrentDictionary<Uri, ReliableCollections.TransactedCollection>();
 

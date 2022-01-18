@@ -40,6 +40,9 @@
                             case ChangeType.Updated:
                                 e = new NotifyDictionaryItemUpdatedEventArgs<TKey, TValue>(c.Transaction, c.Key, c.Added);
                                 break;
+                            case ChangeType.Cleared:
+                                e = new NotifyDictionaryClearEventArgs<TKey, TValue>(c.Transaction.TransactionId);
+                                break;
                         }
 
                         DictionaryChanged.Invoke(this, e);

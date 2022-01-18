@@ -77,6 +77,7 @@
         public Task ClearAsync()
         {
             Dictionary.Clear();
+            InternalDictionaryChanged?.Invoke(this, new DictionaryChangedEvent<TKey, TValue>(MockTransaction.Empty, ChangeType.Cleared, default, default));
             return Task.FromResult(true);
         }
 

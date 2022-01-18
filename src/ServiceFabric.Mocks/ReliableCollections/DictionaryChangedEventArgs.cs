@@ -8,6 +8,7 @@
         Added,
         Removed,
         Updated,
+        Cleared
     }
 
     /// <summary>
@@ -15,6 +16,7 @@
     ///   Added: Added is set to the value that was added.
     ///   Removed: Removed is set to the value that was removed.
     ///   Updated: Added is set to the updated value, Removed is set to the origional value.
+    ///   Cleared: Added is set null, Removed is set to null.
     /// </summary>
     public sealed class DictionaryChangedEvent<TKey, TValue> : EventArgs
     {

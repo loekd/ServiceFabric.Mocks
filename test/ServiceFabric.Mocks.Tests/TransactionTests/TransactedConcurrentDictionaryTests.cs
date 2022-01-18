@@ -20,7 +20,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s,e) =>
+                (s, e) =>
                 {
                     change = e;
                 }
@@ -66,7 +66,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s,e) =>
+                (s, e) =>
                 {
                     change = e;
                 }
@@ -98,7 +98,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s,e) =>
+                (s, e) =>
                 {
                     change = e;
                 }
@@ -118,11 +118,29 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
         }
 
         [TestMethod]
+        public async Task ClearAsyncEventTest()
+        {
+            DictionaryChangedEvent<int, string> change = null;
+            TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
+                new Uri("test://mocks", UriKind.Absolute),
+                (s, e) =>
+                {
+                    change = e;
+                }
+            );
+
+            await d.ClearAsync();
+
+            Assert.AreEqual(ChangeType.Cleared, change.ChangeType);
+            Assert.AreEqual(default, change.Removed);
+        }
+
+        [TestMethod]
         public async Task ContainsKeyAsyncTest()
         {
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s,e) =>
+                (s, e) =>
                 {
                 }
             );
@@ -147,7 +165,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s,e) =>
+                (s, e) =>
                 {
                     change = e;
                 }
@@ -157,7 +175,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
             {
                 await d.GetOrAddAsync(tx, 1, (k) => "One");
                 await d.GetOrAddAsync(tx, 1, (k) => "Two");
-              
+
                 Assert.IsNull(change);
                 await tx.CommitAsync();
                 Assert.IsNotNull(change);
@@ -172,7 +190,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s,e) =>
+                (s, e) =>
                 {
                     change = e;
                 }
@@ -229,7 +247,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s,e) =>
+                (s, e) =>
                 {
                     change = e;
                 }
@@ -275,7 +293,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s,e) =>
+                (s, e) =>
                 {
                     change = e;
                 }
@@ -307,7 +325,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s,e) =>
+                (s, e) =>
                 {
                     change = e;
                 }
@@ -349,7 +367,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s,e) =>
+                (s, e) =>
                 {
                     change = e;
                 }
@@ -387,6 +405,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
                 Assert.AreEqual("Two", change.Added);
             }
         }
+
 
         private async Task<bool> ContainsKey(TransactedConcurrentDictionary<int, string> d, int key, TimeSpan timeout = default(TimeSpan))
         {
