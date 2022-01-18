@@ -114,7 +114,7 @@ namespace ServiceFabric.Mocks.Tests.TransactionTests
             change = null;
             await d.ClearAsync();
             Assert.AreEqual(0, await GetCount(d));
-            Assert.IsNull(change);
+            Assert.IsNotNull(change);
         }
 
         [TestMethod]
