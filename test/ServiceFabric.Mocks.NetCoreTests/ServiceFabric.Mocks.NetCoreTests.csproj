@@ -6,7 +6,7 @@
     <AssemblyTitle>ServiceFabric.Mocks.NetCoreTests</AssemblyTitle>
     <VersionPrefix>1.0.0</VersionPrefix>
     <Authors>Loek Duys</Authors>
-    <TargetFramework>netcoreapp5</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <PlatformTarget>x64</PlatformTarget>
     <AssemblyName>ServiceFabric.Mocks.Tests</AssemblyName>
     <PackageId>ServiceFabric.Mocks.Tests</PackageId>
@@ -26,13 +26,11 @@
     <StartupObject />
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+  <PropertyGroup>
     <PlatformTarget>x64</PlatformTarget>
+    <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <PlatformTarget>x64</PlatformTarget>
-  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="[5.2.1363,6.0)" />
