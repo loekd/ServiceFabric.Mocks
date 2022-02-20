@@ -29,7 +29,7 @@
         protected IConcurrentDictionary<TKey, TValue> Dictionary { get; private set; }
         protected LockManager<TKey, long> LockManager { get; }
 
-        public TransactedConcurrentDictionary(Uri uri, EventHandler<DictionaryChangedEvent<TKey, TValue>> changeCallback = null, ConcurrentDictionary<Type, object> serializers = null) 
+        public TransactedConcurrentDictionary(Uri uri, EventHandler<DictionaryChangedEvent<TKey, TValue>> changeCallback = null, SerializerCollection serializers = null) 
             : base(uri)
         {
             Dictionary = new SerializedDictionary<TKey, TValue>(serializers);

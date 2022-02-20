@@ -26,8 +26,8 @@ namespace ServiceFabric.Mocks.NetCoreTests.SerializationTests
                 Content = originalContentValue
             };
 
-            System.Collections.Concurrent.ConcurrentDictionary<Type, object> serializers = new();
-            serializers.TryAdd(typeof(ModifyablePayload), new ModifyablePayloadSerializer());
+            SerializerCollection serializers = new();
+            serializers.AddSerializer(new ModifyablePayloadSerializer());
             var dictionary = new MockReliableDictionary<string, ModifyablePayload>(new Uri("fabric://MockReliableDictionary"), serializers);
             var tx = new MockTransaction(null, 1);
 
@@ -87,8 +87,8 @@ namespace ServiceFabric.Mocks.NetCoreTests.SerializationTests
                 Content = originalContentValue
             };
 
-            System.Collections.Concurrent.ConcurrentDictionary<Type, object> serializers = new();
-            serializers.TryAdd(typeof(ModifyablePayload), new ModifyablePayloadSerializer());
+            SerializerCollection serializers = new();
+            serializers.AddSerializer(new ModifyablePayloadSerializer());
             var dictionary = new MockReliableDictionary<string, ModifyablePayload>(new Uri("fabric://MockReliableDictionary"), serializers);
             var tx = new MockTransaction(null, 1);
             await dictionary.AddAsync(tx, key, value);
@@ -113,8 +113,8 @@ namespace ServiceFabric.Mocks.NetCoreTests.SerializationTests
             var key = new ModifyablePayload { Content = originalContentValue };
             const string value = "value";
 
-            System.Collections.Concurrent.ConcurrentDictionary<Type, object> serializers = new();
-            serializers.TryAdd(typeof(ModifyablePayload), new ModifyablePayloadSerializer());
+            SerializerCollection serializers = new();
+            serializers.AddSerializer(new ModifyablePayloadSerializer());
             var dictionary = new MockReliableDictionary<ModifyablePayload, string>(new Uri("fabric://MockReliableDictionary"), serializers);
             var tx = new MockTransaction(null, 1);
             await dictionary.AddAsync(tx, key, value);

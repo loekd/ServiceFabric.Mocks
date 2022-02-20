@@ -18,7 +18,7 @@
     {
         private int _totalTransactionInstanceCount;
         private readonly TransactedConcurrentDictionary<Uri, IReliableState> _store;
-        private readonly ConcurrentDictionary<Type, object> _serializers = new ConcurrentDictionary<Type, object>();
+        private readonly SerializerCollection _serializers = new SerializerCollection();
 
 
         public MockReliableStateManager(TransactedConcurrentDictionary<Uri, IReliableState> store = null)
@@ -204,7 +204,8 @@
 
         public bool TryAddStateSerializer<T>(IStateSerializer<T> stateSerializer)
         {
-            return _serializers.TryAdd(typeof(T), stateSerializer);
+            _serializers.AddSerializer(stateSerializer);
+            return true;
         }
 
         #region TrygetAsync

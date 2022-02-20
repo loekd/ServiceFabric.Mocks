@@ -23,7 +23,7 @@
         /// The constructor.
         /// </summary>
         /// <param name="uri">Uri</param>
-        public MockReliableConcurrentQueue(Uri uri, ConcurrentDictionary<Type, object> serializers = null)
+        public MockReliableConcurrentQueue(Uri uri, SerializerCollection serializers = null)
             : base(uri)
         {
             _queue = new SerializedQueue<T>(serializers);

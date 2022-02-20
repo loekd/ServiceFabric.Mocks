@@ -18,7 +18,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
 
         protected long QueueCount => _queue.Count;
 
-        public MockReliableQueue(Uri uri, ConcurrentDictionary<Type, object> serializers = null)
+        public MockReliableQueue(Uri uri, SerializerCollection serializers = null)
             : base(uri)
         {
             _queue = new SerializedQueue<T>(serializers);

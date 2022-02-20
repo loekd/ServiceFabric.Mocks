@@ -20,7 +20,7 @@
     {
         public long Count => Dictionary.Count;
 
-        public MockReliableDictionary(Uri uri, ConcurrentDictionary<Type, object> serializers = null)
+        public MockReliableDictionary(Uri uri, SerializerCollection serializers = null)
             : base(uri, serializers: serializers)
         {
             // Set the OnDictionaryChanged callback to fire the DictionaryChanged event.

@@ -31,24 +31,79 @@ namespace ServiceFabric.Mocks.ReliableCollections
 
 
     /// <summary>
-    /// Base type for collections that serialize their values.
+    /// Concurrent collection for state serializers.
     /// </summary>
-    public abstract class SerializedCollection
+    public class SerializerCollection
     {
         /// <summary>
         /// Gets the registered collection of <see cref="Microsoft.ServiceFabric.Data.IStateSerializer{T}"/>
         /// </summary>
-        protected ConcurrentDictionary<Type, object> Serializers { get; }
+        private ConcurrentDictionary<Type, object> Serializers { get; }
 
         /// <summary>
         /// Creates a new instance using the provided collection of <see cref="Microsoft.ServiceFabric.Data.IStateSerializer{T}"/>
         /// </summary>
         /// <param name="serializers"></param>
-        public SerializedCollection(ConcurrentDictionary<Type, object> serializers = null)
+        internal SerializerCollection(ConcurrentDictionary<Type, object> serializers = null)
         {
             Serializers = serializers ?? new ConcurrentDictionary<Type, object>();
         }
+        /// <summary>
+        /// Creates a new default instance.
+        /// </summary>
+        public SerializerCollection() : this(null){}
 
+        /// <summary>
+        /// Registers a serializer for type T.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="serializer"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public void AddSerializer<T>(Microsoft.ServiceFabric.Data.IStateSerializer<T> serializer)
+        {
+            if (serializer is null)
+            {
+                throw new ArgumentNullException(nameof(serializer));
+            }
+
+            Serializers.TryAdd(typeof(T), serializer);
+        }
+
+        /// <summary>
+        /// Unregisters a serializer for type T.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="serializer"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public void RemoveSerializer<T>(Microsoft.ServiceFabric.Data.IStateSerializer<T> serializer)
+        {
+            if (serializer is null)
+            {
+                throw new ArgumentNullException(nameof(serializer));
+            }
+
+            Serializers.TryRemove(typeof(T), out var _);
+        }
+
+        /// <summary>
+        /// Gets a serializer based on the type of <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="serializer"></param>
+        /// <returns></returns>
+        public bool TryGetSerializer<T>(out Microsoft.ServiceFabric.Data.IStateSerializer<T> serializer)
+        {
+            bool ok = Serializers.TryGetValue(typeof(T), out var value);
+            serializer = (Microsoft.ServiceFabric.Data.IStateSerializer<T>)value;
+            return ok;
+        }
+    }
+
+    /// <summary>
+    /// Base type for collections that serialize their values.
+    /// </summary>
+    public abstract class SerializedCollection
+    {
         /// <summary>
         /// If the provided value is a stream, a serializer will be used to deserialize the stream into an object.
         /// If the value is anything else, it will be returned unmodified.
@@ -69,7 +124,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
             {
                 //reset stream and deserialize
                 stream.Seek(0, SeekOrigin.Begin);
-                if(serializer is null)
+                if (serializer is null)
                 {
                     throw new InvalidOperationException($"State value is of type Stream, but no serializer was found. Call 'AddSerializer<T>' for type '{value.GetType().Name}'");
                 }
@@ -111,45 +166,6 @@ namespace ServiceFabric.Mocks.ReliableCollections
             }
             return stream;
         }
-
-        /// <summary>
-        /// Registers a serializer for type T.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="serializer"></param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public void AddSerializer<T>(Microsoft.ServiceFabric.Data.IStateSerializer<T> serializer)
-        {
-            if (serializer is null)
-            {
-                throw new ArgumentNullException(nameof(serializer));
-            }
-
-            Serializers.TryAdd(typeof(T), serializer);
-        }
-
-        /// <summary>
-        /// Unregisters a serializer for type T.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="serializer"></param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public void RemoveSerializer<T>(Microsoft.ServiceFabric.Data.IStateSerializer<T> serializer)
-        {
-            if (serializer is null)
-            {
-                throw new ArgumentNullException(nameof(serializer));
-            }
-
-            Serializers.TryRemove(typeof(T), out var _);
-        }
-
-        protected bool TryGetSerializer<T>(out Microsoft.ServiceFabric.Data.IStateSerializer<T> serializer)
-        {
-            bool ok = Serializers.TryGetValue(typeof(T), out var value);
-            serializer = (Microsoft.ServiceFabric.Data.IStateSerializer<T>)value;
-            return ok;
-        }
     }
 
     /// <summary>
@@ -167,11 +183,11 @@ namespace ServiceFabric.Mocks.ReliableCollections
         /// Creates a new instance using the provided collection of <see cref="Microsoft.ServiceFabric.Data.IStateSerializer{T}"/>.
         /// </summary>
         /// <param name="serializers"></param>
-        public SerializedDictionary(ConcurrentDictionary<Type, object> serializers = null)
-            : base(serializers)
+        public SerializedDictionary(SerializerCollection serializers = null)
         {
-            TryGetSerializer(out _keySerializer);
-            TryGetSerializer(out _valueSerializer);
+            if (serializers == null) return;
+            serializers.TryGetSerializer(out _keySerializer);
+            serializers.TryGetSerializer(out _valueSerializer);
         }
 
         /// <inheritdoc />
@@ -333,10 +349,9 @@ namespace ServiceFabric.Mocks.ReliableCollections
         /// Creates a new instance using the provided collection of <see cref="Microsoft.ServiceFabric.Data.IStateSerializer{T}"/>.
         /// </summary>
         /// <param name="serializers"></param>
-        public SerializedQueue(ConcurrentDictionary<Type, object> serializers = null)
-            : base(serializers)
+        public SerializedQueue(SerializerCollection serializers = null)
         {
-            TryGetSerializer(out _valueSerializer);
+            serializers?.TryGetSerializer(out _valueSerializer);
         }
 
         /// <summary>

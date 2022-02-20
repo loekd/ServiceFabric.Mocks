@@ -19,8 +19,8 @@ namespace ServiceFabric.Mocks.NetCoreTests.SerializationTests
                 Content = originalContentValue
             };
 
-            System.Collections.Concurrent.ConcurrentDictionary<Type, object> serializers = new();
-            serializers.TryAdd(typeof(ModifyablePayload), new ModifyablePayloadSerializer());
+            SerializerCollection serializers = new();
+            serializers.AddSerializer(new ModifyablePayloadSerializer());
             var q = new MockReliableConcurrentQueue<ModifyablePayload>(new Uri("test://queue"), serializers);
 
             var tx = new MockTransaction(null, 1);
