@@ -3,6 +3,7 @@
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading;
@@ -14,7 +15,7 @@
     /// <typeparam name="T"></typeparam>
     public class MockReliableConcurrentQueue<T> : TransactedCollection, IReliableConcurrentQueue<T>
     {
-        private readonly List<T> _queue = new List<T>();
+        private readonly SerializedQueue<T> _queue;
         private readonly long _queueEmptyTransactionId = -1;
         private readonly Lock<long> _queueEmptyLock = new Lock<long>();
 
@@ -22,9 +23,11 @@
         /// The constructor.
         /// </summary>
         /// <param name="uri">Uri</param>
-        public MockReliableConcurrentQueue(Uri uri)
+        public MockReliableConcurrentQueue(Uri uri, ConcurrentDictionary<Type, object> serializers = null)
             : base(uri)
-        { }
+        {
+            _queue = new SerializedQueue<T>(serializers);
+        }
 
         /// <summary>
         /// Release any locks the transaction may have on _queueEmptyLock.
@@ -90,10 +93,8 @@
                     {
                         if (_queue.Count > 0)
                         {
-                            T value = _queue[0];
-                            _queue.RemoveAt(0);
+                            T value = _queue.Dequeue();
                             AddAbortAction(tx, () => OnAbort(value));
-
                             return new ConditionalValue<T>(true, value);
                         }
                         else
@@ -124,7 +125,7 @@
                 }
             }
 
-            return default(ConditionalValue<T>);
+            return default;
         }
 
         /// <summary>
@@ -136,7 +137,7 @@
         {
             lock (_queue)
             {
-                _queue.Add(value);
+                _queue.Enqueue(value);
                 _queueEmptyLock.Release(_queueEmptyTransactionId);
             }
 
@@ -153,7 +154,7 @@
         {
             lock (_queue)
             {
-                _queue.Insert(0, value);
+                _queue.Push(value);
                 _queueEmptyLock.Release(_queueEmptyTransactionId);
             }
 

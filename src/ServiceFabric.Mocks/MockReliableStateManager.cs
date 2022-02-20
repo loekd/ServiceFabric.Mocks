@@ -5,6 +5,7 @@
     using Microsoft.ServiceFabric.Data.Notifications;
     using ReliableCollections;
     using System;
+    using System.Collections.Concurrent;
     using System.Fabric;
     using System.IO;
     using System.Threading;
@@ -17,6 +18,8 @@
     {
         private int _totalTransactionInstanceCount;
         private readonly TransactedConcurrentDictionary<Uri, IReliableState> _store;
+        private readonly ConcurrentDictionary<Type, object> _serializers = new ConcurrentDictionary<Type, object>();
+
 
         public MockReliableStateManager(TransactedConcurrentDictionary<Uri, IReliableState> store = null)
         {
@@ -201,7 +204,7 @@
 
         public bool TryAddStateSerializer<T>(IStateSerializer<T> stateSerializer)
         {
-            return true;
+            return _serializers.TryAdd(typeof(T), stateSerializer);
         }
 
         #region TrygetAsync
@@ -309,10 +312,10 @@
             MockTransactionChanged?.Invoke(this, (MockTransaction)tx);
         }
 
-        private static IReliableState ConstructMockCollection(Uri name, Type genericType, Type[] typeArguments)
+        private IReliableState ConstructMockCollection(Uri name, Type genericType, Type[] typeArguments)
         {
             var type = genericType.MakeGenericType(typeArguments);
-            var reliable = (IReliableState)Activator.CreateInstance(type, name);
+            var reliable = (IReliableState)Activator.CreateInstance(type, name, _serializers);
 
             return reliable;
         }

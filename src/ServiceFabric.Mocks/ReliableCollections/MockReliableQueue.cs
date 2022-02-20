@@ -1,28 +1,28 @@
-﻿using System.Collections;
+﻿using Microsoft.ServiceFabric.Data;
+using Microsoft.ServiceFabric.Data.Collections;
+using System;
+using System.Collections.Concurrent;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ServiceFabric.Mocks.ReliableCollections
 {
-    using Microsoft.ServiceFabric.Data;
-    using Microsoft.ServiceFabric.Data.Collections;
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
-    using System.Threading.Tasks;
-
     /// <summary>
     /// Implements IReliableQueue.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class MockReliableQueue<T> : TransactedCollection, IReliableQueue<T>
     {
-        private readonly IndexedQueue<T> _queue = new IndexedQueue<T>();
+        private readonly SerializedQueue<T> _queue;
         private readonly Lock<long> _lock = new Lock<long>();
 
         protected long QueueCount => _queue.Count;
 
-        public MockReliableQueue(Uri uri)
+        public MockReliableQueue(Uri uri, ConcurrentDictionary<Type, object> serializers = null)
             : base(uri)
-        { }
+        {
+            _queue = new SerializedQueue<T>(serializers);
+        }
 
         public override void ReleaseLocks(ITransaction tx)
         {
@@ -44,7 +44,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
 
         public Task EnqueueAsync(ITransaction tx, T item)
         {
-            return EnqueueAsync(tx, item, default(TimeSpan), CancellationToken.None);
+            return EnqueueAsync(tx, item, default, CancellationToken.None);
         }
 
         public async Task EnqueueAsync(ITransaction tx, T item, TimeSpan timeout, CancellationToken cancellationToken)
@@ -72,7 +72,11 @@ namespace ServiceFabric.Mocks.ReliableCollections
             if (_queue.Count > 0)
             {
                 T item = _queue.Dequeue();
-                AddAbortAction(tx, () => { _queue.AddToFront(item); return true; });
+                AddAbortAction(tx, () => 
+                { 
+                    _queue.Push(item); 
+                    return true; 
+                });
 
                 return new ConditionalValue<T>(true, item);
             }
@@ -92,7 +96,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
 
         public Task<ConditionalValue<T>> TryPeekAsync(ITransaction tx, LockMode lockMode)
         {
-            return TryPeekAsync(tx, lockMode, default(TimeSpan), default(CancellationToken));
+            return TryPeekAsync(tx, lockMode, default, default);
         }
 
         public async Task<ConditionalValue<T>> TryPeekAsync(ITransaction tx, LockMode lockMode, TimeSpan timeout, CancellationToken cancellationToken)
@@ -104,59 +108,6 @@ namespace ServiceFabric.Mocks.ReliableCollections
             }
 
             return new ConditionalValue<T>();
-        }
-    }
-
-    internal class IndexedQueue<T> : IEnumerable<T>
-    {
-        private readonly LinkedList<T> _inner = new LinkedList<T>();
-        public long Count => _inner.Count;
-
-        public void AddToFront(T element)
-        {
-            _inner.AddFirst(element);
-        }
-
-
-        public void Clear()
-        {
-            _inner.Clear();
-        }
-
-        public void Enqueue(T item)
-        {
-            _inner.AddLast(item);
-        }
-
-        public T Dequeue()
-        {
-            if (_inner.Count < 1) return default(T);
-            var element = _inner.First.Value;
-            _inner.RemoveFirst();
-            return element;
-        }
-
-        /// <inheritdoc />
-        public IEnumerator<T> GetEnumerator()
-        {
-            return _inner.GetEnumerator();
-        }
-
-        /// <inheritdoc />
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        public T Peek()
-        {
-            if (_inner.Count < 1) return default(T);
-            return _inner.First.Value;
-        }
-
-        public void Remove(T item)
-        {
-            _inner.Remove(item);
         }
     }
 }

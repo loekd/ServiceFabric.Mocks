@@ -4,6 +4,7 @@
     using Microsoft.ServiceFabric.Data.Collections;
     using Microsoft.ServiceFabric.Data.Notifications;
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
@@ -19,12 +20,11 @@
     {
         public long Count => Dictionary.Count;
 
-        public MockReliableDictionary(Uri uri)
-            : base(uri)
+        public MockReliableDictionary(Uri uri, ConcurrentDictionary<Type, object> serializers = null)
+            : base(uri, serializers: serializers)
         {
             // Set the OnDictionaryChanged callback to fire the DictionaryChanged event.
-            InternalDictionaryChanged +=
-                (sender, c) =>
+            InternalDictionaryChanged += (sender, c) =>
                 {
                     if (DictionaryChanged != null)
                     {
@@ -60,8 +60,6 @@
             get;
             set;
         }
-
-
 
         public event EventHandler<NotifyDictionaryChangedEventArgs<TKey, TValue>> DictionaryChanged;
         public event EventHandler<DictionaryChangedEvent<TKey, TValue>> MockDictionaryChanged;

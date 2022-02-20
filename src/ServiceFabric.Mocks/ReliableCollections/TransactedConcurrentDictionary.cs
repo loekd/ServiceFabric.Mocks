@@ -26,13 +26,13 @@
         internal event EventHandler<DictionaryChangedEvent<TKey, TValue>> InternalDictionaryChanged;
 
         public IEnumerable<TValue> ValuesEnumerable => Dictionary.Values;
-        protected ConcurrentDictionary<TKey, TValue> Dictionary { get; private set; }
+        protected IConcurrentDictionary<TKey, TValue> Dictionary { get; private set; }
         protected LockManager<TKey, long> LockManager { get; }
 
-        public TransactedConcurrentDictionary(Uri uri, EventHandler<DictionaryChangedEvent<TKey, TValue>> changeCallback = null)
+        public TransactedConcurrentDictionary(Uri uri, EventHandler<DictionaryChangedEvent<TKey, TValue>> changeCallback = null, ConcurrentDictionary<Type, object> serializers = null) 
             : base(uri)
         {
-            Dictionary = new ConcurrentDictionary<TKey, TValue>();
+            Dictionary = new SerializedDictionary<TKey, TValue>(serializers);
             LockManager = new LockManager<TKey, long>();
             if (changeCallback != null)
                 InternalDictionaryChanged += changeCallback;
@@ -57,7 +57,7 @@
         public void Deserialize(Stream stream)
         {
             var formatter = new BinaryFormatter();
-            Dictionary = (ConcurrentDictionary<TKey, TValue>)formatter.Deserialize(stream);
+            Dictionary = (SerializedDictionary<TKey, TValue>)formatter.Deserialize(stream);
         }
 
         /// <summary>
