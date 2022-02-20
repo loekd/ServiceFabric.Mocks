@@ -1,4 +1,5 @@
 ﻿using Microsoft.ServiceFabric.Data;
+using System;
 using System.IO;
 using System.Runtime.Serialization;
 
@@ -18,7 +19,7 @@ namespace ServiceFabric.Mocks.NetCoreTests
 
 
     [DataContract]
-    public class ModifyablePayload
+    public class ModifyablePayload : IEquatable<ModifyablePayload>, IComparable<ModifyablePayload>
     {
         [DataMember]
         public string Content { get; set; }
@@ -29,6 +30,29 @@ namespace ServiceFabric.Mocks.NetCoreTests
         }
         public ModifyablePayload()
         {
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || obj is not ModifyablePayload payload) return false;
+
+            return Equals(payload);
+        }
+
+        public override int GetHashCode()
+        {
+            return Content.GetHashCode();
+        }
+
+        public bool Equals(ModifyablePayload other)
+        {
+            return string.Equals(other.Content, Content, StringComparison.Ordinal);
+        }
+
+        public int CompareTo(ModifyablePayload other)
+        {
+            if (other == null) return 1;
+            return string.CompareOrdinal(other.Content, Content);
         }
     }
 
