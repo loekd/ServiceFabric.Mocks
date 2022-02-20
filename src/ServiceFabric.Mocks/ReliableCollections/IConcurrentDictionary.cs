@@ -69,8 +69,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
             {
                 //reset stream and deserialize
                 stream.Seek(0, SeekOrigin.Begin);
-                Serializers.TryGetValue(typeof(T), out var obj);
-                if (!(obj is Microsoft.ServiceFabric.Data.IStateSerializer<T> serializer))
+                if(!TryGetSerializer<T>(typeof(T), out var serializer))
                 {
                     throw new InvalidOperationException($"State value is of type Stream, but no serializer was found. Call 'AddSerializer<T>' for type '{value.GetType().Name}'");
                 }
@@ -97,8 +96,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
             if (value == null)
                 return null;
 
-            Serializers.TryGetValue(typeof(T), out var obj);
-            if (!(obj is Microsoft.ServiceFabric.Data.IStateSerializer<T> serializer))
+            if (!TryGetSerializer<T>(typeof(T), out var serializer))
             {
                 //return regular value if there is no serializer for this type
                 return value;
@@ -144,6 +142,14 @@ namespace ServiceFabric.Mocks.ReliableCollections
             }
 
             Serializers.TryRemove(typeof(T), out var _);
+        }
+
+        //TODO: should we include inheritance?
+        public bool TryGetSerializer<T>(Type type, out Microsoft.ServiceFabric.Data.IStateSerializer<T> serializer)
+        {
+            bool ok = Serializers.TryGetValue(type, out var value);
+            serializer = (Microsoft.ServiceFabric.Data.IStateSerializer<T>)value;
+            return ok;
         }
     }
 

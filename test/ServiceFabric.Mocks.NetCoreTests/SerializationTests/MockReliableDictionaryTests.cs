@@ -32,15 +32,45 @@ namespace ServiceFabric.Mocks.NetCoreTests.SerializationTests
             var tx = new MockTransaction(null, 1);
 
             await dictionary.AddAsync(tx, key, value);
+            await tx.CommitAsync();
+
 
             //modify in-memory state
             value.Content = modifiedContentValue;
 
+            tx = new MockTransaction(null, 1);
             var actual = await dictionary.TryGetValueAsync(tx, key);
 
             //original content remains the same
             Assert.AreEqual(originalContentValue, actual.Value.Content);
-            Assert.AreNotSame(value, actual);
+            Assert.AreNotSame(value, actual.Value);
+        }
+
+        [TestMethod]
+        public async Task DictionaryNotSerializedValueChangesRemainTest()
+        {
+            const string key = "key";
+
+            var value = new ModifyablePayload
+            {
+                Content = originalContentValue
+            };
+
+            var dictionary = new MockReliableDictionary<string, ModifyablePayload>(new Uri("fabric://MockReliableDictionary"));
+            var tx = new MockTransaction(null, 1);
+            await dictionary.AddAsync(tx, key, value);
+            await tx.CommitAsync();
+
+
+            //modify in-memory state
+            value.Content = modifiedContentValue;
+
+            tx = new MockTransaction(null, 1);
+            var actual = await dictionary.TryGetValueAsync(tx, key);
+
+            //modified content remains the same
+            Assert.AreEqual(modifiedContentValue, actual.Value.Content);
+            Assert.AreSame(value, actual.Value);//same instance
         }
 
         /// <summary>
@@ -61,15 +91,16 @@ namespace ServiceFabric.Mocks.NetCoreTests.SerializationTests
             serializers.TryAdd(typeof(ModifyablePayload), new ModifyablePayloadSerializer());
             var dictionary = new MockReliableDictionary<string, ModifyablePayload>(new Uri("fabric://MockReliableDictionary"), serializers);
             var tx = new MockTransaction(null, 1);
-
             await dictionary.AddAsync(tx, key, value);
+            await tx.CommitAsync();
 
+            tx = new MockTransaction(null, 1);
             var actual = await dictionary.TryGetValueAsync(tx, key);
 
             Assert.AreEqual(originalContentValue, actual.Value.Content);
             //original value remains the same, but different instance
             Assert.AreEqual(value, actual.Value);
-            Assert.AreNotSame(value, actual);
+            Assert.AreNotSame(value, actual.Value);
         }
 
         /// <summary>
@@ -86,8 +117,10 @@ namespace ServiceFabric.Mocks.NetCoreTests.SerializationTests
             serializers.TryAdd(typeof(ModifyablePayload), new ModifyablePayloadSerializer());
             var dictionary = new MockReliableDictionary<ModifyablePayload, string>(new Uri("fabric://MockReliableDictionary"), serializers);
             var tx = new MockTransaction(null, 1);
-
             await dictionary.AddAsync(tx, key, value);
+            await tx.CommitAsync();
+
+            tx = new MockTransaction(null, 1);
             var enumerable = await dictionary.CreateKeyEnumerableAsync(tx);
             var enumerator = enumerable.GetAsyncEnumerator();
             await enumerator.MoveNextAsync(CancellationToken.None);
