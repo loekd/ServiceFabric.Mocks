@@ -57,7 +57,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
         /// <param name="value"></param>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
-        protected T Deserialize<T>(object value)
+        protected T Deserialize<T>(Microsoft.ServiceFabric.Data.IStateSerializer<T> serializer, object value)
         {
             T result = default;
 
@@ -69,7 +69,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
             {
                 //reset stream and deserialize
                 stream.Seek(0, SeekOrigin.Begin);
-                if(!TryGetSerializer<T>(typeof(T), out var serializer))
+                if(serializer is null)
                 {
                     throw new InvalidOperationException($"State value is of type Stream, but no serializer was found. Call 'AddSerializer<T>' for type '{value.GetType().Name}'");
                 }
@@ -91,12 +91,12 @@ namespace ServiceFabric.Mocks.ReliableCollections
         /// <typeparam name="T"></typeparam>
         /// <param name="value"></param>
         /// <returns></returns>
-        protected object Serialize<T>(T value)
+        protected object Serialize<T>(Microsoft.ServiceFabric.Data.IStateSerializer<T> serializer, T value)
         {
             if (value == null)
                 return null;
 
-            if (!TryGetSerializer<T>(typeof(T), out var serializer))
+            if (serializer is null)
             {
                 //return regular value if there is no serializer for this type
                 return value;
@@ -144,10 +144,9 @@ namespace ServiceFabric.Mocks.ReliableCollections
             Serializers.TryRemove(typeof(T), out var _);
         }
 
-        //TODO: should we include inheritance?
-        public bool TryGetSerializer<T>(Type type, out Microsoft.ServiceFabric.Data.IStateSerializer<T> serializer)
+        protected bool TryGetSerializer<T>(out Microsoft.ServiceFabric.Data.IStateSerializer<T> serializer)
         {
-            bool ok = Serializers.TryGetValue(type, out var value);
+            bool ok = Serializers.TryGetValue(typeof(T), out var value);
             serializer = (Microsoft.ServiceFabric.Data.IStateSerializer<T>)value;
             return ok;
         }
@@ -161,6 +160,8 @@ namespace ServiceFabric.Mocks.ReliableCollections
     public class SerializedDictionary<TKey, TValue> : SerializedCollection, IConcurrentDictionary<TKey, TValue>
     {
         private readonly ConcurrentDictionary<object, object> _inner = new ConcurrentDictionary<object, object>();
+        private readonly Microsoft.ServiceFabric.Data.IStateSerializer<TKey> _keySerializer;
+        private readonly Microsoft.ServiceFabric.Data.IStateSerializer<TValue> _valueSerializer;
 
         /// <summary>
         /// Creates a new instance using the provided collection of <see cref="Microsoft.ServiceFabric.Data.IStateSerializer{T}"/>.
@@ -169,49 +170,51 @@ namespace ServiceFabric.Mocks.ReliableCollections
         public SerializedDictionary(ConcurrentDictionary<Type, object> serializers = null)
             : base(serializers)
         {
+            TryGetSerializer(out _keySerializer);
+            TryGetSerializer(out _valueSerializer);
         }
 
         /// <inheritdoc />
         public TValue this[TKey key]
         {
-            get => Deserialize<TValue>(_inner[Serialize(key)]);
-            set => _inner[Serialize(key)] = Serialize(value);
+            get => Deserialize(_valueSerializer, _inner[Serialize(_keySerializer, key)]);
+            set => _inner[Serialize(_keySerializer, key)] = Serialize(_valueSerializer, value);
         }
         /// <inheritdoc />
         public bool IsReadOnly => false;
         /// <inheritdoc />
         public int Count => _inner.Count;
         /// <inheritdoc />
-        ICollection<TKey> IDictionary<TKey, TValue>.Keys => _inner.Keys.Select(k => Deserialize<TKey>(k)).ToList();
+        ICollection<TKey> IDictionary<TKey, TValue>.Keys => _inner.Keys.Select(k => Deserialize(_keySerializer, k)).ToList();
         /// <inheritdoc />
-        ICollection<TValue> IDictionary<TKey, TValue>.Values => _inner.Values.Select(v => Deserialize<TValue>(v)).ToList();
+        ICollection<TValue> IDictionary<TKey, TValue>.Values => _inner.Values.Select(v => Deserialize(_valueSerializer, v)).ToList();
         /// <inheritdoc />
         public void Add(TKey key, TValue value)
         {
-            var serializedKey = Serialize(key);
-            _inner.TryAdd(serializedKey, Serialize(value));
+            var serializedKey = Serialize(_keySerializer, key);
+            _inner.TryAdd(serializedKey, Serialize(_valueSerializer, value));
         }
         /// <inheritdoc />
         public void Add(KeyValuePair<TKey, TValue> item)
         {
-            var serializedKey = Serialize(item.Key);
-            _inner.TryAdd(serializedKey, Serialize(item.Value));
+            var serializedKey = Serialize(_keySerializer, item.Key);
+            _inner.TryAdd(serializedKey, Serialize(_valueSerializer, item.Value));
         }
         /// <inheritdoc />
         public TValue AddOrUpdate(TKey key, Func<TKey, TValue> addValueFactory, Func<TKey, TValue, TValue> updateValueFactory)
         {
-            var serializedKey = Serialize(key);
+            var serializedKey = Serialize(_keySerializer, key);
             if (_inner.TryGetValue(serializedKey, out var existingSerializedValue))
             {
 
-                TValue newValue = updateValueFactory(key, Deserialize<TValue>(existingSerializedValue));
-                _inner.TryUpdate(serializedKey, Serialize(newValue), existingSerializedValue);
+                TValue newValue = updateValueFactory(key, Deserialize(_valueSerializer, existingSerializedValue));
+                _inner.TryUpdate(serializedKey, Serialize(_valueSerializer, newValue), existingSerializedValue);
                 return newValue;
             }
             else
             {
                 TValue newValue = addValueFactory(key);
-                _inner.TryAdd(serializedKey, Serialize(newValue));
+                _inner.TryAdd(serializedKey, Serialize(_valueSerializer, newValue));
                 return newValue;
             }
         }
@@ -233,7 +236,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
         /// <inheritdoc />
         public bool ContainsKey(TKey key)
         {
-            return _inner.ContainsKey(Serialize(key));
+            return _inner.ContainsKey(Serialize(_keySerializer, key));
         }
         /// <inheritdoc />
         public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
@@ -248,7 +251,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
         /// <inheritdoc />
         public bool Remove(TKey key)
         {
-            return ((IDictionary<object, object>)_inner).Remove(Serialize(key));
+            return ((IDictionary<object, object>)_inner).Remove(Serialize(_keySerializer, key));
         }
         /// <inheritdoc />
         public bool Remove(KeyValuePair<TKey, TValue> item)
@@ -258,15 +261,15 @@ namespace ServiceFabric.Mocks.ReliableCollections
         /// <inheritdoc />
         public bool TryAdd(TKey key, TValue value)
         {
-            return _inner.TryAdd(Serialize(key), Serialize(value));
+            return _inner.TryAdd(Serialize(_keySerializer, key), Serialize(_valueSerializer, value));
         }
         /// <inheritdoc />
         public bool TryGetValue(TKey key, out TValue value)
         {
-            bool ok = _inner.TryGetValue(Serialize(key), out var serializedValue);
+            bool ok = _inner.TryGetValue(Serialize(_keySerializer, key), out var serializedValue);
             if (ok)
             {
-                value = Deserialize<TValue>(serializedValue);
+                value = Deserialize(_valueSerializer, serializedValue);
             }
             else
             {
@@ -277,10 +280,10 @@ namespace ServiceFabric.Mocks.ReliableCollections
         /// <inheritdoc />
         public bool TryRemove(TKey key, out TValue value)
         {
-            bool ok = _inner.TryRemove(Serialize(key), out var serializedValue);
+            bool ok = _inner.TryRemove(Serialize(_keySerializer, key), out var serializedValue);
             if (ok)
             {
-                value = Deserialize<TValue>(serializedValue);
+                value = Deserialize(_valueSerializer, serializedValue);
             }
             else
             {
@@ -291,7 +294,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
         /// <inheritdoc />
         public bool TryUpdate(TKey key, TValue newValue, TValue comparisonValue)
         {
-            return _inner.TryUpdate(Serialize(key), Serialize(newValue), Serialize(comparisonValue));
+            return _inner.TryUpdate(Serialize(_keySerializer, key), Serialize(_valueSerializer, newValue), Serialize(_valueSerializer, comparisonValue));
         }
         /// <inheritdoc />
         IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
@@ -304,12 +307,12 @@ namespace ServiceFabric.Mocks.ReliableCollections
 
         private KeyValuePair<object, object> SerializeKeyValuePair(KeyValuePair<TKey, TValue> item)
         {
-            return new KeyValuePair<object, object>(Serialize(item.Key), Serialize(item.Value));
+            return new KeyValuePair<object, object>(Serialize(_keySerializer, item.Key), Serialize(_valueSerializer, item.Value));
         }
 
         private KeyValuePair<TKey, TValue> DeserializeKeyValuePair(KeyValuePair<object, object> item)
         {
-            return new KeyValuePair<TKey, TValue>(Deserialize<TKey>(item.Key), Deserialize<TValue>(item.Value));
+            return new KeyValuePair<TKey, TValue>(Deserialize(_keySerializer, item.Key), Deserialize(_valueSerializer, item.Value));
         }
     }
 
@@ -321,6 +324,8 @@ namespace ServiceFabric.Mocks.ReliableCollections
     public class SerializedQueue<TValue> : SerializedCollection, IEnumerable<TValue>
     {
         private readonly ArrayList _inner = new ArrayList();
+        private readonly Microsoft.ServiceFabric.Data.IStateSerializer<TValue> _valueSerializer;
+
         /// <inheritdoc />
         public long Count => _inner.Count;
 
@@ -331,6 +336,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
         public SerializedQueue(ConcurrentDictionary<Type, object> serializers = null)
             : base(serializers)
         {
+            TryGetSerializer(out _valueSerializer);
         }
 
         /// <summary>
@@ -345,7 +351,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
             }
             var serializedValue = _inner[0];
             _inner.RemoveAt(0);
-            return Deserialize<TValue>(serializedValue);
+            return Deserialize(_valueSerializer, serializedValue);
         }
 
         /// <summary>
@@ -354,7 +360,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
         /// <param name="value"></param>
         public void Enqueue(TValue value)
         {
-            _inner.Add(Serialize(value));
+            _inner.Add(Serialize(_valueSerializer, value));
         }
 
         /// <summary>
@@ -363,7 +369,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
         /// <param name="value"></param>
         public void Push(TValue value)
         {
-            _inner.Insert(0, Serialize(value));
+            _inner.Insert(0, Serialize(_valueSerializer, value));
         }
 
         /// <inheritdoc />
@@ -371,7 +377,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
         {
             foreach (var item in _inner)
             {
-                yield return Deserialize<TValue>(item);
+                yield return Deserialize<TValue>(_valueSerializer, item);
             }
         }
 
@@ -392,7 +398,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
                 return default;
             }
             var serializedValue = _inner[0];
-            return Deserialize<TValue>(serializedValue);
+            return Deserialize(_valueSerializer, serializedValue);
         }
 
         /// <summary>
@@ -401,7 +407,7 @@ namespace ServiceFabric.Mocks.ReliableCollections
         /// <param name="item"></param>
         public void Remove(TValue item)
         {
-            _inner.Remove(item);
+            _inner.Remove(Serialize(_valueSerializer, item));
         }
 
         /// <summary>
