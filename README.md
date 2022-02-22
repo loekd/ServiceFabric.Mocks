@@ -22,6 +22,11 @@ Thank you for contributing!
 
 ## Release notes
 
+- 6.0.0
+    - Removed support for unsupported .NET 4.5 & removed old unit test project & moved to remaining test project to .NET 6
+    - Added support for state serialization using `TryAddStateSerializer()`. Thanks for your contribution @enioluwas!
+    - See `MockReliableDictionaryTests` on how to use the new opt-in behavior. Existing tests should continue to work.
+
 - 5.0.6
     - Update Service Fabric SDK to version 5.2.1363
     - Fix issue #120 reported by gtcooke94. Notification for reliable dictionary clearing.

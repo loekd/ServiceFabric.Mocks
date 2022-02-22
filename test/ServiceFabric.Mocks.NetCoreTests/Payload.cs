@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Runtime.Serialization;
+using System.Text.Json;
 
 namespace ServiceFabric.Mocks.NetCoreTests
 {
@@ -19,10 +20,13 @@ namespace ServiceFabric.Mocks.NetCoreTests
 
 
     [DataContract]
-    public class ModifyablePayload : IEquatable<ModifyablePayload>, IComparable<ModifyablePayload>
+    public record class ModifyablePayload : IComparable<ModifyablePayload>
     {
         [DataMember]
         public string Content { get; set; }
+
+        [DataMember]
+        public string OtherContent { get; set; }
 
         public ModifyablePayload(string content)
         {
@@ -32,32 +36,17 @@ namespace ServiceFabric.Mocks.NetCoreTests
         {
         }
 
-        public override bool Equals(object obj)
-        {
-            if (obj == null || obj is not ModifyablePayload payload) return false;
-
-            return Equals(payload);
-        }
-
-        public override int GetHashCode()
-        {
-            return Content.GetHashCode();
-        }
-
-        public bool Equals(ModifyablePayload other)
-        {
-            return string.Equals(other.Content, Content, StringComparison.Ordinal);
-        }
-
         public int CompareTo(ModifyablePayload other)
         {
             if (other == null) return 1;
-            return string.CompareOrdinal(other.Content, Content);
+            return string.Compare(Content + OtherContent, other.Content + other.OtherContent);
         }
     }
 
     public class ModifyablePayloadSerializer : IStateSerializer<ModifyablePayload>
     {
+        private const string _nullValue = "<<null>>";
+
         public ModifyablePayload Read(BinaryReader binaryReader)
         {
             return Read(new ModifyablePayload(), binaryReader);
@@ -66,6 +55,15 @@ namespace ServiceFabric.Mocks.NetCoreTests
         public ModifyablePayload Read(ModifyablePayload baseValue, BinaryReader binaryReader)
         {
             baseValue.Content = binaryReader.ReadString();
+            baseValue.OtherContent = binaryReader.ReadString();
+            if (string.Equals(baseValue.Content, _nullValue, StringComparison.Ordinal))
+            {
+                baseValue.Content = null;
+            }
+            if (string.Equals(baseValue.OtherContent, _nullValue, StringComparison.Ordinal))
+            {
+                baseValue.OtherContent = null;
+            }
             return baseValue;
         }
 
@@ -76,7 +74,8 @@ namespace ServiceFabric.Mocks.NetCoreTests
 
         public void Write(ModifyablePayload baseValue, ModifyablePayload targetValue, BinaryWriter binaryWriter)
         {
-            binaryWriter.Write(targetValue.Content);
+            binaryWriter.Write(targetValue.Content ?? _nullValue);
+            binaryWriter.Write(targetValue.OtherContent ?? _nullValue);
         }
     }
 }
