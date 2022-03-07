@@ -22,6 +22,9 @@ Thank you for contributing!
 
 ## Release notes
 
+- 5.0.7
+    - Implement LastException to include the exception thrown from RunAsync
+
 - 5.0.6
     - Update Service Fabric SDK to version 5.2.1363
     - Fix issue #120 reported by gtcooke94. Notification for reliable dictionary clearing.
