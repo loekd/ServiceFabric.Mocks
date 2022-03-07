@@ -29,7 +29,15 @@ namespace ServiceFabric.Mocks.ReplicaSet
 
         public TStatefulService ServiceInstance => _serviceInstance;
 
-        public Exception LastException { get; set; }
+        public Exception LastException {
+            get {
+                if (_runAsyncTask != null && _runAsyncTask.IsFaulted)
+                {
+                    return _runAsyncTask.Exception;
+                }
+                return null;
+            }
+        }
 
         public CancellationTokenSource RunCancellation { get; set; } = new CancellationTokenSource();
 

@@ -58,6 +58,16 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
             originalSecondaryReplica.RunCancellation.Cancel();
         }
 
+        [TestMethod]
+        public async Task TestPrimaryReplicaShouldHaveLastExceptionAsync()
+        {
+            Func<StatefulServiceContext, IReliableStateManagerReplica2, StatefulServiceWithFailingRunAsyncOverride> serviceFactory = (StatefulServiceContext context, IReliableStateManagerReplica2 stateManager) => new StatefulServiceWithFailingRunAsyncOverride(context);
+            var replicaSet = new MockStatefulServiceReplicaSet<StatefulServiceWithFailingRunAsyncOverride>(serviceFactory);
+            await replicaSet.AddReplicaAsync(ReplicaRole.Primary, 1);
+            var lastException = replicaSet.Primary.LastException;
+            Assert.IsNotNull(lastException);
+        }
+
     }
 
     /// <summary>
@@ -143,6 +153,29 @@ namespace ServiceFabric.Mocks.Tests.ServiceTests
                     cancellationToken.ThrowIfCancellationRequested();
                     Thread.Yield();
                 }
+            }
+            finally
+            {
+                RunAsyncCompleted.Set();
+            }
+        }
+    }
+
+    public class StatefulServiceWithFailingRunAsyncOverride : StatefulService, IService
+    {
+        public ManualResetEvent RunAsyncCompleted { get; }
+
+        public StatefulServiceWithFailingRunAsyncOverride(StatefulServiceContext serviceContext, ManualResetEvent runAsyncCompleted = null) : base(serviceContext)
+        {
+            RunAsyncCompleted = runAsyncCompleted ?? new ManualResetEvent(false);
+        }
+
+        protected override Task RunAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                RunAsyncCompleted.Reset();
+                throw new Exception("Test exception");
             }
             finally
             {
