@@ -22,7 +22,9 @@ Thank you for contributing!
 
 ## Release notes
 
-- 5.0.7
+- 6.0.0
+    - Breaking change: deprecated support for .NET 4.5.2
+    - Update Service Fabric SDK to version 5.2.1572
     - Implement LastException to include the exception thrown from RunAsync
 
 - 5.0.6
