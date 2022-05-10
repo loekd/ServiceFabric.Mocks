@@ -22,6 +22,9 @@ Thank you for contributing!
 
 ## Release notes
 
+- 6.0.1
+    - Update Service Fabric SDK to version 6.0.1017
+    - Implemented new GetRemindersAsync defined in IActorStateProvider 
 - 6.0.0
     - Breaking change: deprecated support for .NET 4.5.2
     - Update Service Fabric SDK to version 5.2.1572
