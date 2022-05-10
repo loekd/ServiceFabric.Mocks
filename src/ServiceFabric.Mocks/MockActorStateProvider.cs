@@ -21,7 +21,7 @@ namespace ServiceFabric.Mocks
 
         public ReplicaRole Role { get; private set; }
 
-        public ActorTypeInformation ActorTypeInformation  { get; private set; }
+        public ActorTypeInformation ActorTypeInformation { get; private set; }
 
         public void Initialize(StatefulServiceInitializationParameters initializationParameters)
         {
@@ -204,6 +204,27 @@ namespace ServiceFabric.Mocks
                     await DeleteReminderAsync(reminder.Key, reminderName, cancellationToken);
                 }
             }
+        }
+
+        public Task<ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>> GetRemindersAsync(int numItemsToReturn, ActorId actorId, ContinuationToken continuationToken, CancellationToken cancellationToken)
+        {
+            var skip = (int?)continuationToken?.Marker ?? 0;
+
+            var actorReminders = _reminders[actorId]
+                .Skip(skip)
+                .Take(numItemsToReturn)
+                .Select((state) => state as ActorReminderState)
+                .ToList();
+
+            var item = new KeyValuePair<ActorId, List<ActorReminderState>>(actorId, actorReminders);
+
+            var result = new ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>()
+            {
+                Items = new [] { item},
+                ContinuationToken = new ContinuationToken(numItemsToReturn)
+            };
+            
+            return Task.FromResult(result);
         }
     }
 }
