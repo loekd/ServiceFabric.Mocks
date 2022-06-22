@@ -21,6 +21,8 @@ Or [donate](https://paypal.me/lduys/5) a cup of coffee.
 Thank you for contributing!
 
 ## Release notes
+- 6.0.2
+    - Update Service Fabric SDK to version 6.1.1118
 
 - 6.0.1
     - Update Service Fabric SDK to version 6.0.1017
