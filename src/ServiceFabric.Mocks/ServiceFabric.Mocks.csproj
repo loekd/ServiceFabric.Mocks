@@ -38,7 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="6.1.1118" />
+    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="6.0.1028" />
   </ItemGroup>
 
 </Project>
