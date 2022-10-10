@@ -20,7 +20,7 @@
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <Platforms>AnyCPU</Platforms>
+    <Platforms>x64</Platforms>
     <ApplicationIcon />
     <OutputTypeEx>Exe</OutputTypeEx>
     <StartupObject />
