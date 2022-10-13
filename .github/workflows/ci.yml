@@ -45,10 +45,10 @@ jobs:
 
     # Run dotnet build
     - name: Run build
-      run: dotnet build --configuration $env:Configuration
+      run: dotnet build --configuration RELEASE 
       
     # Execute all unit tests in the solution
     - name: Execute unit tests
-      run: dotnet test
+      run: dotnet test --logger GitHubActions
 
 
