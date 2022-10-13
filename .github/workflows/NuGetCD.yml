@@ -14,10 +14,10 @@ jobs:
       DISCOS_API_URL: https://discosweb.esoc.esa.int/api/
     steps:
     - uses: actions/checkout@v3
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: 6.0.x
+    # - name: Setup .NET
+    #   uses: actions/setup-dotnet@v2
+    #   with:
+    #     dotnet-version: 6.0.x
 
     - name: Bump version and push tag
       id: tag_version
@@ -25,4 +25,5 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         dry_run: true
+        custom_tag: v6.0.5
     
