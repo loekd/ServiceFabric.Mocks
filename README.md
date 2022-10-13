@@ -3,26 +3,34 @@ ServiceFabric.Mocks contains many Mock and helper classes to facilitate and simp
 
 **Make sure to have a look at the [test](https://github.com/loekd/ServiceFabric.Mocks/tree/master/test) code within this repo, to see how everything works.**
 
-## Nuget package here:
-https://www.nuget.org/packages/ServiceFabric.Mocks/
+## Nuget packages here:
+- https://www.nuget.org/packages/ServiceFabric.Mocks/
+- https://github.com/loekd?tab=packages&repo_name=ServiceFabric.Mocks
 
 ## Contribute!
 Contributions are most welcome:
 
-- Please upgrade the package version with a minor tick if there are no breaking changes, by changing the `<VersionPrefix>X.Y.Z</VersionPrefix>` in the main [csproj file](https://github.com/loekd/ServiceFabric.Mocks/blob/master/src/ServiceFabric.Mocks/ServiceFabric.Mocks.csproj#L7) 
-and the test project [here](https://github.com/loekd/ServiceFabric.Mocks/blob/master/test/ServiceFabric.Mocks.NetCoreTests/ServiceFabric.Mocks.NetCoreTests.csproj).
-- Add a line to the readme.md, stating the changes, e.g. 'upgraded to SF version x.y.z'. 
+- Please use [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/#summary) markup within pull requests.
 
 Doing so will allow me to simply accept the PR, which will automatically trigger the release of a new package.
 Please also make sure all feature additions have a corresponding unit test.
 
-Or [donate](https://paypal.me/lduys/5) a cup of coffee.
+## Financial contributions
+Sponsor me, or [donate](https://paypal.me/lduys/5) a cup of coffee.
 
 Thank you for contributing!
 
 ## Release notes
-- 6.0.6
-    - Update pipeline to use Github Actions and Dependabot for automatic versioning
+- 6.0.11
+    - Added [releases](https://github.com/loekd/ServiceFabric.Mocks/releases)
+    - Added package to [GH Nuget Feed](https://github.com/loekd?tab=packages&repo_name=ServiceFabric.Mocks) (also using regular NuGet)
+    - Update pipeline to use Github Actions
+    - Use Dependabot for automatic version upgrades
+    - Added code owners (for auto reviewer assignment)
+    - Added branch protection to `master`
+    - Dependency upgrades will not require release notes anymore, so they can be automated.
+    - Versioning is now based on [SemVer](https://semver.org/) and [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/#summary) can be used to make changes other than simple patches.
+
 - 6.0.5
     - Update Service Fabric SDK to version 6.0.1121
 - 6.0.4
