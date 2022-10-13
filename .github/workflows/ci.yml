@@ -9,6 +9,7 @@ on:
 jobs:
 
   build:
+    name: CI Build
 
     strategy:
       matrix:
