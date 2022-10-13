@@ -40,7 +40,7 @@ jobs:
 
     # Execute all unit tests in the solution
     - name: Execute unit tests
-      run: dotnet test --no-build --logger "trx;LogFileName=results.trx" ${Test_Project_File}
+      run: dotnet test --logger "trx;LogFileName=results.trx" ${Test_Project_File}
 
     # create GH release
     - name: Create a GitHub release
