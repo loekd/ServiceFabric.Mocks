@@ -9,21 +9,53 @@ jobs:
   prepare:
     name: FetchAndTag
     runs-on: windows-latest
-    env:
-      DISCOS_API_KEY: ${{ secrets.DISCOS_API_KEY }}
-      DISCOS_API_URL: https://discosweb.esoc.esa.int/api/
     steps:
     - uses: actions/checkout@v3
-    # - name: Setup .NET
-    #   uses: actions/setup-dotnet@v2
-    #   with:
-    #     dotnet-version: 6.0.x
 
+    # create version
     - name: Bump version and push tag
       id: tag_version
       uses: mathieudutour/github-tag-action@v6.0
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        dry_run: true
-        custom_tag: v6.0.5
+        dry_run: false
+        custom_tag: 6.0.5
+
+    # create GH release
+    - name: Create a GitHub release
+      uses: ncipollo/release-action@v1
+      with:
+        tag: ${{ steps.tag_version.outputs.new_tag }}
+        name: Release ${{ steps.tag_version.outputs.new_tag }}
+        body: ${{ steps.tag_version.outputs.changelog }}
+
+    # install dotnet 6
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x
+
+    # Run dotnet build
+    - name: Run build
+      run: dotnet build --configuration RELEASE -p:PackageVersion=${{ steps.tag_version.outputs.new_version }}
+      
+    # Execute all unit tests in the solution
+    - name: Execute unit tests
+      run: dotnet test --logger "trx;LogFileName=results.trx" ${Test_Project_File}
+
+    # publish nuget package artifact
+    - name: Upload Package for Publishing
+      uses: actions/upload-artifact@v3
+      with:
+        name: PackedLib
+        path: ./ServiceFabric.Mocks.*.nupkg
+
+    # publish GH nuget package artifact
+    - name: Push Package to GitHub
+      run: dotnet nuget push --api-key ${{secrets.GITHUB_TOKEN}} --source "github" ServiceFabric.Mocks.*.nupkg
+
+    # publish packge to nuget
+    # - name: Push Package to GitHub
+    #   run: dotnet nuget push --api-key ${{secrets.NUGETPUSH}} --source "https://api.nuget.org/v3/index.json" ServiceFabric.Mocks.*.nupkg
+
     
