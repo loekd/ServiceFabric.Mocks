@@ -49,6 +49,6 @@ jobs:
       
     # Execute all unit tests in the solution
     - name: Execute unit tests
-      run: dotnet test --logger GitHubActions
+      run: dotnet test --logger GitHubActions .\test\ServiceFabric.Mocks.NetCoreTests\ServiceFabric.Mocks.NetCoreTests.csproj
 
 
