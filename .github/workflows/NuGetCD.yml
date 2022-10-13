@@ -19,7 +19,22 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         dry_run: false
-        custom_tag: 6.0.5
+
+    # install dotnet 6
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x
+
+    # Create SNK 
+    - name: Create SNK
+      shell: pwsh
+      run: |
+        .\ExtractPrivateKey.ps1 "${{ secrets.Pfx_Key }}"
+
+    # Run dotnet build
+    - name: Run build
+      run: dotnet build --configuration RELEASE -p:PackageVersion=${{ steps.tag_version.outputs.new_version }}
 
     # create GH release
     - name: Create a GitHub release
@@ -28,16 +43,6 @@ jobs:
         tag: ${{ steps.tag_version.outputs.new_tag }}
         name: Release ${{ steps.tag_version.outputs.new_tag }}
         body: ${{ steps.tag_version.outputs.changelog }}
-
-    # install dotnet 6
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: 6.0.x
-
-    # Run dotnet build
-    - name: Run build
-      run: dotnet build --configuration RELEASE -p:PackageVersion=${{ steps.tag_version.outputs.new_version }}
       
     # Execute all unit tests in the solution
     - name: Execute unit tests
@@ -55,7 +60,7 @@ jobs:
       run: dotnet nuget push --api-key ${{secrets.GITHUB_TOKEN}} --source "github" ServiceFabric.Mocks.*.nupkg
 
     # publish packge to nuget
-    # - name: Push Package to GitHub
-    #   run: dotnet nuget push --api-key ${{secrets.NUGETPUSH}} --source "https://api.nuget.org/v3/index.json" ServiceFabric.Mocks.*.nupkg
+    - name: Push Package to GitHub
+      run: dotnet nuget push --api-key ${{secrets.NUGETPUSH}} --source "https://api.nuget.org/v3/index.json" ServiceFabric.Mocks.*.nupkg
 
     
