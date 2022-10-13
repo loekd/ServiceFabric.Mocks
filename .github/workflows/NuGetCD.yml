@@ -9,6 +9,8 @@ jobs:
   prepare:
     name: FetchAndTag
     runs-on: windows-latest
+    env:
+      Test_Project_File: \test\ServiceFabric.Mocks.NetCoreTests\ServiceFabric.Mocks.NetCoreTests.csproj
     steps:
     - uses: actions/checkout@v3
 
