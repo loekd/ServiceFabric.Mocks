@@ -49,12 +49,12 @@ jobs:
       
     # Execute all unit tests in the solution
     - name: Execute unit tests
-      run: dotnet test $Test_Project_Path
+      run: dotnet test ${Test_Project_Path}
 
     - name: Publish test results
       uses: zyborg/dotnet-tests-report@v1
       with:
-        project_path: $Test_Project_Path
+        project_path: ${Test_Project_Path}
         report_name: Tests
         report_title: Unit tests
         github_token: ${{ secrets.GITHUB_TOKEN }}
