@@ -18,7 +18,8 @@ jobs:
 
     env:
       Solution_Name: ServiceFabric.Mocks.sln
-      Test_Project_Path: \test\ServiceFabric.Mocks.NetCoreTests\ServiceFabric.Mocks.NetCoreTests.csproj
+      Test_Project_File: \test\ServiceFabric.Mocks.NetCoreTests\ServiceFabric.Mocks.NetCoreTests.csproj
+      Test_Project_Path: \test\ServiceFabric.Mocks.NetCoreTests
       Wap_Project_Path: \src\ServiceFabric.Mocks\ServiceFabric.Mocks.csproj
 
     steps:
@@ -49,14 +50,14 @@ jobs:
       
     # Execute all unit tests in the solution
     - name: Execute unit tests
-      run: dotnet test ${Test_Project_Path}
+      run: dotnet test --logger "trx;LogFileName=results.trx" ${Test_Project_File}
 
     - name: Publish test results
       uses: zyborg/dotnet-tests-report@v1
       with:
         project_path: ${Test_Project_Path}
-        report_name: Tests
-        report_title: Unit tests
+        report_name: tests
+        report_title: ServiceFabric.Mocks Unit tests
         github_token: ${{ secrets.GITHUB_TOKEN }}
 
 
