@@ -36,6 +36,10 @@ jobs:
     - name: Run build
       run: dotnet build --configuration RELEASE -p:PackageVersion=${{ steps.tag_version.outputs.new_version }}
 
+    # Execute all unit tests in the solution
+    - name: Execute unit tests
+      run: dotnet test --no-build --logger "trx;LogFileName=results.trx" ${Test_Project_File}
+
     # create GH release
     - name: Create a GitHub release
       uses: ncipollo/release-action@v1
@@ -43,10 +47,6 @@ jobs:
         tag: ${{ steps.tag_version.outputs.new_tag }}
         name: Release ${{ steps.tag_version.outputs.new_tag }}
         body: ${{ steps.tag_version.outputs.changelog }}
-      
-    # Execute all unit tests in the solution
-    - name: Execute unit tests
-      run: dotnet test --logger "trx;LogFileName=results.trx" ${Test_Project_File}
 
     # publish nuget package artifact
     - name: Upload Package for Publishing
@@ -57,7 +57,7 @@ jobs:
 
     # publish GH nuget package artifact
     - name: Push Package to GitHub
-      run: dotnet nuget push --api-key ${{secrets.GITHUB_TOKEN}} --source "github" ServiceFabric.Mocks.*.nupkg
+      run: dotnet nuget push --api-key ${{secrets.GITHUB_TOKEN}} --source "https://nuget.pkg.github.com/loekd/index.json" ServiceFabric.Mocks.*.nupkg
 
     # publish packge to nuget
     - name: Push Package to GitHub
