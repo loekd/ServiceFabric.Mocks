@@ -41,13 +41,7 @@ jobs:
     - name: Create SNK
       shell: pwsh
       run: |
-        [string] $pfxFilePath = ".\src\ServiceFabric.Mocks\ServiceFabric.Mocks.pfx"
-        [string] $snkFilePath = [IO.Path]::GetFileNameWithoutExtension($pfxFilePath) + ".snk";
-        [byte[]] $certificateContent = Get-Content $pfxFilePath -AsByteStream;
-        $exportable = [Security.Cryptography.X509Certificates.X509KeyStorageFlags]::Exportable
-        $certificate = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certificateContent, "${{ secrets.Pfx_Key }}", $exportable)
-        $certificateContent = ([Security.Cryptography.RSACryptoServiceProvider]$certificate.PrivateKey).ExportCspBlob($true)
-        [IO.File]::WriteAllBytes([IO.Path]::Combine([IO.Path]::GetDirectoryName($pfxFilePath), $snkFilePath), $certificateContent)
+        .\ExtractPrivateKey.ps1 "${{ secrets.Pfx_Key }}"
 
     # Run dotnet build
     - name: Run build
