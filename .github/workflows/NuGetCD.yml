@@ -40,7 +40,7 @@ jobs:
 
     # Run dotnet release build
     - name: Run build
-      run: dotnet pack --configuration RELEASE -p:PackageVersion=${{ steps.tag_version.outputs.new_version }} -o .
+      run: dotnet pack --configuration RELEASE -p:PackageVersion=${{ steps.tag_version.outputs.new_version }} -o ${{ github.workspace }}
 
     # create GH release
     - name: Create a GitHub release
@@ -55,14 +55,14 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: PackedLib
-        path: ./ServiceFabric.Mocks.${{ steps.tag_version.outputs.new_version }}.nupkg
+        path: ${{ github.workspace }}/ServiceFabric.Mocks.${{ steps.tag_version.outputs.new_version }}.nupkg
 
     # publish GH nuget package artifact
     - name: Push Package to GitHub
-      run: dotnet nuget push --api-key ${{secrets.GITHUB_TOKEN}} --source "https://nuget.pkg.github.com/loekd/index.json" ServiceFabric.Mocks.${{ steps.tag_version.outputs.new_version }}.nupkg
+      run: dotnet nuget push --api-key ${{secrets.GITHUB_TOKEN}} --source "https://nuget.pkg.github.com/loekd/index.json" ${{ github.workspace }}/ServiceFabric.Mocks.${{ steps.tag_version.outputs.new_version }}.nupkg
 
     # publish packge to nuget
     - name: Push Package to GitHub
-      run: dotnet nuget push --api-key ${{secrets.NUGETPUSH}} --source "https://api.nuget.org/v3/index.json" ServiceFabric.Mocks.${{ steps.tag_version.outputs.new_version }}.nupkg
+      run: dotnet nuget push --api-key ${{secrets.NUGETPUSH}} --source "https://api.nuget.org/v3/index.json" ${{ github.workspace }}/ServiceFabric.Mocks.${{ steps.tag_version.outputs.new_version }}.nupkg
 
     
