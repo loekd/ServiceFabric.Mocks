@@ -40,7 +40,7 @@ jobs:
 
     # Run dotnet release build
     - name: Run build
-      run: dotnet build --configuration RELEASE -p:PackageVersion=${{ steps.tag_version.outputs.new_version }} -o .
+      run: dotnet pack --configuration RELEASE -p:PackageVersion=${{ steps.tag_version.outputs.new_version }} -o .
 
     # create GH release
     - name: Create a GitHub release
