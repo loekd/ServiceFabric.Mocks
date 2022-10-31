@@ -3,7 +3,7 @@ name: Build and Test (CI)
 on:
   pull_request:
     branches: ["master"]
-
+  workflow_dispatch:
 jobs:
   build:
     name: CI Build
