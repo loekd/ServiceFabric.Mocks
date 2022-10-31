@@ -1,12 +1,10 @@
 name: Build and Test (CI)
 
 on:
-
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
 
 jobs:
-
   build:
     name: CI Build
 
@@ -23,37 +21,37 @@ jobs:
       Wap_Project_Path: \src\ServiceFabric.Mocks\ServiceFabric.Mocks.csproj
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-    # Install the .NET Core workload
-    - name: Install .NET Core
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 6.0.x
+      # Install the .NET Core workload
+      - name: Install .NET Core
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.0.x
 
-    # Create SNK 
-    - name: Create SNK
-      shell: pwsh
-      run: |
-        .\ExtractPrivateKey.ps1 "${{ secrets.PFX_KEY }}"
+      # Create SNK
+      - name: Create SNK
+        shell: pwsh
+        env:
+          SNK_PASSWORD: ${{ secrets.PFX_KEY }}
+        run: |
+          .\ExtractPrivateKey.ps1 "$env:SNK_PASSWORD"
 
-    # Run dotnet build
-    - name: Run build
-      run: dotnet build --configuration RELEASE 
-      
-    # Execute all unit tests in the solution
-    - name: Execute unit tests
-      run: dotnet test --logger "trx;LogFileName=results.trx" ${Test_Project_File}
+      # Run dotnet build
+      - name: Run build
+        run: dotnet build --configuration RELEASE
 
-    - name: Publish test results
-      uses: zyborg/dotnet-tests-report@v1
-      with:
-        project_path: ${Test_Project_Path}
-        report_name: tests
-        report_title: ServiceFabric.Mocks Unit tests
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+      # Execute all unit tests in the solution
+      - name: Execute unit tests
+        run: dotnet test --logger "trx;LogFileName=results.trx" ${Test_Project_File}
 
-
+      - name: Publish test results
+        uses: zyborg/dotnet-tests-report@v1
+        with:
+          project_path: ${Test_Project_Path}
+          report_name: tests
+          report_title: ServiceFabric.Mocks Unit tests
+          github_token: ${{ secrets.GITHUB_TOKEN }}
