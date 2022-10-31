@@ -38,7 +38,7 @@ jobs:
     - name: Create SNK
       shell: pwsh
       run: |
-        .\ExtractPrivateKey.ps1 "${{ secrets.Pfx_Key }}"
+        .\ExtractPrivateKey.ps1 "${{ secrets.PFX_KEY }}"
 
     # Run dotnet build
     - name: Run build
