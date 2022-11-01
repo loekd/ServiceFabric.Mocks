@@ -3,6 +3,9 @@ name: NuGetCD
 on:
   push:
     branches: [ master ]
+    paths:
+      - '**.cs'
+      - '**.csproj'
   workflow_dispatch:
 jobs:
 
