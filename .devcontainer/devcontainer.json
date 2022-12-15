@@ -1,5 +1,9 @@
 {
   "image": "mcr.microsoft.com/service-fabric/onebox:u18",
   "features": {
+    "ghcr.io/devcontainers/features/git:latest": {},
+    "ghcr.io/devcontainers/features/azure-cli:latest": {},
+    "ghcr.io/devcontainers/features/dotnet:7": {},
+    "ghcr.io/devcontainers/features/dotnet:6": {}
   }
 }
