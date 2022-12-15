@@ -1,12 +1,12 @@
 {
-  "image": "mcr.microsoft.com/service-fabric/onebox:u18",
+  "build": { "dockerfile": "Dockerfile" },
   "features": {
     "ghcr.io/devcontainers/features/git:latest": {},
     "ghcr.io/devcontainers/features/azure-cli:latest": {},
     "ghcr.io/devcontainers/features/dotnet:1": {
       "version": "6"
     },
-    "ghcr.io/devcontainers/features/dotnet:1": {
+    "ghcr.io/devcontainers/features/dotnet:latest": {
       "version": "latest"
     }
   }
