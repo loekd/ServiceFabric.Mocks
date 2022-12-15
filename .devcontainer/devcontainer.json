@@ -1,0 +1,5 @@
+{
+  "image": "mcr.microsoft.com/service-fabric/onebox:u18",
+  "features": {
+  }
+}
