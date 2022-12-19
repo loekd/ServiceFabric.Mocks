@@ -245,3 +245,6 @@ ModelManifest.xml
 .fake/
 /publish nuget.bat
 /src/ServiceFabric.Mocks/ServiceFabric.Mocks.snk
+opt/**
+usr/**
+*.deb
