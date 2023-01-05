@@ -23,8 +23,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      # create version
+      - name: Bump version and push tag (what-if)
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.0
         with:
-          fetch-depth: 0
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          dry_run: true
 
       # Install the .NET Core workload
       - name: Install .NET Core
