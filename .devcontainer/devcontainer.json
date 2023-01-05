@@ -2,5 +2,9 @@
   "build": { "dockerfile": "Dockerfile" },
   "features": {
     "ghcr.io/devcontainers/features/git:1": {}
-  }
+  },
+  "extensions": [
+    "ms-dotnettools.csharp",
+    "eamodio.gitlens"
+  ]
 }
