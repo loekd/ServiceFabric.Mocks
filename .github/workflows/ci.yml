@@ -7,9 +7,6 @@ on:
 jobs:
   build:
     name: CI Build
-    permissions:
-      checks: write
-      pull-requests: write
 
     strategy:
       matrix:
