@@ -7,6 +7,9 @@ on:
 jobs:
   build:
     name: CI Build
+    permissions:
+      checks: write
+      pull-requests: write
 
     strategy:
       matrix:
@@ -19,6 +22,7 @@ jobs:
       Test_Project_File: \test\ServiceFabric.Mocks.NetCoreTests\ServiceFabric.Mocks.NetCoreTests.csproj
       Test_Project_Path: \test\ServiceFabric.Mocks.NetCoreTests
       Wap_Project_Path: \src\ServiceFabric.Mocks\ServiceFabric.Mocks.csproj
+      Test_Results_File: \test\ServiceFabric.Mocks.NetCoreTests\test-results.trx
 
     steps:
       - name: Checkout
@@ -54,12 +58,11 @@ jobs:
 
       # Execute all unit tests in the solution
       - name: Execute unit tests
-        run: dotnet test --logger "trx;LogFileName=results.trx" ${Test_Project_File}
+        run: dotnet test --logger "trx;LogFileName=${Test_Results_File}" ${Test_Project_File}
 
-      - name: Publish test results
-        uses: zyborg/dotnet-tests-report@v1
+      #Publish test results
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
         with:
-          project_path: ${Test_Project_Path}
-          report_name: tests
-          report_title: ServiceFabric.Mocks Unit tests
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          trx_files: "${Test_Results_File}"
