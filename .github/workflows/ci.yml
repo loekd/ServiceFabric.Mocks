@@ -19,21 +19,12 @@ jobs:
       Test_Project_File: \test\ServiceFabric.Mocks.NetCoreTests\ServiceFabric.Mocks.NetCoreTests.csproj
       Test_Project_Path: \test\ServiceFabric.Mocks.NetCoreTests
       Wap_Project_Path: \src\ServiceFabric.Mocks\ServiceFabric.Mocks.csproj
-      Test_Results_File: \test\ServiceFabric.Mocks.NetCoreTests\test-results.trx
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-
-    # create version
-    - name: Show version and new tag
-      id: tag_version
-      uses: mathieudutour/github-tag-action@v6.0
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        dry_run: true
 
       # Install the .NET Core workload
       - name: Install .NET Core
@@ -55,11 +46,11 @@ jobs:
 
       # Execute all unit tests in the solution
       - name: Execute unit tests
-        run: dotnet test --logger "trx;LogFileName=${Test_Results_File}" ${Test_Project_File}
+        run: dotnet test --logger "trx;LogFileName=results.trx" ${Test_Project_File}
 
       #Publish test results
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
         if: always()
         with:
-          trx_files: "${Test_Results_File}"
+          trx_files: "**/*.trx"
