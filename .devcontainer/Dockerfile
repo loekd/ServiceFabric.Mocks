@@ -32,7 +32,7 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 417A0893 && \
     apt-get update && \
-    apt-get install --assume-yes apt-transport-https libssh2-1 libxml2 cgroup-bin liblttng-ust0 libssl-dev
+    apt-get install --assume-yes apt-transport-https libssh2-1 libxml2 cgroup-bin liblttng-ust0 libssl-dev curl
     
 ADD https://packages.microsoft.com/config/ubuntu/16.04/packages-microsoft-prod.deb packages-microsoft-prod.deb
 RUN dpkg -i packages-microsoft-prod.deb
