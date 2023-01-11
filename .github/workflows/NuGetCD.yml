@@ -20,7 +20,7 @@ jobs:
     # create version
     - name: Bump version and push tag
       id: tag_version
-      uses: loekd/github-tag-action@main
+      uses: loekd/github-tag-action@v6.1
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         dry_run: false
@@ -51,7 +51,7 @@ jobs:
 
     # create GH release
     - name: Create a GitHub release
-      uses: loekd/release-action@main
+      uses: loekd/release-action@v1
       with:
         tag: ${{ steps.tag_version.outputs.new_tag }}
         name: Release ${{ steps.tag_version.outputs.new_tag }}
