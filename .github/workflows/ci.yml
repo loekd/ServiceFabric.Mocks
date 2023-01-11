@@ -27,7 +27,7 @@ jobs:
       # create version
       - name: Bump version and push tag (what-if)
         id: tag_version
-        uses: loekd/github-tag-action@main
+        uses: loekd/github-tag-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           dry_run: true
@@ -56,7 +56,7 @@ jobs:
 
       #Publish test results
       - name: Publish Test Results
-        uses: loekd/publish-unit-test-result-action@main
+        uses: loekd/publish-unit-test-result-action@master
         if: always()
         with:
           trx_files: "**/*.trx"
