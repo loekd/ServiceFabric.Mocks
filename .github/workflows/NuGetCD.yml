@@ -40,6 +40,13 @@ jobs:
     # Execute all unit tests in the solution
     - name: Execute unit tests
       run: dotnet test --logger "trx;LogFileName=results.trx" ${Test_Project_File}
+      
+    #Publish test results
+    - name: Publish Test Results
+      uses: loekd/publish-unit-test-result-action/composite@v2
+      if: always()
+      with:
+        trx_files: "**/*.trx"
 
     # Run dotnet release build
     - name: Run build
