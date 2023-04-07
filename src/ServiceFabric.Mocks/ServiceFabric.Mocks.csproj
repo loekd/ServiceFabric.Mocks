@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>ServiceFabric.Mocks contains many mocks and helper classes to facilitate and simplify unit testing of your Service Fabric Actor and Service projects.</Description>
@@ -38,7 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="6.1.1583" />
+    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="6.1.1653" />
   </ItemGroup>
 
 </Project>
