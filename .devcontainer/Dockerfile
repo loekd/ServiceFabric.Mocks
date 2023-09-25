@@ -1,20 +1,24 @@
 FROM ubuntu:20.04 
 
-RUN echo "servicefabric servicefabric/accepted-eula-ga select true" | sudo debconf-set-selections
-RUN echo "servicefabricsdkcommon servicefabricsdkcommon/accepted-eula-ga select true" | sudo debconf-set-selections
+RUN echo "servicefabric servicefabric/accepted-eula-ga select true" | debconf-set-selections
+RUN echo "servicefabricsdkcommon servicefabricsdkcommon/accepted-eula-ga select true" | debconf-set-selections
+ENV LD_LIBRARY_PATH=/opt/microsoft/servicefabric/bin/Fabric/Fabric.Code
 
-ADD https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb
+RUN apt-get update && apt-get install apt-utils apt-transport-https ca-certificates gnupg2 software-properties-common -y
+
+ADD https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb packages-microsoft-prod.deb
 RUN dpkg -i packages-microsoft-prod.deb
-ADD https://packages.microsoft.com/keys/msopentech.asc
+
+ADD https://packages.microsoft.com/keys/msopentech.asc msopentech.asc
 RUN apt-key add ./msopentech.asc
 
-ADD https://download.docker.com/linux/ubuntu/gpg
+ADD https://download.docker.com/linux/ubuntu/gpg gpg
 RUN apt-key add ./gpg
 
-RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu 20.04 stable"
+RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xB1998361219BD9C9
 RUN apt-add-repository "deb http://repos.azul.com/azure-only/zulu/apt stable main"
-RUN apt-get update && apt-get install servicefabricsdkcommon
+RUN apt-get update && apt-get install servicefabricsdkcommon dotnet-sdk-6.0 dotnet-sdk-7.0 servicefabric -y
 
 
 
