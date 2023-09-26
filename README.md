@@ -21,6 +21,11 @@ Sponsor me, or [donate](https://paypal.me/lduys/5) a cup of coffee.
 Thank you for contributing!
 
 ## Release notes
+
+- 7.0.2
+    - First version that uses SF 7.0.1816
+- 7.0.1
+    - Deprecated, don't use this.
 - 6.0.11
     - Added [releases](https://github.com/loekd/ServiceFabric.Mocks/releases)
     - Added package to [GH Nuget Feed](https://github.com/loekd?tab=packages&repo_name=ServiceFabric.Mocks) (also using regular NuGet)
