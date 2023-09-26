@@ -22,7 +22,7 @@ Thank you for contributing!
 
 ## Release notes
 
-- 7.0.2
+- 7.1.0
     - First version that uses SF 7.0.1816
 - 7.0.1
     - Deprecated, don't use this.
