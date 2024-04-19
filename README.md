@@ -22,6 +22,10 @@ Thank you for contributing!
 
 ## Release notes
 
+- 7.1.3
+    - First version that uses SF 7.0.1541
+- 7.1.2
+    - First version that uses SF 7.1.1541
 - 7.1.0
     - First version that uses SF 7.0.1816
 - 7.0.1
