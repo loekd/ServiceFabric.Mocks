@@ -3,9 +3,9 @@ ServiceFabric.Mocks contains many Mock and helper classes to facilitate and simp
 
 **Make sure to have a look at the [test](https://github.com/loekd/ServiceFabric.Mocks/tree/master/test) code within this repo, to see how everything works.**
 
-## Nuget packages here:
-- https://www.nuget.org/packages/ServiceFabric.Mocks/
-- https://github.com/loekd?tab=packages&repo_name=ServiceFabric.Mocks
+## NuGet package:
+
+[![NuGet](https://img.shields.io/nuget/v/ServiceFabric.Mocks.svg)](https://www.nuget.org/packages/ServiceFabric.Mocks)
 
 ## Contribute!
 Contributions are most welcome:
