@@ -51,10 +51,8 @@ jobs:
       # Create SNK
       - name: Create SNK
         shell: pwsh
-        env:
-          SNK_PASSWORD: ${{ secrets.PFX_KEY }}
         run: |
-          .\ExtractPrivateKey.ps1 "ServiceFabric.Mocks"
+          .\ExtractPrivateKey.ps1 "${{ secrets.Pfx_Key }}"
 
       # Run dotnet build
       - name: Run build
