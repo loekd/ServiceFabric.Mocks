@@ -19,6 +19,9 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
+        
+    - name: Setup master branch locally without switching current branch
+      run: git fetch origin master:master
 
     # Check for SF updates before creating a new release
     - name: Check for SF NuGet Package Version Change
