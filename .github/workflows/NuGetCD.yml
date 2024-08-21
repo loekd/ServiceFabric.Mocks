@@ -61,7 +61,7 @@ jobs:
       uses: loekd/github-tag-action@v6.1
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        dry_run: false
+        dry_run: ${{ steps.check_version.outputs.sf_ver_changed == 'true' }}
 
     # install dotnet 6
     - name: Setup .NET
