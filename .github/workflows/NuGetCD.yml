@@ -17,6 +17,26 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    # Check for SF updates before creating a new release
+    - name: Check for SF NuGet Package Version Change
+      id: check_version
+      run: |
+        # Specify the package you want to check
+        PACKAGE_NAME="Microsoft.ServiceFabric.Actors"
+        # Check for changes in the .csproj file for the package version
+        if git diff origin/master -- /src/ServiceFabric.Mocks/ServiceFabric.Mocks.csproj | grep -q "<PackageReference Include=\"$PACKAGE_NAME\""; then
+          echo "Package version has changed."
+          echo "sf_ver_changed=true" >> $GITHUB_OUTPUT
+        else
+          echo "No changes to package version."
+          echo "sf_ver_changed=false" >> $GITHUB_OUTPUT
+        fi
+
+    # Run echo
+    - name: Echo status
+      if: ${{ steps.check_version.outputs.sf_ver_changed == 'true' }}
+      run: echo "This run will create a new release on GitHub and Nuget"
+
     # create version
     - name: Bump version and push tag
       id: tag_version
@@ -32,14 +52,14 @@ jobs:
         dotnet-version: 6.0.x
 
     # Install SF SDK
-    - name: Install SF
-      shell: pwsh
-      run: |
-        Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Force -Scope CurrentUser   
-        $ProgressPreference = 'SilentlyContinue'
-        Invoke-RestMethod -OutFile setup.exe -Method GET -Uri https://download.microsoft.com/download/b/8/a/b8a2fb98-0ec1-41e5-be98-9d8b5abf7856/MicrosoftServiceFabric.10.1.2338.9590.exe
-        #.\setup.exe  /accepteula /force /quiet
-        Start-Process setup.exe -UseNewEnvironment -ArgumentList '/accepteula /force /quiet' -Wait
+    # - name: Install SF      
+    #   shell: pwsh
+    #   run: |
+    #     Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Force -Scope CurrentUser   
+    #     $ProgressPreference = 'SilentlyContinue'
+    #     Invoke-RestMethod -OutFile setup.exe -Method GET -Uri https://download.microsoft.com/download/b/8/a/b8a2fb98-0ec1-41e5-be98-9d8b5abf7856/MicrosoftServiceFabric.10.1.2338.9590.exe
+    #     #.\setup.exe  /accepteula /force /quiet
+    #     Start-Process setup.exe -UseNewEnvironment -ArgumentList '/accepteula /force /quiet' -Wait
 
     # Create SNK 
     - name: Create SNK
@@ -63,23 +83,8 @@ jobs:
       run: dotnet build --configuration RELEASE -p:PackageVersion=${{ steps.tag_version.outputs.new_version }}
       
     # Run dotnet release pack
-    - name: Run build
+    - name: Run pack
       run: dotnet pack --configuration RELEASE -p:PackageVersion=${{ steps.tag_version.outputs.new_version }} -o ${{ github.workspace }}
-
-    # Check for SF updates before creating a new release
-    - name: Check for SF NuGet Package Version Change
-      id: check_version
-      run: |
-        # Specify the package you want to check
-        PACKAGE_NAME="Microsoft.ServiceFabric.Actors"
-        # Check for changes in the .csproj file for the package version
-        if git diff origin/master -- /src/ServiceFabric.Mocks/ServiceFabric.Mocks.csproj | grep -q "<PackageReference Include=\"$PACKAGE_NAME\""; then
-          echo "Package version has changed."
-          echo "sf_ver_changed=true" >> $GITHUB_OUTPUT
-        else
-          echo "No changes to package version."
-          echo "sf_ver_changed=false" >> $GITHUB_OUTPUT
-        fi
 
     # create GH release
     - name: Create a GitHub release
