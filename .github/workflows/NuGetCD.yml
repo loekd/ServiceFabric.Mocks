@@ -16,7 +16,7 @@ jobs:
       Test_Project_File: \test\ServiceFabric.Mocks.NetCoreTests\ServiceFabric.Mocks.NetCoreTests.csproj
     steps:
     - name: checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
@@ -27,7 +27,7 @@ jobs:
       run: |
         # Specify the package you want to check
         $PACKAGE_NAME="Microsoft.ServiceFabric.Actors"
-        $csprojPath = "\src\ServiceFabric.Mocks\ServiceFabric.Mocks.csproj"
+        $csprojPath = "./src/ServiceFabric.Mocks/ServiceFabric.Mocks.csproj"
 
         # Get the diff and check for the package reference
         $diff = git diff master -- $csprojPath
