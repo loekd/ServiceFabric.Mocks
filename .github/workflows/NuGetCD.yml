@@ -20,6 +20,13 @@ jobs:
       with:
         fetch-depth: 0
 
+    # Echo context
+    - name: Echo context
+      shell: pwsh
+      run: |
+       $branch_name = $env:GITHUB_REF -replace 'refs/heads/', ''
+       Write-Host "Last merged branch: $branch_name"
+
     # Check for SF updates before creating a new release
     - name: Check for SF NuGet Package Version Change
       id: check_version
