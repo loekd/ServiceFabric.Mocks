@@ -20,9 +20,6 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Setup master branch locally without switching current branch
-      run: git fetch origin master:master
-
     # Check for SF updates before creating a new release
     - name: Check for SF NuGet Package Version Change
       id: check_version
@@ -33,7 +30,7 @@ jobs:
         $csprojPath = "./src/ServiceFabric.Mocks/ServiceFabric.Mocks.csproj"
 
         # Get the diff and check for the package reference
-        $diff = git diff master -- $csprojPath
+        $diff = git diff HEAD~1 -- $csprojPath
 
         if ($diff -match "<PackageReference Include=`"$PACKAGE_NAME`"") {
             Write-Host "SF Package version has changed."
