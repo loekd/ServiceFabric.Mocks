@@ -20,17 +20,22 @@ jobs:
     # Check for SF updates before creating a new release
     - name: Check for SF NuGet Package Version Change
       id: check_version
+      shell: pwsh
       run: |
         # Specify the package you want to check
-        PACKAGE_NAME="Microsoft.ServiceFabric.Actors"
-        # Check for changes in the .csproj file for the package version
-        if git diff origin/master -- /src/ServiceFabric.Mocks/ServiceFabric.Mocks.csproj | grep -q "<PackageReference Include=\"$PACKAGE_NAME\""; then
-          echo "Package version has changed."
-          echo "sf_ver_changed=true" >> $GITHUB_OUTPUT
-        else
-          echo "No changes to package version."
-          echo "sf_ver_changed=false" >> $GITHUB_OUTPUT
-        fi
+        $PACKAGE_NAME="Microsoft.ServiceFabric.Actors"
+        $csprojPath = "\src\ServiceFabric.Mocks\ServiceFabric.Mocks.csproj"
+
+        # Get the diff and check for the package reference
+        $diff = git diff origin/master -- $csprojPath
+
+        if ($diff -match "<PackageReference Include=`"$PACKAGE_NAME`"") {
+            Write-Host "Package version has changed."
+            echo "changed=true" >> $env:GITHUB_ENV
+        } else {
+            Write-Host "No changes to package version."
+            echo "changed=false" >> $env:GITHUB_ENV
+        }      
 
     # Run echo
     - name: Echo status
