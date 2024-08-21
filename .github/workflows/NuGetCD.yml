@@ -15,7 +15,10 @@ jobs:
     env:
       Test_Project_File: \test\ServiceFabric.Mocks.NetCoreTests\ServiceFabric.Mocks.NetCoreTests.csproj
     steps:
-    - uses: actions/checkout@v3
+    - name: checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
     # Check for SF updates before creating a new release
     - name: Check for SF NuGet Package Version Change
