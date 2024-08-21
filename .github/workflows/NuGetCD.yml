@@ -19,7 +19,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-        
+
     - name: Setup master branch locally without switching current branch
       run: git fetch origin master:master
 
@@ -36,10 +36,10 @@ jobs:
         $diff = git diff master -- $csprojPath
 
         if ($diff -match "<PackageReference Include=`"$PACKAGE_NAME`"") {
-            Write-Host "Package version has changed."
+            Write-Host "SF Package version has changed."
             echo "changed=true" >> $env:GITHUB_ENV
         } else {
-            Write-Host "No changes to package version."
+            Write-Host "No changes to SF package version."
             echo "changed=false" >> $env:GITHUB_ENV
         }      
 
@@ -47,6 +47,9 @@ jobs:
     - name: Echo status
       if: ${{ steps.check_version.outputs.sf_ver_changed == 'true' }}
       run: echo "This run will create a new release on GitHub and Nuget"
+    - name: Echo status
+      if: ${{ steps.check_version.outputs.sf_ver_changed == 'false' }}
+      run: echo "This run will NOT create a new release on GitHub and Nuget"
 
     # create version
     - name: Bump version and push tag
