@@ -27,7 +27,7 @@ jobs:
         $csprojPath = "\src\ServiceFabric.Mocks\ServiceFabric.Mocks.csproj"
 
         # Get the diff and check for the package reference
-        $diff = git diff origin/master -- $csprojPath
+        $diff = git diff master -- $csprojPath
 
         if ($diff -match "<PackageReference Include=`"$PACKAGE_NAME`"") {
             Write-Host "Package version has changed."
