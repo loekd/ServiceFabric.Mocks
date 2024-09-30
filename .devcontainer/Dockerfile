@@ -19,4 +19,4 @@ RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubunt
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xB1998361219BD9C9
 #RUN apt-add-repository "deb http://repos.azul.com/azure-only/zulu/apt stable main"
 RUN curl -O https://cdn.azul.com/zulu/bin/zulu-repo_1.0.0-2_all.deb && apt-get install ./zulu-repo_1.0.0-2_all.deb 
-RUN apt-get update && apt-get install zulu11-jdk servicefabricsdkcommon dotnet-sdk-6.0 dotnet-sdk-7.0 servicefabric -y
+RUN apt-get update && apt-get install zulu11-jdk servicefabricsdkcommon dotnet-sdk-6.0 dotnet-sdk-7.0 dotnet-sdk-8.0 servicefabric -y

@@ -16,6 +16,10 @@ namespace ServiceFabric.Mocks
         {
             return (T)Activator.CreateInstance(typeof(T), BindingFlags.Instance | BindingFlags.NonPublic, null, null, CultureInfo.CurrentCulture);
         }
+        public static T CreateInstance<T>(object[] args)
+        {
+            return (T)Activator.CreateInstance(typeof(T), BindingFlags.Instance | BindingFlags.NonPublic, null, args, CultureInfo.CurrentCulture);
+        }
 
         public static T GetPropertyValue<T>(this object input, string propertyName)
         {
