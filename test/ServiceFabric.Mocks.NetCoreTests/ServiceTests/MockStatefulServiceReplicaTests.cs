@@ -172,7 +172,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceTests
             RunAsyncCompleted = runAsyncCompleted ?? new ManualResetEvent(false);
         }
 
-        protected override async Task RunAsync(CancellationToken cancellationToken)
+        protected override Task RunAsync(CancellationToken cancellationToken)
         {
             try
             {
