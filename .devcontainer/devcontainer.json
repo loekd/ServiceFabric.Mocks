@@ -17,6 +17,6 @@
         "github.vscode-github-actions"
       ]
     }
-  },
-  "postCreateCommand": "bash ./.devcontainer/install_sf.sh"
+  }
+  // "postCreateCommand": "bash ./.devcontainer/install_sf.sh"
 }
