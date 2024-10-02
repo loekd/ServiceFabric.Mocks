@@ -23,22 +23,19 @@ namespace ServiceFabric.Mocks
 
         public static DataPackage CreateDataPackage(string path, DataPackageDescription description)
         {
-            Type dataPackageType = typeof(DataPackage);
-            var dataPackage = ReflectionHelpers.CreateInstance<DataPackage>();
-            dataPackageType.GetProperty(nameof(dataPackage.Path)).SetValue(dataPackage, path);
-            dataPackageType.GetProperty(nameof(dataPackage.Description)).SetValue(dataPackage, description);
-
+            var dataPackage = ReflectionHelpers.CreateInstance<DataPackage>(new []{description});
+            typeof(DataPackageDescription).GetProperty(nameof(PackageDescription.Path)).SetValue(description, path);
             return dataPackage;
         }
+
         public static DataPackage CreateDataPackage(string path)
         {
             Type dataPackageType = typeof(DataPackage);
             var dataPackage = ReflectionHelpers.CreateInstance<DataPackage>();
-            dataPackageType.GetProperty(nameof(dataPackage.Path)).SetValue(dataPackage, path);
 #pragma warning disable CS0618 // Type or member is obsolete
             DataPackageDescription description = CreateDataPackageDescription(nameof(DataPackageDescription.Name)
                 , nameof(DataPackageDescription.Version), nameof(DataPackageDescription.ServiceManifestName)
-                , nameof(DataPackageDescription.ServiceManifestVersion), nameof(DataPackageDescription.Path));
+                , nameof(DataPackageDescription.ServiceManifestVersion), path);
 #pragma warning restore CS0618 // Type or member is obsolete
 
             dataPackageType.GetProperty(nameof(dataPackage.Description)).SetValue(dataPackage, description);

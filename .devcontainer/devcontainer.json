@@ -1,10 +1,22 @@
 {
-  "build": { "dockerfile": "Dockerfile" },
-  "features": {
-    "ghcr.io/devcontainers/features/git:1": {}
+  "build": {
+    "dockerfile": "Dockerfile"
   },
-  "extensions": [
-    "ms-dotnettools.csharp",
-    "eamodio.gitlens"
-  ]
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/dotnet:2": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-dotnettools.vscode-dotnet-runtime",
+        "ms-dotnettools.csharp",
+        "ms-azuretools.vscode-docker",
+        "github.copilot",
+        "ms-dotnettools.csdevkit",
+        "github.vscode-github-actions"
+      ]
+    }
+  }
+  // "postCreateCommand": "bash ./.devcontainer/install_sf.sh"
 }

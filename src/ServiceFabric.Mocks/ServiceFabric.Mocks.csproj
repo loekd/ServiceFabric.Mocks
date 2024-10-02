@@ -12,7 +12,7 @@
     <PackageId>ServiceFabric.Mocks</PackageId>
     <PackageTags>ServiceFabric;Service;Fabric;Actor;Mock;Unit;Test</PackageTags>
     <PackageProjectUrl>https://github.com/loekd/ServiceFabric.Mocks</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/loekd/ServiceFabric.Mocks/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression >
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/loekd/ServiceFabric.Mocks.git</RepositoryUrl>
@@ -38,7 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="7.1.2338" />
+    <PackageReference Include="Microsoft.ServiceFabric.Actors" Version="7.1.2448" />
   </ItemGroup>
 
 </Project>

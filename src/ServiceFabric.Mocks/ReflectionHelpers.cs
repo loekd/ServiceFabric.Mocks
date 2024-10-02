@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 using static ServiceFabric.Mocks.Constants;
 
@@ -15,6 +11,11 @@ namespace ServiceFabric.Mocks
         public static T CreateInstance<T>()
         {
             return (T)Activator.CreateInstance(typeof(T), BindingFlags.Instance | BindingFlags.NonPublic, null, null, CultureInfo.CurrentCulture);
+        }
+
+        public static T CreateInstance<T>(object[] args)
+        {
+            return (T)Activator.CreateInstance(typeof(T), BindingFlags.Instance | BindingFlags.NonPublic, null, args, CultureInfo.CurrentCulture);
         }
 
         public static T GetPropertyValue<T>(this object input, string propertyName)

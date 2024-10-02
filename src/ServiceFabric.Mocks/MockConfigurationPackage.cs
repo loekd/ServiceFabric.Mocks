@@ -65,12 +65,11 @@ namespace ServiceFabric.Mocks
         /// <returns></returns>
         public static ConfigurationPackage CreateConfigurationPackage(ConfigurationSettings configSettings, string path = null)
         {
-            Type packageType = typeof(ConfigurationPackage);
-            var configPackage = (ConfigurationPackage)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(packageType);
-
-            packageType.GetProperty(nameof(configPackage.Path)).SetValue(configPackage, path);
-            packageType.GetProperty(nameof(configPackage.Settings)).SetValue(configPackage, configSettings);
-
+            Type packageType = typeof(ConfigurationPackageDescription);
+            var description = ReflectionHelpers.CreateInstance<ConfigurationPackageDescription>();
+            packageType.GetProperty(nameof(ConfigurationPackageDescription.Settings)).SetValue(description, configSettings);
+            packageType.GetProperty(nameof(ConfigurationPackageDescription.Path)).SetValue(description, path);
+            var configPackage = ReflectionHelpers.CreateInstance<ConfigurationPackage>(new []{description});
             return configPackage;
         }
 
