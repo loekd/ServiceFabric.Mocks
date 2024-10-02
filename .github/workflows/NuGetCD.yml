@@ -7,6 +7,12 @@ on:
       - '**.cs'
       - '**.csproj'
   workflow_dispatch:
+    inputs:
+      force_release:
+        description: 'Force publishing a new NuGet package version (even if the underlying SF version did not change)'
+        required: false
+        default: false
+        type: boolean
 jobs:
 
   prepare:
@@ -15,10 +21,6 @@ jobs:
     env:
       Test_Project_File: \test\ServiceFabric.Mocks.NetCoreTests\ServiceFabric.Mocks.NetCoreTests.csproj
     steps:
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 8.0.x
     - name: checkout
       uses: actions/checkout@v4
       with:
@@ -53,7 +55,7 @@ jobs:
 
     # Run echo
     - name: Echo status
-      if: ${{ steps.check_version.outputs.sf_ver_changed == 'true' }}
+      if: ${{ steps.check_version.outputs.sf_ver_changed == 'true' || github.event.inputs.force_release == 'true' }}
       run: echo "This run will create a new release on GitHub and Nuget"
     - name: Echo status
       if: ${{ steps.check_version.outputs.sf_ver_changed == 'false' }}
@@ -65,13 +67,12 @@ jobs:
       uses: loekd/github-tag-action@v6.1
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        dry_run: ${{ steps.check_version.outputs.sf_ver_changed == 'true' }}
+        dry_run: ${{ steps.check_version.outputs.sf_ver_changed == 'false' && github.event.inputs.force_release == 'false' }}
 
-    # install dotnet 6
     - name: Setup .NET
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: 8.0.x
 
     # Install SF SDK
     - name: Install SF      
@@ -110,7 +111,7 @@ jobs:
 
     # create GH release
     - name: Create a GitHub release
-      if: ${{ steps.check_version.outputs.sf_ver_changed == 'true' }}
+      if: ${{ steps.check_version.outputs.sf_ver_changed == 'true' || github.event.inputs.force_release == 'true' }}
       uses: loekd/release-action@v1
       with:
         tag: ${{ steps.tag_version.outputs.new_tag }}
@@ -119,7 +120,7 @@ jobs:
 
     # publish nuget package artifact
     - name: Upload Package for Publishing
-      if: ${{ steps.check_version.outputs.sf_ver_changed == 'true' }}
+      if: ${{ steps.check_version.outputs.sf_ver_changed == 'true' || github.event.inputs.force_release == 'true' }}
       uses: actions/upload-artifact@v3
       with:
         name: PackedLib
@@ -127,12 +128,12 @@ jobs:
 
     # publish GH nuget package artifact
     - name: Push Package to GitHub
-      if: ${{ steps.check_version.outputs.sf_ver_changed == 'true' }}
+      if: ${{ steps.check_version.outputs.sf_ver_changed == 'true' || github.event.inputs.force_release == 'true' }}
       run: dotnet nuget push --api-key ${{secrets.GITHUB_TOKEN}} --source "https://nuget.pkg.github.com/loekd/index.json" ${{ github.workspace }}/ServiceFabric.Mocks.${{ steps.tag_version.outputs.new_version }}.nupkg
 
     # publish packge to nuget
     - name: Push Package to GitHub
-      if: ${{ steps.check_version.outputs.sf_ver_changed == 'true' }}
+      if: ${{ steps.check_version.outputs.sf_ver_changed == 'true' || github.event.inputs.force_release == 'true' }}
       run: dotnet nuget push --api-key ${{secrets.NUGETPUSH}} --source "https://api.nuget.org/v3/index.json" ${{ github.workspace }}/ServiceFabric.Mocks.${{ steps.tag_version.outputs.new_version }}.nupkg
 
     
