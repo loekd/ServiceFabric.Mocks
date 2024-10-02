@@ -15,6 +15,10 @@ jobs:
     env:
       Test_Project_File: \test\ServiceFabric.Mocks.NetCoreTests\ServiceFabric.Mocks.NetCoreTests.csproj
     steps:
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
     - name: checkout
       uses: actions/checkout@v4
       with:
