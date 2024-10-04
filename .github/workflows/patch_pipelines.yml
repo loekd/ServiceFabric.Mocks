@@ -1,0 +1,51 @@
+name: Update Service Fabric SDK
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Runs weekly
+  workflow_dispatch:
+
+jobs:
+  update-sdk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Update Service Fabric SDK URI
+        run: |
+          # Fetch the HTML content of the Service Fabric documentation page
+          page_content=$(curl -s https://learn.microsoft.com/en-us/azure/service-fabric/service-fabric-get-started)
+          
+          # Extract the download link for "Install Service Fabric Runtime for Windows"
+          download_link=$(echo "$page_content" | grep -oP '(?<=href=")[^"]*(?=" data-linktype="external">Install Service Fabric Runtime for Windows</a>)')
+          
+          # Check if the download link is a valid URI
+          if [[ $download_link =~ ^https://download\.microsoft\.com/download/.*/MicrosoftServiceFabric\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.exe$ ]]; then
+          
+          # Update the workflow file with the new download link
+          sed -i "s|https://download.microsoft.com/download/.*/MicrosoftServiceFabric\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.exe|$download_link|g" .github/workflows/NuGetCD.yml
+          sed -i "s|https://download.microsoft.com/download/.*/MicrosoftServiceFabric\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.exe|$download_link|g" .github/workflows/ci.yml
+
+            # Check if there are any changes
+            if ! git diff --exit-code .github/workflows/NuGetCD.yml; then
+              # Commit changes if the file has been modified
+              git config --global user.name 'github-actions'
+              git config --global user.email 'github-actions@github.com'
+              branch_name="update-service-fabric-sdk-$(date +%Y%m%d%H%M%S)"
+              git checkout -b $branch_name
+  
+              # Commit changes if the file has been modified
+              git add .
+              git commit -m "Update Service Fabric SDK download link"
+  
+              # Push the new branch
+              git push origin $branch_name
+  
+              # Create a pull request
+              gh pr create --title "Update Service Fabric SDK download link" --body "This PR updates the Service Fabric SDK download link to the latest version." --head $branch_name --base master
+            else
+              echo "No changes detected in the workflow file."
+            fi
+          else
+            echo "No valid download link found."
+          fi
