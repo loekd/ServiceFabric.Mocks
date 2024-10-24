@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>ServiceFabric.Mocks contains Mock classes to enable unit testing of Actors and Services</Description>
-    <Copyright>2022</Copyright>
+    <Copyright>2024</Copyright>
     <AssemblyTitle>ServiceFabric.Mocks.NetCoreTests</AssemblyTitle>
     <VersionPrefix>1.0.0</VersionPrefix>
     <Authors>Loek Duys</Authors>
@@ -25,13 +25,6 @@
     <OutputTypeEx>Exe</OutputTypeEx>
     <StartupObject />
     <OutputType>Library</OutputType>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <PlatformTarget>x64</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
