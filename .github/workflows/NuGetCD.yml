@@ -64,7 +64,7 @@ jobs:
     # create version
     - name: Bump version and push tag
       id: tag_version
-      uses: loekd/github-tag-action@v6.1
+      uses: loekd/github-tag-action@v6.2
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         dry_run: ${{ steps.check_version.outputs.sf_ver_changed == 'false' && github.event.inputs.force_release == 'false' }}
