@@ -2,8 +2,10 @@
 ServiceFabric.Mocks contains many Mock and helper classes to facilitate and simplify unit testing of Service Fabric Actors and Services.
 
 **Make sure to have a look at the [test](https://github.com/loekd/ServiceFabric.Mocks/tree/master/test) code within this repo, to see how everything works.**
+## Build status
+[![Build and Test (CI)](https://github.com/loekd/ServiceFabric.Mocks/actions/workflows/ci.yml/badge.svg)](https://github.com/loekd/ServiceFabric.Mocks/actions/workflows/ci.yml)
 
-## Nuget packages here:
+## Get Nuget packages here:
 - [![NuGet](https://img.shields.io/nuget/v/ServiceFabric.Mocks.svg)](https://www.nuget.org/packages/ServiceFabric.Mocks)
 - [GitHub](https://github.com/loekd?tab=packages&repo_name=ServiceFabric.Mocks)
 
