@@ -4,6 +4,11 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    groups:
+      mstest-packages:
+        patterns:
+          - "MSTest.TestAdapter"
+          - "MSTest.TestFramework"
 
   - package-ecosystem: "github-actions"
     directory: "/"
