@@ -7,8 +7,7 @@ updates:
     groups:
       mstest-packages:
         patterns:
-          - "MSTest.TestAdapter"
-          - "MSTest.TestFramework"
+          - "MSTest.*"
     commit-message:
       include: "release-notes"
 
