@@ -51,7 +51,20 @@ jobs:
         } else {
             Write-Host "No changes to SF package version."
             echo "sf_ver_changed=false" >> $env:GITHUB_OUTPUT
-        }      
+        }
+
+        $packagePropsPath = "./Directory.Packages.props"
+        # Get the diff and check for the package version
+        $diff = git diff HEAD~1 -- $packagePropsPath
+
+        if ($diff -match "<PackageVersion Include=`"$PACKAGE_NAME`"") {
+            Write-Host "SF Package version has changed."
+            echo "sf_ver_changed=true" >> $env:GITHUB_OUTPUT
+        } else {
+            Write-Host "No changes to SF package version."
+            echo "sf_ver_changed=false" >> $env:GITHUB_OUTPUT
+        }
+        
 
     # Run echo
     - name: Echo status
