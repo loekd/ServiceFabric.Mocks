@@ -13,8 +13,8 @@
   <!-- ServiceFabric.Mocks.NetCoreTests.csproj -->
   <ItemGroup>
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-    <PackageVersion Include="MSTest.TestAdapter" Version="3.9.2" />
-    <PackageVersion Include="MSTest.TestFramework" Version="3.9.2" />
+    <PackageVersion Include="MSTest.TestAdapter" Version="3.9.3" />
+    <PackageVersion Include="MSTest.TestFramework" Version="3.9.3" />
   </ItemGroup>
 
 </Project>
