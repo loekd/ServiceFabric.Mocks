@@ -29,8 +29,8 @@ jobs:
           if [[ $download_link =~ ^https://download\.microsoft\.com/download/.*/MicrosoftServiceFabric\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.exe$ ]]; then
           
           # Update the workflow file with the new download link
-          sed -i "s|https://download.microsoft.com/download/.*/MicrosoftServiceFabric\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.exe|$download_link|g" .github/workflows/NuGetCD.yml
-          sed -i "s|https://download.microsoft.com/download/.*/MicrosoftServiceFabric\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.exe|$download_link|g" .github/workflows/ci.yml
+          sed -i -E "s|https://download.microsoft.com/download/.*/MicrosoftServiceFabric\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.exe|$download_link|g" .github/workflows/NuGetCD.yml
+          sed -i -E "s|https://download.microsoft.com/download/.*/MicrosoftServiceFabric\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.exe|$download_link|g" .github/workflows/ci.yml
 
             # Check if there are any changes
             if ! git diff --exit-code .github/workflows/NuGetCD.yml; then
