@@ -21,6 +21,8 @@ jobs:
           if [ -z "$download_link" ]; then
             echo "No download link found :-("
             exit 1
+          else
+            echo "Download link: $download_link"
           fi
           
           # Check if the download link is a valid URI
