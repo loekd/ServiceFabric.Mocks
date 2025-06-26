@@ -19,7 +19,7 @@ jobs:
           # Extract the download link for "Install Service Fabric Runtime for Windows"
           download_link=$(echo "$page_content" | grep -oP 'https:\/\/download\.microsoft\.com\/download\/[a-zA-Z0-9\/\.\-]*MicrosoftServiceFabric\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.exe' | head -1)
           if [ -z "$download_link" ]; then
-            echo "No download link found :-(
+            echo "No download link found :-("
             exit 1
           fi
           
