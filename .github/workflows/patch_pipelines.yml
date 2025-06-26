@@ -17,14 +17,20 @@ jobs:
           page_content=$(curl -s https://learn.microsoft.com/en-us/azure/service-fabric/service-fabric-get-started)
           
           # Extract the download link for "Install Service Fabric Runtime for Windows"
-          download_link=$(echo "$page_content" | grep -oP '(?<=href=")[^"]*(?=" data-linktype="external">Install Service Fabric Runtime for Windows</a>)')
+          download_link=$(echo "$page_content" | grep -oP 'https:\/\/download\.microsoft\.com\/download\/[a-zA-Z0-9\/\.\-]*MicrosoftServiceFabric\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.exe' | head -1)
+          if [ -z "$download_link" ]; then
+            echo "No download link found :-("
+            exit 1
+          else
+            echo "Download link: $download_link"
+          fi
           
           # Check if the download link is a valid URI
           if [[ $download_link =~ ^https://download\.microsoft\.com/download/.*/MicrosoftServiceFabric\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.exe$ ]]; then
           
           # Update the workflow file with the new download link
-          sed -i "s|https://download.microsoft.com/download/.*/MicrosoftServiceFabric\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.exe|$download_link|g" .github/workflows/NuGetCD.yml
-          sed -i "s|https://download.microsoft.com/download/.*/MicrosoftServiceFabric\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.exe|$download_link|g" .github/workflows/ci.yml
+          sed -i -E "s|https://download.microsoft.com/download/.*/MicrosoftServiceFabric\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.exe|$download_link|g" .github/workflows/NuGetCD.yml
+          sed -i -E "s|https://download.microsoft.com/download/.*/MicrosoftServiceFabric\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.exe|$download_link|g" .github/workflows/ci.yml
 
             # Check if there are any changes
             if ! git diff --exit-code .github/workflows/NuGetCD.yml; then
