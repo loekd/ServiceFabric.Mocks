@@ -7,7 +7,6 @@
     <Version>7.1.0</Version>
     <Authors>Loek Duys</Authors>
     <TargetFrameworks>net48;netstandard2.0</TargetFrameworks>
-    <PlatformTarget>x64</PlatformTarget>
     <AssemblyName>ServiceFabric.Mocks</AssemblyName>
     <PackageId>ServiceFabric.Mocks</PackageId>
     <PackageTags>ServiceFabric;Service;Fabric;Actor;Mock;Unit;Test</PackageTags>
@@ -21,7 +20,15 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IncludeSymbols>true</IncludeSymbols>
-    <Platforms>x64</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net48'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release'">
