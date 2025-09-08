@@ -83,7 +83,7 @@ jobs:
         dry_run: ${{ steps.check_version.outputs.sf_ver_changed == 'false' && github.event.inputs.force_release == 'false' }}
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 8.0.x
 
