@@ -7,7 +7,7 @@
 
   <!-- ServiceFabric.Mocks.csproj -->
   <ItemGroup>
-    <PackageVersion Include="Microsoft.ServiceFabric.Actors" Version="8.1.208" />
+    <PackageVersion Include="Microsoft.ServiceFabric.Actors" Version="8.2.274" />
   </ItemGroup>
 
   <!-- ServiceFabric.Mocks.NetCoreTests.csproj -->
