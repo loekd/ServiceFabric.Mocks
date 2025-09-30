@@ -7,11 +7,18 @@ on:
 jobs:
   update-sdk:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update Service Fabric SDK URI
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Fetch the HTML content of the Service Fabric documentation page
           page_content=$(curl -s https://learn.microsoft.com/en-us/azure/service-fabric/service-fabric-get-started)
@@ -27,31 +34,43 @@ jobs:
           
           # Check if the download link is a valid URI
           if [[ $download_link =~ ^https://download\.microsoft\.com/download/.*/MicrosoftServiceFabric\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.exe$ ]]; then
-          
-          # Update the workflow file with the new download link
-          sed -i -E "s|https://download.microsoft.com/download/.*/MicrosoftServiceFabric\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.exe|$download_link|g" .github/workflows/NuGetCD.yml
-          sed -i -E "s|https://download.microsoft.com/download/.*/MicrosoftServiceFabric\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.exe|$download_link|g" .github/workflows/ci.yml
+            echo "Valid download link found: $download_link"
+            
+            # Update the workflow files with the new download link
+            sed -i -E "s|https://download.microsoft.com/download/.*/MicrosoftServiceFabric\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.exe|$download_link|g" .github/workflows/NuGetCD.yml
+            sed -i -E "s|https://download.microsoft.com/download/.*/MicrosoftServiceFabric\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.exe|$download_link|g" .github/workflows/ci.yml
 
-            # Check if there are any changes
-            if ! git diff --exit-code .github/workflows/NuGetCD.yml; then
-              # Commit changes if the file has been modified
-              git config --global user.name 'github-actions'
-              git config --global user.email 'github-actions@github.com'
+            # Check if there are any changes in either file
+            if ! git diff --exit-code .github/workflows/NuGetCD.yml .github/workflows/ci.yml; then
+              echo "Changes detected in workflow files"
+              
+              # Configure git
+              git config --global user.name 'github-actions[bot]'
+              git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+              
+              # Create a new branch
               branch_name="update-service-fabric-sdk-$(date +%Y%m%d%H%M%S)"
               git checkout -b $branch_name
   
-              # Commit changes if the file has been modified
-              git add .
-              git commit -m "Update Service Fabric SDK download link"
+              # Stage and commit changes
+              git add .github/workflows/NuGetCD.yml .github/workflows/ci.yml
+              git commit -m "Update Service Fabric SDK download link to latest version"
   
               # Push the new branch
               git push origin $branch_name
   
-              # Create a pull request
-              gh pr create --title "Update Service Fabric SDK download link" --body "This PR updates the Service Fabric SDK download link to the latest version." --head $branch_name --base master
+              # Create a pull request using GitHub CLI
+              gh pr create \
+                --title "Update Service Fabric SDK download link" \
+                --body "This PR updates the Service Fabric SDK download link to the latest version: $download_link" \
+                --head $branch_name \
+                --base master
+              
+              echo "Pull request created successfully"
             else
-              echo "No changes detected in the workflow file."
+              echo "No changes detected in the workflow files."
             fi
           else
-            echo "No valid download link found."
+            echo "No valid download link found or link format is incorrect."
+            exit 1
           fi
