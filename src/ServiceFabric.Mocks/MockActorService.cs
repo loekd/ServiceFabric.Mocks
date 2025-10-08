@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Fabric;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
@@ -47,7 +47,7 @@ namespace ServiceFabric.Mocks
 			{
 				var ctor = actorTypeInfo.ImplementationType.GetConstructor(Constants.InstancePublicNonPublic, null,
 					new[] { typeof(ActorService), typeof(ActorId) }, null);
-				if (ctor == null) throw new InvalidOperationException("The default MockActorService ActorFactory expects an Actor to have a constructor that takes ActorService and ActorId arguments. Please use a custom 'actorFactory' parameter.");
+				if (ctor is null) throw new InvalidOperationException("The default MockActorService ActorFactory expects an Actor to have a constructor that takes ActorService and ActorId arguments. Please use a custom 'actorFactory' parameter.");
 				return (ActorBase)ctor.Invoke(new object[] { svc, id });
 			});
 		}

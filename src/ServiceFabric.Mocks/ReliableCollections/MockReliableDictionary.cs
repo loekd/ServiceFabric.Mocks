@@ -1,4 +1,4 @@
-﻿namespace ServiceFabric.Mocks.ReliableCollections
+namespace ServiceFabric.Mocks.ReliableCollections
 {
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
@@ -26,7 +26,7 @@
             InternalDictionaryChanged +=
                 (sender, c) =>
                 {
-                    if (DictionaryChanged != null)
+                    if (DictionaryChanged is not null)
                     {
                         NotifyDictionaryChangedEventArgs<TKey, TValue> e = null;
                         switch (c.ChangeType)
@@ -135,7 +135,7 @@
 
                 foreach (var key in Dictionary.Keys)
                 {
-                    if (filter == null || filter(key))
+                    if (filter is null || filter(key))
                     {
                         await LockManager.AcquireLock(tx.TransactionId, key, LockMode.Default);
                         keys.Add(key);

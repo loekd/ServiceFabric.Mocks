@@ -1,8 +1,8 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Threading.Tasks;
-using ServiceFabric.Mocks.ReliableCollections;
+using System;
 using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ServiceFabric.Mocks.ReliableCollections;
 
 namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
 {
@@ -17,7 +17,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
             var tx = new MockTransaction(null, 1);
 
             await dictionary.AddAsync(tx, key, "value");
-            await Assert.ThrowsExceptionAsync<ArgumentException>(async () =>
+            await Assert.ThrowsAsync<ArgumentException>(async () =>
             {
                 await dictionary.AddAsync(tx, key, "value");
             });
@@ -35,7 +35,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
             await dictionary.AddAsync(tx, key, value);
             var actual = await dictionary.TryGetValueAsync(tx, key);
 
-            Assert.AreEqual(actual.Value, value);
+            Assert.AreEqual(value, actual.Value);
         }
 
         [TestMethod]
@@ -64,7 +64,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
 
             await dictionary.AddAsync(tx, key, value);
             var enumerable = await dictionary.CreateKeyEnumerableAsync(tx);
-            var enumerator = enumerable.GetAsyncEnumerator();
+            using var enumerator = enumerable.GetAsyncEnumerator();
             await enumerator.MoveNextAsync(CancellationToken.None);
             var actual = enumerator.Current;
 

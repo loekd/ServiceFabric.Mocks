@@ -1,9 +1,10 @@
-﻿using Microsoft.ServiceFabric.Data.Collections;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ServiceFabric.Mocks.ReliableCollections;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Data.Collections;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ServiceFabric.Mocks.ReliableCollections;
+
 // ReSharper disable PossibleInvalidOperationException
 
 namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
@@ -37,7 +38,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
             await l.Acquire(1, LockMode.Update);
 
-            await Assert.ThrowsExceptionAsync<TimeoutException>(
+            await Assert.ThrowsAsync<TimeoutException>(
                 async () =>
                 {
                     await l.Acquire(2, LockMode.Default, timeout: TimeSpan.FromMilliseconds(10));
@@ -101,7 +102,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
             await l.Acquire(1, LockMode.Update);
 
-            await Assert.ThrowsExceptionAsync<OperationCanceledException>(
+            await Assert.ThrowsAsync<OperationCanceledException>(
                 async () =>
                 {
                     CancellationTokenSource tokenSource = new CancellationTokenSource();
@@ -120,12 +121,12 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             await lockManager.AcquireLock(1, 2, LockMode.Update);
             await lockManager.AcquireLock(1, 3, LockMode.Update);
 
-            Task[] tasks = new Task[]
-                {
-                    lockManager.AcquireLock(2, 1, LockMode.Update),
-                    lockManager.AcquireLock(3, 2, LockMode.Update),
-                    lockManager.AcquireLock(4, 3, LockMode.Update),
-                };
+            Task[] tasks =
+            [
+                lockManager.AcquireLock(2, 1, LockMode.Update),
+                lockManager.AcquireLock(3, 2, LockMode.Update),
+                lockManager.AcquireLock(4, 3, LockMode.Update)
+            ];
 
             lockManager.ReleaseLocks(1);
             Task.WaitAll(tasks);
@@ -135,14 +136,13 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
             await lockManager.AcquireLock(5, 1, LockMode.Default);
             await lockManager.AcquireLock(5, 2, LockMode.Default);
-            await Assert.ThrowsExceptionAsync<TimeoutException>(
+            await Assert.ThrowsAsync<TimeoutException>(
                 async () =>
                 {
                     await lockManager.AcquireLock(5, 3, LockMode.Default, timeout: TimeSpan.FromMilliseconds(10));
                 }
             );
         }
-
 
         [TestMethod]
         public void Lock_RaceToAcquire_Success()
@@ -153,7 +153,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             AcquireResult? resultB = null;
             Lock<int> l = new Lock<int>();
 
-            Thread a = new Thread(state =>
+            Thread a = new Thread(_ =>
             {
                 l.Acquire(1, LockMode.Default, 100, new CancellationToken(false)).Wait();
                 resultA = l.Acquire(1, LockMode.Default, 100, new CancellationToken(false)).Result;
@@ -163,7 +163,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
                 l.Release(1);
             });
 
-            Thread b = new Thread(state =>
+            Thread b = new Thread(_ =>
             {
                 waitToStart.Wait();
                 waitToEnd.Set(); //continue a
@@ -191,7 +191,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             AcquireResult? resultB = null;
             Lock<int> l = new Lock<int>();
 
-            Thread a = new Thread(state =>
+            Thread a = new Thread(_ =>
             {
                 l.Acquire(1, LockMode.Default, 100, new CancellationToken(false)).Wait();
                 resultA = l.Acquire(1, LockMode.Default, 100, new CancellationToken(false)).Result;
@@ -202,7 +202,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
                 l.Release(1);
             });
 
-            Thread b = new Thread(state =>
+            Thread b = new Thread(_ =>
             {
                 waitToStart.Wait();
                 waitToEnd.Set(); //continue a
@@ -230,7 +230,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             AcquireResult? resultB = null;
             Lock<int> l = new Lock<int>();
 
-            Thread a = new Thread(state =>
+            Thread a = new Thread(_ =>
             {
                 l.Acquire(1, LockMode.Default, 100, new CancellationToken(false)).Wait();
                 resultA = l.Acquire(1, LockMode.Default, 100, new CancellationToken(false)).Result;
@@ -241,7 +241,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
                 l.Release(1);
             });
 
-            Thread b = new Thread(state =>
+            Thread b = new Thread(_ =>
             {
                 waitToStart.Wait();
                 waitToEnd.Set(); //continue a

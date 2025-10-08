@@ -1,14 +1,14 @@
-﻿using Microsoft.ServiceFabric.Data;
+using System;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceFabric.Mocks.ReliableCollections;
-using System;
-using System.Threading.Tasks;
+
+// ReSharper disable AccessToDisposedClosure
 
 namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 {
-    // ReSharper disable AccessToDisposedClosure
-
     [TestClass]
     public class TransactedConcurrentDictionaryTests
     {
@@ -20,7 +20,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s, e) =>
+                (_, e) =>
                 {
                     change = e;
                 }
@@ -29,7 +29,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             using (var tx = _stateManager.CreateTransaction())
             {
                 await d.AddAsync(tx, 1, "One");
-                await Assert.ThrowsExceptionAsync<ArgumentException>(
+                await Assert.ThrowsAsync<ArgumentException>(
                     async () =>
                     {
                         await d.AddAsync(tx, 1, "Two");
@@ -40,7 +40,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
                 using (var tx2 = _stateManager.CreateTransaction())
                 {
-                    await Assert.ThrowsExceptionAsync<TimeoutException>(
+                    await Assert.ThrowsAsync<TimeoutException>(
                         async () =>
                         {
                             await d.AddAsync(tx2, 1, "Three", TimeSpan.FromMilliseconds(20));
@@ -66,7 +66,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s, e) =>
+                (_, e) =>
                 {
                     change = e;
                 }
@@ -74,7 +74,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
             using (var tx = _stateManager.CreateTransaction())
             {
-                await d.AddOrUpdateAsync(tx, 1, (k) => "One", (k, v) => "Two");
+                await d.AddOrUpdateAsync(tx, 1, _ => "One", (_, _) => "Two");
                 Assert.IsNull(change);
                 await tx.CommitAsync();
                 Assert.IsNotNull(change);
@@ -84,7 +84,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             change = null;
             using (var tx = _stateManager.CreateTransaction())
             {
-                await d.AddOrUpdateAsync(tx, 1, (k) => "One", (k, v) => "Two");
+                await d.AddOrUpdateAsync(tx, 1, _ => "One", (_, _) => "Two");
                 Assert.IsNull(change);
                 await tx.CommitAsync();
                 Assert.IsNotNull(change);
@@ -98,7 +98,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s, e) =>
+                (_, e) =>
                 {
                     change = e;
                 }
@@ -123,7 +123,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s, e) =>
+                (_, e) =>
                 {
                     change = e;
                 }
@@ -140,23 +140,21 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
         {
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s, e) =>
+                (_, _) =>
                 {
                 }
             );
 
-            using (var tx = _stateManager.CreateTransaction())
-            {
-                await d.AddAsync(tx, 1, "One");
-                await Assert.ThrowsExceptionAsync<TimeoutException>(
-                    async () =>
-                    {
-                        await ContainsKey(d, 1, TimeSpan.FromMilliseconds(20));
-                    }
-                );
-                await tx.CommitAsync();
-                Assert.IsTrue(await ContainsKey(d, 1));
-            }
+            using var tx = _stateManager.CreateTransaction();
+            await d.AddAsync(tx, 1, "One");
+            await Assert.ThrowsAsync<TimeoutException>(
+                async () =>
+                {
+                    await ContainsKey(d, 1, TimeSpan.FromMilliseconds(20));
+                }
+            );
+            await tx.CommitAsync();
+            Assert.IsTrue(await ContainsKey(d, 1));
         }
 
         [TestMethod]
@@ -165,23 +163,21 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s, e) =>
+                (_, e) =>
                 {
                     change = e;
                 }
             );
 
-            using (var tx = _stateManager.CreateTransaction())
-            {
-                await d.GetOrAddAsync(tx, 1, (k) => "One");
-                await d.GetOrAddAsync(tx, 1, (k) => "Two");
+            using var tx = _stateManager.CreateTransaction();
+            await d.GetOrAddAsync(tx, 1, _ => "One");
+            await d.GetOrAddAsync(tx, 1, _ => "Two");
 
-                Assert.IsNull(change);
-                await tx.CommitAsync();
-                Assert.IsNotNull(change);
-                Assert.AreEqual("One", change.Added);
-                Assert.AreEqual("One", (await GetValue(d, 1)).Value);
-            }
+            Assert.IsNull(change);
+            await tx.CommitAsync();
+            Assert.IsNotNull(change);
+            Assert.AreEqual("One", change.Added);
+            Assert.AreEqual("One", (await GetValue(d, 1)).Value);
         }
 
         [TestMethod]
@@ -190,7 +186,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s, e) =>
+                (_, e) =>
                 {
                     change = e;
                 }
@@ -211,7 +207,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
                 await d.SetAsync(tx, 1, "One");
                 await tx.CommitAsync();
                 Assert.AreEqual("One", change.Added);
-                Assert.AreEqual(null, change.Removed);
+                Assert.IsNull(change.Removed);
             }
 
             using (var tx = _stateManager.CreateTransaction())
@@ -247,7 +243,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s, e) =>
+                (_, e) =>
                 {
                     change = e;
                 }
@@ -260,7 +256,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
                 using (var tx2 = _stateManager.CreateTransaction())
                 {
-                    await Assert.ThrowsExceptionAsync<TimeoutException>(
+                    await Assert.ThrowsAsync<TimeoutException>(
                         async () =>
                         {
                             await d.TryAddAsync(tx2, 1, "Three", timeout: TimeSpan.FromMilliseconds(20));
@@ -293,30 +289,28 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s, e) =>
+                (_, e) =>
                 {
                     change = e;
                 }
             );
 
-            using (var tx = _stateManager.CreateTransaction())
+            using var tx = _stateManager.CreateTransaction();
+            Assert.IsFalse((await d.TryGetValueAsync(tx, 1, LockMode.Default)).HasValue);
+            Assert.IsTrue(await d.TryAddAsync(tx, 1, "One"));
+
+            using (var tx2 = _stateManager.CreateTransaction())
             {
-                Assert.IsFalse((await d.TryGetValueAsync(tx, 1, LockMode.Default)).HasValue);
-                Assert.IsTrue(await d.TryAddAsync(tx, 1, "One"));
-
-                using (var tx2 = _stateManager.CreateTransaction())
-                {
-                    await Assert.ThrowsExceptionAsync<TimeoutException>(
-                        async () =>
-                        {
-                            await d.TryGetValueAsync(tx2, 1, LockMode.Default, timeout: TimeSpan.FromMilliseconds(20));
-                        }
-                    );
-                }
-                await tx.CommitAsync();
-
-                Assert.AreEqual("One", change.Added);
+                await Assert.ThrowsAsync<TimeoutException>(
+                    async () =>
+                    {
+                        await d.TryGetValueAsync(tx2, 1, LockMode.Default, timeout: TimeSpan.FromMilliseconds(20));
+                    }
+                );
             }
+            await tx.CommitAsync();
+
+            Assert.AreEqual("One", change.Added);
         }
 
         [TestMethod]
@@ -325,7 +319,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s, e) =>
+                (_, e) =>
                 {
                     change = e;
                 }
@@ -338,7 +332,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
                 using (var tx2 = _stateManager.CreateTransaction())
                 {
-                    await Assert.ThrowsExceptionAsync<TimeoutException>(
+                    await Assert.ThrowsAsync<TimeoutException>(
                         async () =>
                         {
                             await d.TryRemoveAsync(tx2, 1, timeout: TimeSpan.FromMilliseconds(20));
@@ -367,7 +361,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s, e) =>
+                (_, e) =>
                 {
                     change = e;
                 }
@@ -380,12 +374,8 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
                 using (var tx2 = _stateManager.CreateTransaction())
                 {
-                    await Assert.ThrowsExceptionAsync<TimeoutException>(
-                        async () =>
-                        {
-                            await d.TryRemoveAsync(tx2, 1, timeout: TimeSpan.FromMilliseconds(20));
-                        }
-                    );
+                    await Assert.ThrowsAsync<TimeoutException>(
+                        async () => await d.TryRemoveAsync(tx2, 1, timeout: TimeSpan.FromMilliseconds(20)));
                 }
                 await tx.CommitAsync();
 
@@ -406,29 +396,22 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             }
         }
 
-
         private async Task<bool> ContainsKey(TransactedConcurrentDictionary<int, string> d, int key, TimeSpan timeout = default)
         {
-            using (var tx = _stateManager.CreateTransaction())
-            {
-                return await d.ContainsKeyAsync(tx, key, LockMode.Default, timeout);
-            }
+            using var tx = _stateManager.CreateTransaction();
+            return await d.ContainsKeyAsync(tx, key, LockMode.Default, timeout);
         }
 
         private async Task<long> GetCount(TransactedConcurrentDictionary<int, string> d)
         {
-            using (var tx = _stateManager.CreateTransaction())
-            {
-                return await d.GetCountAsync(tx);
-            }
+            using var tx = _stateManager.CreateTransaction();
+            return await d.GetCountAsync(tx);
         }
 
         private async Task<ConditionalValue<string>> GetValue(TransactedConcurrentDictionary<int, string> d, int key, TimeSpan timeout = default)
         {
-            using (var tx = _stateManager.CreateTransaction())
-            {
-                return await d.TryGetValueAsync(tx, key, LockMode.Default, timeout: timeout);
-            }
+            using var tx = _stateManager.CreateTransaction();
+            return await d.TryGetValueAsync(tx, key, LockMode.Default, timeout: timeout);
         }
     }
 }

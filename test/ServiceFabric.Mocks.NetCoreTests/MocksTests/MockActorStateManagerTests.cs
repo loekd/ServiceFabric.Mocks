@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Data;
@@ -15,11 +15,10 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
             var instance = new MockActorStateManager();
             var result = await instance.TryGetStateAsync<int?>("not existing");
 
-            Assert.IsInstanceOfType(result, typeof(ConditionalValue<int?>));
+            Assert.IsInstanceOfType<ConditionalValue<int?>>(result);
             Assert.IsNull(result.Value);
             Assert.IsFalse(result.HasValue);
         }
-
 
         [TestMethod]
         public async Task Nullable_Int_TryGetStateAsyncTest()
@@ -29,7 +28,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
 
             var result = await instance.TryGetStateAsync<int?>("existing");
 
-            Assert.IsInstanceOfType(result, typeof(ConditionalValue<int?>));
+            Assert.IsInstanceOfType<ConditionalValue<int?>>(result);
             Assert.IsNotNull(result.Value);
             Assert.IsTrue(result.HasValue);
             Assert.AreEqual(6, result.Value);
@@ -41,11 +40,10 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
             var instance = new MockActorStateManager();
             var result = await instance.TryGetStateAsync<int>("not existing");
 
-            Assert.IsInstanceOfType(result, typeof(ConditionalValue<int>));
+            Assert.IsInstanceOfType<ConditionalValue<int>>(result);
             Assert.AreEqual(default, result.Value);
             Assert.IsFalse(result.HasValue);
         }
-
 
         [TestMethod]
         public async Task Int_TryGetStateAsyncTest()
@@ -55,7 +53,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
 
             var result = await instance.TryGetStateAsync<int>("existing");
 
-            Assert.IsInstanceOfType(result, typeof(ConditionalValue<int>));
+            Assert.IsInstanceOfType<ConditionalValue<int>>(result);
             Assert.IsNotNull(result.Value);
             Assert.IsTrue(result.HasValue);
             Assert.AreEqual(6, result.Value);
@@ -69,7 +67,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
             await instance.TryRemoveStateAsync("existing");
             var result = await instance.TryGetStateAsync<int>("existing");
 
-            Assert.IsInstanceOfType(result, typeof(ConditionalValue<int>));
+            Assert.IsInstanceOfType<ConditionalValue<int>>(result);
             Assert.AreEqual(default, result.Value);
             Assert.IsFalse(result.HasValue);
         }
@@ -82,7 +80,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
 
             var result = await instance.TryGetStateAsync<int>("existing");
 
-            Assert.IsInstanceOfType(result, typeof(ConditionalValue<int>));
+            Assert.IsInstanceOfType<ConditionalValue<int>>(result);
             Assert.IsNotNull(result.Value);
             Assert.IsTrue(result.HasValue);
             Assert.AreEqual(6, result.Value);
@@ -94,9 +92,9 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
             var instance = new MockActorStateManager();
             await instance.AddStateAsync("existing", 6);
 
-            Assert.ThrowsException<InvalidOperationException>(() =>
+            await Assert.ThrowsAsync<InvalidOperationException>(async () =>
             {
-                instance.AddStateAsync("existing", 6).ConfigureAwait(false).GetAwaiter().GetResult();
+                await instance.AddStateAsync("existing", 6);
             });
         }
 
@@ -121,7 +119,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
             await instance.SetStateAsync(stateName, utcNow);
 
             var result = await instance.TryGetStateAsync<DateTimeOffset>(stateName);
-            Assert.IsInstanceOfType(result, typeof(ConditionalValue<DateTimeOffset>));
+            Assert.IsInstanceOfType<ConditionalValue<DateTimeOffset>>(result);
             Assert.IsNotNull(result.Value);
             Assert.IsTrue(result.HasValue);
             Assert.AreEqual(utcNow, result.Value);
@@ -135,10 +133,8 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
 
             Task Action() => instance.GetStateAsync<int>(notExisting);
 
-            var ex = await Assert.ThrowsExceptionAsync<KeyNotFoundException>(Action);
+            var ex = await Assert.ThrowsAsync<KeyNotFoundException>(Action);
             StringAssert.Contains(ex.Message, notExisting);
         }
-
-
     }
 }

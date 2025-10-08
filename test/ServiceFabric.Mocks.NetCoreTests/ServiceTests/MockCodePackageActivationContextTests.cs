@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Fabric.Description;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -12,10 +12,9 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceTests
         {
             var dut = (MockCodePackageActivationContext)MockCodePackageActivationContext.Default;
 
-            Assert.IsInstanceOfType(dut.EndpointResourceDescriptions, typeof(KeyedCollection<string, EndpointResourceDescription>));
-            Assert.IsInstanceOfType(dut.ServiceGroupTypes, typeof(KeyedCollection<string, ServiceGroupTypeDescription>));
-            Assert.IsInstanceOfType(dut.ServiceTypes, typeof(KeyedCollection<string, ServiceTypeDescription>));
-
+            Assert.IsInstanceOfType<KeyedCollection<string, EndpointResourceDescription>>(dut.EndpointResourceDescriptions);
+            Assert.IsInstanceOfType<KeyedCollection<string, ServiceGroupTypeDescription>>(dut.ServiceGroupTypes);
+            Assert.IsInstanceOfType<KeyedCollection<string, ServiceTypeDescription>>(dut.ServiceTypes);
         }
     }
 }

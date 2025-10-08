@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Fabric;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -13,7 +13,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
         {
             var instance = MockStatelessServiceContextFactory.Default;
 
-            Assert.IsInstanceOfType(instance, typeof(StatelessServiceContext));
+            Assert.IsInstanceOfType<StatelessServiceContext>(instance);
             Assert.AreEqual(new Uri(MockStatefulServiceContextFactory.ServiceName), instance.ServiceName);
             Assert.AreEqual(MockStatefulServiceContextFactory.ServiceTypeName, instance.ServiceTypeName);
         }
@@ -29,7 +29,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
 
             var instance = MockStatelessServiceContextFactory.Create(context, serviceTypeName, newUri, partitionId, replicaId);
 
-            Assert.IsInstanceOfType(instance, typeof(StatelessServiceContext));
+            Assert.IsInstanceOfType<StatelessServiceContext>(instance);
             Assert.AreEqual(context, instance.CodePackageActivationContext);
             Assert.AreEqual(newUri, instance.ServiceName);
             Assert.AreEqual(serviceTypeName, instance.ServiceTypeName);
@@ -49,7 +49,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
 
             var instance = MockStatelessServiceContextFactory.Create(context, serviceTypeName, newUri, partitionId, replicaId, Encoding.UTF8.GetBytes("blah"));
 
-            Assert.IsInstanceOfType(instance, typeof(StatelessServiceContext));
+            Assert.IsInstanceOfType<StatelessServiceContext>(instance);
             Assert.AreEqual(context, instance.CodePackageActivationContext);
             Assert.AreEqual(newUri, instance.ServiceName);
             Assert.AreEqual(serviceTypeName, instance.ServiceTypeName);

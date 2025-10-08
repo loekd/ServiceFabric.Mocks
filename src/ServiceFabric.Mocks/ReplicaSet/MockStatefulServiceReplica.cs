@@ -1,4 +1,4 @@
-﻿using Microsoft.ServiceFabric.Data;
+using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
 using System;
@@ -31,7 +31,7 @@ namespace ServiceFabric.Mocks.ReplicaSet
 
         public Exception LastException {
             get {
-                if (_runAsyncTask != null && _runAsyncTask.IsFaulted)
+                if (_runAsyncTask is not null && _runAsyncTask.IsFaulted)
                 {
                     return _runAsyncTask.Exception;
                 }
@@ -68,7 +68,7 @@ namespace ServiceFabric.Mocks.ReplicaSet
         public async Task DeleteAsync()
         {
             RunCancellation.CancelAfter(0);
-            if (_runAsyncTask != null)
+            if (_runAsyncTask is not null)
             {
                 await _runAsyncTask;
             }
@@ -98,7 +98,7 @@ namespace ServiceFabric.Mocks.ReplicaSet
         public async Task DemoteToActiveSecondaryAsync()
         {
             RunCancellation.CancelAfter(0);
-            if (_runAsyncTask != null)
+            if (_runAsyncTask is not null)
             {
                 await _runAsyncTask;
             }

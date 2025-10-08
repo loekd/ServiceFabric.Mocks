@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -65,11 +65,13 @@ namespace ServiceFabric.Mocks.NetCoreTests.ActorTests
             var actor = svc.Activate(new ActorId(Guid.NewGuid()));
 
             var context = MockActorMethodContextFactory.CreateForActor(nameof(actor.ActorOperation));
-            Assert.IsInstanceOfType(context, typeof(ActorMethodContext));
+            Assert.IsInstanceOfType<ActorMethodContext>(context);
+
             context = MockActorMethodContextFactory.CreateForTimer(nameof(actor.ActorOperation));
-            Assert.IsInstanceOfType(context, typeof(ActorMethodContext));
+            Assert.IsInstanceOfType<ActorMethodContext>(context);
+
             context = MockActorMethodContextFactory.CreateForReminder(nameof(actor.ActorOperation));
-            Assert.IsInstanceOfType(context, typeof(ActorMethodContext));
+            Assert.IsInstanceOfType<ActorMethodContext>(context);
         }
 
         [TestMethod]
@@ -94,6 +96,5 @@ namespace ServiceFabric.Mocks.NetCoreTests.ActorTests
             reminderCollection = actor.GetActorReminders();
             Assert.IsFalse(reminderCollection.Any(r => string.Equals(r.Name, reminderName)));
         }
-
     }
 }

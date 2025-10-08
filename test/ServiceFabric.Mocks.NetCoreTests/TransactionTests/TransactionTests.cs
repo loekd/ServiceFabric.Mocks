@@ -1,10 +1,10 @@
-﻿using Microsoft.ServiceFabric.Data;
-using Microsoft.ServiceFabric.Data.Collections;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ServiceFabric.Mocks.NetCoreTests.Services;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Data;
+using Microsoft.ServiceFabric.Data.Collections;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ServiceFabric.Mocks.NetCoreTests.Services;
 
 namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 {
@@ -22,9 +22,9 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
             int abortedCount = 0;
             stateManager.MockTransactionChanged +=
-                (s, t) =>
+                (_, t) =>
                 {
-                    Assert.IsTrue(t.IsCommitted == !t.IsAborted, "Expected IsCommitted != IsAborted");
+                    Assert.AreEqual(t.IsCommitted, !t.IsAborted, "Expected IsCommitted != IsAborted");
                     if (t.IsAborted)
                     {
                         Interlocked.Increment(ref abortedCount);
@@ -50,9 +50,9 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
             int abortedCount = 0;
             stateManager.MockTransactionChanged +=
-                (s, t) =>
+                (_, t) =>
                 {
-                    Assert.IsTrue(t.IsCommitted == !t.IsAborted, "Expected IsCommitted != IsAborted");
+                    Assert.AreEqual(t.IsCommitted, !t.IsAborted, "Expected IsCommitted != IsAborted");
                     if (t.IsAborted)
                     {
                         Interlocked.Increment(ref abortedCount);
@@ -80,9 +80,9 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
             int abortedCount = 0;
             stateManager.MockTransactionChanged +=
-                (s, t) =>
+                (_, t) =>
                 {
-                    Assert.IsTrue(t.IsCommitted == !t.IsAborted, "Expected IsCommitted != IsAborted");
+                    Assert.AreEqual(t.IsCommitted, !t.IsAborted, "Expected IsCommitted != IsAborted");
                     if (t.IsAborted)
                     {
                         Interlocked.Increment(ref abortedCount);
@@ -113,9 +113,9 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
             int abortedCount = 0;
             stateManager.MockTransactionChanged +=
-                (s, t) =>
+                (_, t) =>
                 {
-                    Assert.IsTrue(t.IsCommitted == !t.IsAborted, "Expected IsCommitted != IsAborted");
+                    Assert.AreEqual(t.IsCommitted, !t.IsAborted, "Expected IsCommitted != IsAborted");
                     if (t.IsAborted)
                     {
                         Interlocked.Increment(ref abortedCount);
@@ -147,9 +147,9 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
             int abortedCount = 0;
             stateManager.MockTransactionChanged +=
-                (s, t) =>
+                (_, t) =>
                 {
-                    Assert.IsTrue(t.IsCommitted == !t.IsAborted, "Expected IsCommitted != IsAborted");
+                    Assert.AreEqual(t.IsCommitted, !t.IsAborted, "Expected IsCommitted != IsAborted");
                     if (t.IsAborted)
                     {
                         Interlocked.Increment(ref abortedCount);
@@ -175,9 +175,9 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
             int abortedCount = 0;
             stateManager.MockTransactionChanged +=
-                (s, t) =>
+                (_, t) =>
                 {
-                    Assert.IsTrue(t.IsCommitted == !t.IsAborted, "Expected IsCommitted != IsAborted");
+                    Assert.AreEqual(t.IsCommitted, !t.IsAborted, "Expected IsCommitted != IsAborted");
                     if (t.IsAborted)
                     {
                         Interlocked.Increment(ref abortedCount);
@@ -196,14 +196,12 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             CheckDictionaryCount(stateManager, 1);
         }
 
-        private void CheckDictionaryCount(IReliableStateManager stateManager, int expectedCount)
+        private static void CheckDictionaryCount(IReliableStateManager stateManager, int expectedCount)
         {
             var dictionary = stateManager.GetOrAddAsync<IReliableDictionary<string, Payload>>(MyStatefulService.StateManagerDictionaryKey).Result;
-            using (var tx = stateManager.CreateTransaction())
-            {
-                Assert.AreEqual(expectedCount, dictionary.GetCountAsync(tx).Result);
-                tx.CommitAsync().Wait();
-            }
+            using var tx = stateManager.CreateTransaction();
+            Assert.AreEqual(expectedCount, dictionary.GetCountAsync(tx).Result);
+            tx.CommitAsync().Wait();
         }
     }
 }

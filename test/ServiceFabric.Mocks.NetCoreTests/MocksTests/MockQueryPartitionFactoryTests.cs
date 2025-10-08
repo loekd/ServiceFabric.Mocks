@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Fabric;
 using System.Fabric.Health;
@@ -72,11 +72,10 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
 
         }
 
-
         [TestMethod]
         public void CreateResolvedServicePartitionTest()
         {
-            List<ResolvedServiceEndpoint> list = new List<ResolvedServiceEndpoint>();
+            List<ResolvedServiceEndpoint> list = [];
             string address = "http://localhost/service";
             list.Add(MockQueryPartitionFactory.CreateResolvedServiceEndpoint(address));
             var serviceName = new Uri("fabric:/service");

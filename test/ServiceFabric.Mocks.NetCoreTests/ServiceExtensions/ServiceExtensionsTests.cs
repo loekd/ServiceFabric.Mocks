@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Fabric;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -41,9 +40,8 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceExtensions
         {
             var serviceInstance = new NestedStatelessService(MockStatelessServiceContextFactory.Default);
             var result = serviceInstance.InvokeCreateServiceInstanceListeners();
-            Assert.IsInstanceOfType(result, typeof(ServiceInstanceListener[]));
+            Assert.IsInstanceOfType<IEnumerable<ServiceInstanceListener>>(result);
         }
-
 
         [TestMethod]
         public async Task TestStatefulInvokeOnOpenAsync()
@@ -82,7 +80,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceExtensions
         {
             var serviceInstance = new NestedStatefulService(MockStatefulServiceContextFactory.Default);
             var result = serviceInstance.InvokeCreateServiceReplicaListeners();
-            Assert.IsInstanceOfType(result, typeof(ServiceReplicaListener[]));
+            Assert.IsInstanceOfType<IEnumerable<ServiceReplicaListener>>(result);
         }
 
         [TestMethod]
@@ -112,6 +110,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceExtensions
 
             Assert.AreEqual(partitionInfo, sut.GetPartition().PartitionInfo);
         }
+        
         private class NestedStatelessService : StatelessService
         {
             public bool OnOpenCalled { get; private set; }
@@ -136,7 +135,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceExtensions
 
             protected override IEnumerable<ServiceInstanceListener> CreateServiceInstanceListeners()
             {
-                return new[] { new ServiceInstanceListener(_ => null) };
+                return [new ServiceInstanceListener(_ => null)];
             }
 
             protected override Task RunAsync(CancellationToken cancellationToken)
@@ -171,7 +170,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceExtensions
 
             protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
             {
-                return new[] { new ServiceReplicaListener(_ => null) };
+                yield return new ServiceReplicaListener(_ => null);
             }
 
             protected override Task RunAsync(CancellationToken cancellationToken)

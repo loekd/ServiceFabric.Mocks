@@ -1,4 +1,4 @@
-﻿namespace ServiceFabric.Mocks.ReliableCollections
+namespace ServiceFabric.Mocks.ReliableCollections
 {
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
@@ -34,7 +34,7 @@
         {
             Dictionary = new ConcurrentDictionary<TKey, TValue>();
             LockManager = new LockManager<TKey, long>();
-            if (changeCallback != null)
+            if (changeCallback is not null)
                 InternalDictionaryChanged += changeCallback;
         }
 

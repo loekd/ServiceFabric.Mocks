@@ -1,4 +1,4 @@
-﻿namespace ServiceFabric.Mocks.ReliableCollections
+namespace ServiceFabric.Mocks.ReliableCollections
 {
     using Microsoft.ServiceFabric.Data.Collections;
     using System;
@@ -39,7 +39,7 @@
                     if (_lockOwners.Contains(id) && _lockOwners.Count == 1)
                     {
                         LockMode = LockMode.Default;
-                        if (TokenSource != null)
+                        if (TokenSource is not null)
                         {
                             TokenSource.CancelAfter(0);
                             TokenSource = null;
@@ -76,7 +76,7 @@
                 if (_lockOwners.Count == 0)
                 {
                     LockMode = LockMode.Default;
-                    if (TokenSource != null)
+                    if (TokenSource is not null)
                     {
                         TokenSource.CancelAfter(0);
                         TokenSource = null;
@@ -205,7 +205,7 @@
                 CancellationToken token;
                 lock (_lockOwners)
                 {
-                    if (TokenSource == null)
+                    if (TokenSource is null)
                     {
                         TokenSource = new CancellationTokenSource();
                     }

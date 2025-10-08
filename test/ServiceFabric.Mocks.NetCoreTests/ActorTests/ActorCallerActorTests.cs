@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
@@ -47,7 +47,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ActorTests
             var actorId = ActorId.CreateRandom();
             var instance = mockProxyFactory.CreateActorProxy<IMyStatefulActor>(actorId);
 
-            Assert.IsInstanceOfType(instance, typeof(IMyStatefulActor));
+            Assert.IsInstanceOfType<IMyStatefulActor>(instance);
         }
 
         [TestMethod]
@@ -68,10 +68,9 @@ namespace ServiceFabric.Mocks.NetCoreTests.ActorTests
             var instance1 = mockProxyFactory.CreateActorProxy<IMyStatefulActor>(actorId);
             var instance2 = mockProxyFactory.CreateActorProxy<IReminderTimerActor>(actorId);
 
-            Assert.IsInstanceOfType(instance1, typeof(IMyStatefulActor));
-            Assert.IsInstanceOfType(instance2, typeof(IReminderTimerActor));
+            Assert.IsInstanceOfType<IMyStatefulActor>(instance1);
+            Assert.IsInstanceOfType<IReminderTimerActor>(instance2);
         }
-
 
         private static void MockProxyFactory_MisingActorId(object sender, MissingActorEventArgs args)
         {

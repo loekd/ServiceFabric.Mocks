@@ -1,4 +1,4 @@
-﻿#if !(NETSTANDARD2_0)
+#if !(NETSTANDARD2_0)
 using System;
 using System.Collections.Generic;
 using System.Fabric;
@@ -29,7 +29,7 @@ namespace ServiceFabric.Mocks
 
         public MockActorServiceRemotingClientFactory(ActorService wrappedService)
         {
-            if (wrappedService == null) throw new ArgumentNullException(nameof(wrappedService));
+            if (wrappedService is null) throw new ArgumentNullException(nameof(wrappedService));
             _wrappedService = wrappedService;
         }
 
@@ -122,7 +122,7 @@ namespace ServiceFabric.Mocks
         /// <param name="control"></param>
         public void RegisterOperationRetryControl(IServiceRemotingClient client, OperationRetryControl control)
         {
-            if (client == null) throw new ArgumentNullException(nameof(client));
+            if (client is null) throw new ArgumentNullException(nameof(client));
             _operationRetryControls[client] = control;
         }
 
@@ -171,7 +171,7 @@ namespace ServiceFabric.Mocks
 
         public MockActorServiceRemotingClient(ActorService wrappedService)
         {
-            if (wrappedService == null) throw new ArgumentNullException(nameof(wrappedService));
+            if (wrappedService is null) throw new ArgumentNullException(nameof(wrappedService));
             WrappedService = wrappedService;
         }
         

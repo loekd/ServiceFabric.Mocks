@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Fabric;
 using System.Threading;
@@ -25,36 +25,42 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceRemoting
         [TestMethod]
         public async Task TestRemotingFactoryAsync()
         {
+            const string listenerName = "Listener";
+
             var service = new CustomActorService(MockStatefulServiceContextFactory.Default, ActorTypeInformation.Get(typeof(MyStatefulActor)));
-            var factory = new ServiceFabric.Mocks.RemotingV2.MockActorServiceRemotingClientFactory(service);
-            var client = await factory.GetClientAsync(new Uri("fabric:/App/Service"), ServicePartitionKey.Singleton,
-                TargetReplicaSelector.Default, "Listener", new OperationRetrySettings(), CancellationToken.None);
+            var factory = new MockActorServiceRemotingClientFactory(service);
+            var client = await factory.GetClientAsync(
+                new Uri("fabric:/App/Service"),
+                ServicePartitionKey.Singleton,
+                TargetReplicaSelector.Default,
+                listenerName,
+                new OperationRetrySettings(),
+                CancellationToken.None);
 
-            Assert.IsInstanceOfType(factory, typeof(IServiceRemotingClientFactory));
-            Assert.IsInstanceOfType(client, typeof(IServiceRemotingClient));
-            Assert.IsInstanceOfType(client, typeof(MockActorServiceRemotingClient));
-            Assert.AreEqual("Listener", client.ListenerName);
+            Assert.IsInstanceOfType<IServiceRemotingClientFactory>(factory);
+            Assert.IsInstanceOfType<IServiceRemotingClient>(client);
+            Assert.IsInstanceOfType<MockActorServiceRemotingClient>(client);
+            Assert.AreEqual(listenerName, client.ListenerName);
         }
-
 
         [TestMethod]
         public async Task TestActorRemotingAsync()
         {
             var payload = new Payload("content");
             var service = new CustomActorService(MockStatefulServiceContextFactory.Default, ActorTypeInformation.Get(typeof(RemotingEnabledActor)));
-            var factory = new ServiceFabric.Mocks.RemotingV2.MockActorServiceRemotingClientFactory(service);
-            var responseMessageBody = new MockServiceRemotingResponseMessageBody()
+            var factory = new MockActorServiceRemotingClientFactory(service);
+            var responseMessageBody = new MockServiceRemotingResponseMessageBody
             {
                 Response = payload
             };
             var requestMessageBody = new MockServiceRemotingRequestMessageBody();
 
-            factory.MockServiceRemotingMessageBodyFactory = new MockServiceRemotingMessageBodyFactory()
+            factory.MockServiceRemotingMessageBodyFactory = new MockServiceRemotingMessageBodyFactory
             {
                 Request = requestMessageBody,
                 Response = responseMessageBody
             };
-            factory.ServiceRemotingClient = new RemotingV2.MockActorServiceRemotingClient(service)
+            factory.ServiceRemotingClient = new MockActorServiceRemotingClient(service)
             {
                 ServiceRemotingResponseMessage = new MockServiceRemotingResponseMessage
                 {
@@ -62,11 +68,11 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceRemoting
                 }
             };
 
-            var proxyFactory = new ActorProxyFactory(callbackClient => factory);
+            var proxyFactory = new ActorProxyFactory(_ => factory);
             var proxy = proxyFactory.CreateActorProxy<IMyStatefulActor>(ActorId.CreateRandom(), "App", "Service", "Listener");
             await proxy.InsertAsync("state", payload);
 
-            Assert.IsInstanceOfType(proxy, typeof(IMyStatefulActor));
+            Assert.IsInstanceOfType<IMyStatefulActor>(proxy);
         }
     }
 
@@ -74,7 +80,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceRemoting
     {
         public Payload State { get; set; }
 
-        public RemotingEnabledActor(ActorService actorService, ActorId actorId) 
+        public RemotingEnabledActor(ActorService actorService, ActorId actorId)
             : base(actorService, actorId)
         {
         }
@@ -89,7 +95,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceRemoting
     [TestClass]
     public class ActorEventTests
     {
-        protected static bool IsSuccess = false;
+        protected static bool IsSuccess;
 
         public interface IExampleEvents : IActorEvents
         {
@@ -121,7 +127,6 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceRemoting
             Task DoSomething(Guid id, string msg);
         }
 
-
         public class ExampleClient : StatefulService, IExampleService, IExampleEvents
         {
             private readonly IActorEventSubscriptionHelper _subscriptionHelper;
@@ -137,9 +142,8 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceRemoting
                 IActorEventSubscriptionHelper subscriptionHelper, IActorProxyFactory actorProxyFactory)
                 : base(serviceContext, reliableStateManagerReplica)
             {
-                if (actorProxyFactory == null) throw new ArgumentNullException(nameof(actorProxyFactory));
                 _subscriptionHelper = subscriptionHelper ?? new ActorEventSubscriptionHelper();
-                _actorProxyFactory = actorProxyFactory;
+                _actorProxyFactory = actorProxyFactory ?? throw new ArgumentNullException(nameof(actorProxyFactory));
             }
 
             public async Task DoSomething(Guid id, string msg)
@@ -157,14 +161,9 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceRemoting
             }
         }
 
-
         [TestMethod]
         public async Task TestSubscribe_Doesnt_CrashAsync()
         {
-            //var service = new CustomActorService(MockStatefulServiceContextFactory.Default, ActorTypeInformation.Get(typeof(MyStatefulActor)));
-            //var factory = new MockActorServiceRemotingClientFactory(service);
-            //var proxyFactory = new ActorProxyFactory(callbackClient => factory)
-
             var guid = Guid.NewGuid();
             var id = new ActorId(guid);
             Func<ActorService, ActorId, ActorBase> factory = (service, actorId) => new ExampleActorMock(service, actorId);

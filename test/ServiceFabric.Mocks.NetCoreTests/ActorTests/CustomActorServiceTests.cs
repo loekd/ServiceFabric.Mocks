@@ -1,10 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ServiceFabric.Mocks;
 using ServiceFabric.Mocks.NetCoreTests.Actors;
 using ServiceFabric.Mocks.NetCoreTests.ActorServices;
 
@@ -20,8 +19,8 @@ namespace ServiceFabric.Mocks.NetCoreTests.ActorTests
             var customActorService = MockActorServiceFactory.CreateCustomActorServiceForActor<CustomActorService, InvokeOnActor>();
             var actor = customActorService.Activate<InvokeOnActor>(new ActorId(123L));
 
-            Assert.IsInstanceOfType(customActorService, typeof(CustomActorService));
-            Assert.IsInstanceOfType(actor, typeof(InvokeOnActor));
+            Assert.IsInstanceOfType<CustomActorService>(customActorService);
+            Assert.IsInstanceOfType<InvokeOnActor>(actor);
             Assert.AreEqual(123L, actor.Id.GetLongId());
         }
 
@@ -30,7 +29,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ActorTests
         {
             Dictionary<ActorId, IActorStateManager> stateManagerMap = new Dictionary<ActorId, IActorStateManager>();
 
-            Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory = (actr, stateProvider) =>
+            Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory = (actr, _) =>
             {
                 if (!stateManagerMap.TryGetValue(actr.Id, out var actorStateManager))
                 {
@@ -54,7 +53,6 @@ namespace ServiceFabric.Mocks.NetCoreTests.ActorTests
 
             var actor1_2 = customActorService.Activate<MyStatefulActor>(id1);
             var stateManager1_2 = (MockActorStateManager)actor1_2.StateManager;
-
 
             const string stateName = "test";
             const string payloadText = "foo";
@@ -81,11 +79,10 @@ namespace ServiceFabric.Mocks.NetCoreTests.ActorTests
         public void TestAnotherCustomActorService_CreateFails()
         {
             //an ActorService with a NON standard constructor can be created by the MockActorServiceFactory
-            Assert.ThrowsException<InvalidOperationException>(() =>
+            Assert.Throws<InvalidOperationException>(() =>
             {
                 // ReSharper disable once UnusedVariable
-                var customActorService =
-                    MockActorServiceFactory.CreateCustomActorServiceForActor<AnotherCustomActorService, InvokeOnActor>();
+                var customActorService = MockActorServiceFactory.CreateCustomActorServiceForActor<AnotherCustomActorService, InvokeOnActor>();
             });
         }
 
@@ -102,7 +99,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ActorTests
 
             var actor = customActorService.Activate<InvokeOnActor>(new ActorId(123L));
 
-            Assert.IsInstanceOfType(actor, typeof(InvokeOnActor));
+            Assert.IsInstanceOfType<InvokeOnActor>(actor);
             Assert.AreEqual(123L, actor.Id.GetLongId());
         }
     }

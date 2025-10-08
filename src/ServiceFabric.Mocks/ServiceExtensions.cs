@@ -1,4 +1,4 @@
-﻿using Microsoft.ServiceFabric.Services.Communication.Runtime;
+using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
 using System;
 using System.Collections.Generic;
@@ -26,7 +26,7 @@ namespace ServiceFabric.Mocks
             ReplicaOpenMode replicaOpenMode = ReplicaOpenMode.Existing,
             CancellationToken? cancellationToken = null)
         {
-            if (service == null) throw new ArgumentNullException(nameof(service));
+            if (service is null) throw new ArgumentNullException(nameof(service));
             //protected virtual Task OnOpenAsync(ReplicaOpenMode openMode, CancellationToken cancellationToken)
             var method = FindMethodInfo(service, "OnOpenAsync");
             return (Task)method.Invoke(service, new object[] { replicaOpenMode, cancellationToken ?? CancellationToken.None });
@@ -41,7 +41,7 @@ namespace ServiceFabric.Mocks
         public static Task InvokeOnOpenAsync(this StatelessService service,
             CancellationToken? cancellationToken = null)
         {
-            if (service == null) throw new ArgumentNullException(nameof(service));
+            if (service is null) throw new ArgumentNullException(nameof(service));
             //protected virtual Task OnOpenAsync(CancellationToken cancellationToken)
             var method = FindMethodInfo(service, "OnOpenAsync");
             return (Task)method.Invoke(service, new object[] { cancellationToken ?? CancellationToken.None });
@@ -55,7 +55,7 @@ namespace ServiceFabric.Mocks
         /// <returns></returns>
         public static Task InvokeRunAsync(this StatefulServiceBase service, CancellationToken? cancellationToken = null)
         {
-            if (service == null) throw new ArgumentNullException(nameof(service));
+            if (service is null) throw new ArgumentNullException(nameof(service));
             //protected virtual Task RunAsync(CancellationToken cancellationToken)
             var method = FindMethodInfo(service, "RunAsync");
             var task = Task.Run(() =>
@@ -91,7 +91,7 @@ namespace ServiceFabric.Mocks
         /// <returns></returns>
         public static Task InvokeRunAsync(this StatelessService service, CancellationToken? cancellationToken = null)
         {
-            if (service == null) throw new ArgumentNullException(nameof(service));
+            if (service is null) throw new ArgumentNullException(nameof(service));
             //protected virtual Task RunAsync(CancellationToken cancellationToken)
             var method = FindMethodInfo(service, "RunAsync");
             var task = Task.Run(() =>
@@ -128,7 +128,7 @@ namespace ServiceFabric.Mocks
         /// <returns></returns>
         public static Task InvokeOnChangeRoleAsync(this StatefulServiceBase service, ReplicaRole newRole, CancellationToken? cancellationToken = null)
         {
-            if (service == null) throw new ArgumentNullException(nameof(service));
+            if (service is null) throw new ArgumentNullException(nameof(service));
             //protected virtual Task RunAsync(CancellationToken cancellationToken)
             var method = FindMethodInfo(service, "OnChangeRoleAsync");
             return (Task)method.Invoke(service, new object[] { newRole, cancellationToken ?? CancellationToken.None });
@@ -142,7 +142,7 @@ namespace ServiceFabric.Mocks
         /// <returns></returns>
         public static Task InvokeOnCloseAsync(this StatefulServiceBase service, CancellationToken? cancellationToken = null)
         {
-            if (service == null) throw new ArgumentNullException(nameof(service));
+            if (service is null) throw new ArgumentNullException(nameof(service));
             // protected virtual Task OnCloseAsync(CancellationToken cancellationToken)
             var method = FindMethodInfo(service, "OnCloseAsync");
             return (Task)method.Invoke(service, new object[] { cancellationToken ?? CancellationToken.None });
@@ -156,7 +156,7 @@ namespace ServiceFabric.Mocks
         /// <returns></returns>
         public static Task InvokeOnCloseAsync(this StatelessService service, CancellationToken? cancellationToken = null)
         {
-            if (service == null) throw new ArgumentNullException(nameof(service));
+            if (service is null) throw new ArgumentNullException(nameof(service));
             // protected virtual Task OnCloseAsync(CancellationToken cancellationToken)
             var method = FindMethodInfo(service, "OnCloseAsync");
             return (Task)method.Invoke(service, new object[] { cancellationToken ?? CancellationToken.None });
@@ -169,7 +169,7 @@ namespace ServiceFabric.Mocks
         /// <returns></returns>
         public static IEnumerable<ServiceReplicaListener> InvokeCreateServiceReplicaListeners(this StatefulServiceBase service)
         {
-            if (service == null) throw new ArgumentNullException(nameof(service));
+            if (service is null) throw new ArgumentNullException(nameof(service));
             //protected virtual IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
             var method = FindMethodInfo(service, "CreateServiceReplicaListeners");
             return (IEnumerable<ServiceReplicaListener>)method.Invoke(service, null);
@@ -182,7 +182,7 @@ namespace ServiceFabric.Mocks
         /// <returns></returns>
         public static IEnumerable<ServiceInstanceListener> InvokeCreateServiceInstanceListeners(this StatelessService service)
         {
-            if (service == null) throw new ArgumentNullException(nameof(service));
+            if (service is null) throw new ArgumentNullException(nameof(service));
             //protected virtual IEnumerable<ServiceInstanceListener> CreateServiceInstanceListeners()
             var method = FindMethodInfo(service, "CreateServiceInstanceListeners");
             return (IEnumerable<ServiceInstanceListener>)method.Invoke(service, null);
@@ -195,7 +195,7 @@ namespace ServiceFabric.Mocks
         /// <returns></returns>
         public static IStatefulServicePartition GetPartition(this StatefulServiceBase service)
         {
-            if (service == null) throw new ArgumentNullException(nameof(service));
+            if (service is null) throw new ArgumentNullException(nameof(service));
             //protected IStatefulServicePartition Partition { get; private set; }
             var propertyInfo = typeof(StatefulServiceBase).GetProperty("Partition", BindingFlags.Instance | BindingFlags.NonPublic);
             return (IStatefulServicePartition)propertyInfo?.GetValue(service, BindingFlags.Instance | BindingFlags.NonPublic, null, null, CultureInfo.InvariantCulture);
@@ -209,7 +209,7 @@ namespace ServiceFabric.Mocks
         /// <returns></returns>
         public static void SetPartition(this StatefulServiceBase service, IStatefulServicePartition partition)
         {
-            if (service == null) throw new ArgumentNullException(nameof(service));
+            if (service is null) throw new ArgumentNullException(nameof(service));
             //protected IStatefulServicePartition Partition { get; private set; }
             var propertyInfo = typeof(StatefulServiceBase).GetProperty("Partition", BindingFlags.Instance | BindingFlags.NonPublic);
             propertyInfo?.SetValue(service, partition, BindingFlags.Instance | BindingFlags.NonPublic, null, null, CultureInfo.InvariantCulture);
@@ -222,7 +222,7 @@ namespace ServiceFabric.Mocks
         /// <returns></returns>
         public static IStatelessServicePartition GetPartition(this StatelessService service)
         {
-            if (service == null) throw new ArgumentNullException(nameof(service));
+            if (service is null) throw new ArgumentNullException(nameof(service));
             //protected IStatelessServicePartition Partition { get; private set; }
             var propertyInfo = typeof(StatelessService).GetProperty("Partition", BindingFlags.Instance | BindingFlags.NonPublic);
             return (IStatelessServicePartition)propertyInfo?.GetValue(service, BindingFlags.Instance | BindingFlags.NonPublic, null, null, CultureInfo.InvariantCulture);
@@ -236,7 +236,7 @@ namespace ServiceFabric.Mocks
         /// <returns></returns>
         public static void SetPartition(this StatelessService service, IStatelessServicePartition partition)
         {
-            if (service == null) throw new ArgumentNullException(nameof(service));
+            if (service is null) throw new ArgumentNullException(nameof(service));
             //protected IStatelessServicePartition Partition { get; private set; }
             var propertyInfo = typeof(StatelessService).GetProperty("Partition", BindingFlags.Instance | BindingFlags.NonPublic);
             propertyInfo?.SetValue(service, partition, BindingFlags.Instance | BindingFlags.NonPublic, null, null, CultureInfo.InvariantCulture);
@@ -251,7 +251,7 @@ namespace ServiceFabric.Mocks
         private static MethodInfo FindMethodInfo(object service, string methodName)
         {
             var method = service.GetType().GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);
-            if (method == null)
+            if (method is null)
                 throw new Exception($"Unable to find method '{methodName}' on service '{service.GetType().FullName}'");
             return method;
         }

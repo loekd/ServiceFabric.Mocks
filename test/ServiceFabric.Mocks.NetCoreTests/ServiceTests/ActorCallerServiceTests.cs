@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ServiceFabric.Mocks.NetCoreTests.Services;
 using ServiceFabric.Mocks.NetCoreTests.Actors;
+using ServiceFabric.Mocks.NetCoreTests.Services;
 
 namespace ServiceFabric.Mocks.NetCoreTests.ServiceTests
 {
@@ -16,7 +16,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceTests
         {
             //mock out the called actor
             var id = new ActorId(ActorCallerService.CalledActorId);
-            Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new MockTestStatefulActor(service, id);
+            Func<ActorService, ActorId, ActorBase> actorFactory = (service, _) => new MockTestStatefulActor(service, id);
             var svc = MockActorServiceFactory.CreateActorServiceForActor<MockTestStatefulActor>(actorFactory);
             var actor = svc.Activate(id);
 
@@ -59,7 +59,6 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceTests
             Assert.AreSame(typeof(MockTestStatefulActor), a1.GetType());
             Assert.AreSame(typeof(MockReminderTimerActor), a2.GetType());
         }
-
 
         private class MockTestStatefulActor : Actor, IMyStatefulActor
         {
