@@ -1,9 +1,10 @@
-using Microsoft.ServiceFabric.Data.Collections;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Data.Collections;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
 {
@@ -120,7 +121,6 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
             Assert.IsFalse(actual.HasValue);
         }
 
-
         [TestMethod]
         public async Task InfiniteLoop_Issue91()
         {
@@ -143,9 +143,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
                 await tx.CommitAsync();
             }
             Assert.IsTrue(true, "Seems to work.");
-            //Assert.Fail("Shouldn't reach here.");
         }
-
 
         //provided as repro, but doesn't repro in mstest
         [TestMethod]
@@ -154,15 +152,15 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
         {
             var stateManager = new MockReliableStateManager();
             var data = await stateManager.GetOrAddAsync<IReliableDictionary<Guid, string>>("data");
-            var updates = new List<Task>();
             var id = Guid.NewGuid();
 
+            var updates = new List<Task>();
             for (var i = 0; i < 100_000; i++)
             {
                 updates.Add(Task.Run(async () =>
                 {
                     using var tx = stateManager.CreateTransaction();
-                    var newValue = DateTime.Now.ToString();
+                    var newValue = DateTime.Now.ToString(CultureInfo.InvariantCulture);
                     await data.AddOrUpdateAsync(tx, id, newValue, (_, _) => newValue).ConfigureAwait(false);
 
                     await tx.CommitAsync().ConfigureAwait(false);

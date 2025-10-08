@@ -26,7 +26,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceRemoting
         public async Task TestRemotingFactoryAsync()
         {
             var service = new CustomActorService(MockStatefulServiceContextFactory.Default, ActorTypeInformation.Get(typeof(MyStatefulActor)));
-            var factory = new ServiceFabric.Mocks.RemotingV2.MockActorServiceRemotingClientFactory(service);
+            var factory = new MockActorServiceRemotingClientFactory(service);
             var client = await factory.GetClientAsync(new Uri("fabric:/App/Service"), ServicePartitionKey.Singleton,
                 TargetReplicaSelector.Default, "Listener", new OperationRetrySettings(), CancellationToken.None);
 
@@ -36,13 +36,12 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceRemoting
             Assert.AreEqual("Listener", client.ListenerName);
         }
 
-
         [TestMethod]
         public async Task TestActorRemotingAsync()
         {
             var payload = new Payload("content");
             var service = new CustomActorService(MockStatefulServiceContextFactory.Default, ActorTypeInformation.Get(typeof(RemotingEnabledActor)));
-            var factory = new ServiceFabric.Mocks.RemotingV2.MockActorServiceRemotingClientFactory(service);
+            var factory = new MockActorServiceRemotingClientFactory(service);
             var responseMessageBody = new MockServiceRemotingResponseMessageBody
             {
                 Response = payload
@@ -54,7 +53,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceRemoting
                 Request = requestMessageBody,
                 Response = responseMessageBody
             };
-            factory.ServiceRemotingClient = new RemotingV2.MockActorServiceRemotingClient(service)
+            factory.ServiceRemotingClient = new MockActorServiceRemotingClient(service)
             {
                 ServiceRemotingResponseMessage = new MockServiceRemotingResponseMessage
                 {
@@ -74,7 +73,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceRemoting
     {
         public Payload State { get; set; }
 
-        public RemotingEnabledActor(ActorService actorService, ActorId actorId) 
+        public RemotingEnabledActor(ActorService actorService, ActorId actorId)
             : base(actorService, actorId)
         {
         }
@@ -89,7 +88,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceRemoting
     [TestClass]
     public class ActorEventTests
     {
-        protected static bool IsSuccess = false;
+        protected static bool IsSuccess;
 
         public interface IExampleEvents : IActorEvents
         {
@@ -137,7 +136,9 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceRemoting
                 IActorEventSubscriptionHelper subscriptionHelper, IActorProxyFactory actorProxyFactory)
                 : base(serviceContext, reliableStateManagerReplica)
             {
-                if (actorProxyFactory == null) throw new ArgumentNullException(nameof(actorProxyFactory));
+                if (actorProxyFactory == null)
+                    throw new ArgumentNullException(nameof(actorProxyFactory));
+
                 _subscriptionHelper = subscriptionHelper ?? new ActorEventSubscriptionHelper();
                 _actorProxyFactory = actorProxyFactory;
             }

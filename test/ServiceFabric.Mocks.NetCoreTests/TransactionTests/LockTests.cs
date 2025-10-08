@@ -1,9 +1,9 @@
-using Microsoft.ServiceFabric.Data.Collections;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ServiceFabric.Mocks.ReliableCollections;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Data.Collections;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ServiceFabric.Mocks.ReliableCollections;
 // ReSharper disable PossibleInvalidOperationException
 
 namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests

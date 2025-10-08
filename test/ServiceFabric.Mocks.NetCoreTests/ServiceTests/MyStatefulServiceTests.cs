@@ -112,11 +112,10 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceTests
             Assert.IsTrue(hasChanged, "ChangeRole did not run on original primary");
 
             hasRun = originalSecondary.ServiceInstance.ChangeRoleAsyncHasRun.WaitOne(500);
-            Assert.IsTrue(hasChanged, "ChangeRole did not run on new primary");
-
+            Assert.IsTrue(hasRun, "ChangeRole did not run on new primary");
 
             bool hasClearedCache = originalPrimary.ServiceInstance.CacheCleared.Wait(500);
-            Assert.IsTrue(hasChanged, "Cache was not cleared on original primary");
+            Assert.IsTrue(hasClearedCache, "Cache was not cleared on original primary");
         }
 
         [TestMethod]

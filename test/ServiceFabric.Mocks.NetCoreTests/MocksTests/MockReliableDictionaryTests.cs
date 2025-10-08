@@ -1,8 +1,8 @@
 using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Threading.Tasks;
-using ServiceFabric.Mocks.ReliableCollections;
 using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ServiceFabric.Mocks.ReliableCollections;
 
 namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
 {
@@ -35,7 +35,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
             await dictionary.AddAsync(tx, key, value);
             var actual = await dictionary.TryGetValueAsync(tx, key);
 
-            Assert.AreEqual(actual.Value, value);
+            Assert.AreEqual(value, actual.Value);
         }
 
         [TestMethod]

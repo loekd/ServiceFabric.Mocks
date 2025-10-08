@@ -72,7 +72,6 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
 
         }
 
-
         [TestMethod]
         public void CreateResolvedServicePartitionTest()
         {

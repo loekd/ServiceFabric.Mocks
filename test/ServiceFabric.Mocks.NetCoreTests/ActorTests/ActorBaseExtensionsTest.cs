@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -94,6 +94,5 @@ namespace ServiceFabric.Mocks.NetCoreTests.ActorTests
             reminderCollection = actor.GetActorReminders();
             Assert.IsFalse(reminderCollection.Any(r => string.Equals(r.Name, reminderName)));
         }
-
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
@@ -71,7 +71,6 @@ namespace ServiceFabric.Mocks.NetCoreTests.ActorTests
             Assert.IsInstanceOfType(instance1, typeof(IMyStatefulActor));
             Assert.IsInstanceOfType(instance2, typeof(IReminderTimerActor));
         }
-
 
         private static void MockProxyFactory_MisingActorId(object sender, MissingActorEventArgs args)
         {

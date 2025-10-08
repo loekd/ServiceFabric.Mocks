@@ -1,7 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Fabric;
 using System.Text;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
 {

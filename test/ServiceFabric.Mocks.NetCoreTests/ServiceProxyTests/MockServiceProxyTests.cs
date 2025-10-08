@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceFabric.Mocks.NetCoreTests.Services;
 
 namespace ServiceFabric.Mocks.NetCoreTests.ServiceProxyTests

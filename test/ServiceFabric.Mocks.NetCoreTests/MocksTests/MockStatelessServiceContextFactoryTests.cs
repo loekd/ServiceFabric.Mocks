@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Fabric;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

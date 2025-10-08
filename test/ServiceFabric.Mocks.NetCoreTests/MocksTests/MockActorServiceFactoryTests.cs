@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -46,7 +46,6 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
 
         private interface IMockActor : IActor
         {
-            //Task DoStuffAsync();
         }
     }
 }
