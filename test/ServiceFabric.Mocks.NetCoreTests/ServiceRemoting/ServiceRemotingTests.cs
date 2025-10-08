@@ -120,7 +120,6 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceRemoting
             Task DoSomething(Guid id, string msg);
         }
 
-
         public class ExampleClient : StatefulService, IExampleService, IExampleEvents
         {
             private readonly IActorEventSubscriptionHelper _subscriptionHelper;
@@ -136,11 +135,8 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceRemoting
                 IActorEventSubscriptionHelper subscriptionHelper, IActorProxyFactory actorProxyFactory)
                 : base(serviceContext, reliableStateManagerReplica)
             {
-                if (actorProxyFactory is null)
-                    throw new ArgumentNullException(nameof(actorProxyFactory));
-
                 _subscriptionHelper = subscriptionHelper ?? new ActorEventSubscriptionHelper();
-                _actorProxyFactory = actorProxyFactory;
+                _actorProxyFactory = actorProxyFactory ?? throw new ArgumentNullException(nameof(actorProxyFactory));
             }
 
             public async Task DoSomething(Guid id, string msg)
@@ -157,7 +153,6 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceRemoting
                 IsSuccess = true;
             }
         }
-
 
         [TestMethod]
         public async Task TestSubscribe_Doesnt_CrashAsync()
