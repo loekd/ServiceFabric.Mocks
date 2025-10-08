@@ -83,7 +83,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceTests
         {
             Func<StatefulServiceContext, IReliableStateManagerReplica2, StatefulServiceWithReplicaListener> serviceFactory = (context, _) =>
             {
-                var partition = new MockStatefulServicePartition()
+                var partition = new MockStatefulServicePartition
                 {
                     PartitionInfo = MockQueryPartitionFactory.CreateSingletonPartitonInfo(Guid.NewGuid())
                 };
@@ -102,7 +102,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceTests
             //shared instance, called from multiple threads
             MockStatefulServiceReplicaSet<StatefulServiceWithReplicaListener> replicaSet;
 
-            Parallel.For(1, 100, async (_) =>
+            Parallel.For(1, 100, async _ =>
             {
                 replicaSet = new MockStatefulServiceReplicaSet<StatefulServiceWithReplicaListener>(serviceFactory);
                 await replicaSet.AddReplicaAsync(ReplicaRole.Primary, 1);
@@ -128,8 +128,8 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceTests
 
         protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
         {
-            return new List<ServiceReplicaListener>() {
-                new ServiceReplicaListener((_) => new Listener()),
+            return new List<ServiceReplicaListener> {
+                new ServiceReplicaListener(_ => new Listener()),
             };
         }
     }

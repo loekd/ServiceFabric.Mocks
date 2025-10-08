@@ -74,7 +74,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
             using (var tx = _stateManager.CreateTransaction())
             {
-                await d.AddOrUpdateAsync(tx, 1, (_) => "One", (_, _) => "Two");
+                await d.AddOrUpdateAsync(tx, 1, _ => "One", (_, _) => "Two");
                 Assert.IsNull(change);
                 await tx.CommitAsync();
                 Assert.IsNotNull(change);
@@ -84,7 +84,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             change = null;
             using (var tx = _stateManager.CreateTransaction())
             {
-                await d.AddOrUpdateAsync(tx, 1, (_) => "One", (_, _) => "Two");
+                await d.AddOrUpdateAsync(tx, 1, _ => "One", (_, _) => "Two");
                 Assert.IsNull(change);
                 await tx.CommitAsync();
                 Assert.IsNotNull(change);
@@ -170,8 +170,8 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             );
 
             using var tx = _stateManager.CreateTransaction();
-            await d.GetOrAddAsync(tx, 1, (_) => "One");
-            await d.GetOrAddAsync(tx, 1, (_) => "Two");
+            await d.GetOrAddAsync(tx, 1, _ => "One");
+            await d.GetOrAddAsync(tx, 1, _ => "Two");
 
             Assert.IsNull(change);
             await tx.CommitAsync();
@@ -375,11 +375,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
                 using (var tx2 = _stateManager.CreateTransaction())
                 {
                     await Assert.ThrowsAsync<TimeoutException>(
-                        async () =>
-                        {
-                            await d.TryRemoveAsync(tx2, 1, timeout: TimeSpan.FromMilliseconds(20));
-                        }
-                    );
+                        async () => await d.TryRemoveAsync(tx2, 1, timeout: TimeSpan.FromMilliseconds(20)));
                 }
                 await tx.CommitAsync();
 
@@ -399,7 +395,6 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
                 Assert.AreEqual("Two", change.Added);
             }
         }
-
 
         private async Task<bool> ContainsKey(TransactedConcurrentDictionary<int, string> d, int key, TimeSpan timeout = default)
         {

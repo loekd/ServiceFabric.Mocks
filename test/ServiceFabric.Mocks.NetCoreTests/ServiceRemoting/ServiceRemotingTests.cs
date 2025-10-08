@@ -43,13 +43,13 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceRemoting
             var payload = new Payload("content");
             var service = new CustomActorService(MockStatefulServiceContextFactory.Default, ActorTypeInformation.Get(typeof(RemotingEnabledActor)));
             var factory = new ServiceFabric.Mocks.RemotingV2.MockActorServiceRemotingClientFactory(service);
-            var responseMessageBody = new MockServiceRemotingResponseMessageBody()
+            var responseMessageBody = new MockServiceRemotingResponseMessageBody
             {
                 Response = payload
             };
             var requestMessageBody = new MockServiceRemotingRequestMessageBody();
 
-            factory.MockServiceRemotingMessageBodyFactory = new MockServiceRemotingMessageBodyFactory()
+            factory.MockServiceRemotingMessageBodyFactory = new MockServiceRemotingMessageBodyFactory
             {
                 Request = requestMessageBody,
                 Response = responseMessageBody
