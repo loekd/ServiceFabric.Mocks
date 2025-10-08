@@ -65,11 +65,13 @@ namespace ServiceFabric.Mocks.NetCoreTests.ActorTests
             var actor = svc.Activate(new ActorId(Guid.NewGuid()));
 
             var context = MockActorMethodContextFactory.CreateForActor(nameof(actor.ActorOperation));
-            Assert.IsInstanceOfType(context, typeof(ActorMethodContext));
+            Assert.IsInstanceOfType<ActorMethodContext>(context);
+
             context = MockActorMethodContextFactory.CreateForTimer(nameof(actor.ActorOperation));
-            Assert.IsInstanceOfType(context, typeof(ActorMethodContext));
+            Assert.IsInstanceOfType<ActorMethodContext>(context);
+
             context = MockActorMethodContextFactory.CreateForReminder(nameof(actor.ActorOperation));
-            Assert.IsInstanceOfType(context, typeof(ActorMethodContext));
+            Assert.IsInstanceOfType<ActorMethodContext>(context);
         }
 
         [TestMethod]

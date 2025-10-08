@@ -12,7 +12,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
         public void TestDefault()
         {
             var instance = MockActorServiceFactory.CreateActorServiceForActor<MockActor>();
-            Assert.IsInstanceOfType(instance, typeof(MockActorService<MockActor>));
+            Assert.IsInstanceOfType<MockActorService<MockActor>>(instance);
             Assert.AreEqual(MockStatefulServiceContextFactory.Default, instance.Context);
             Assert.AreEqual(ActorTypeInformation.Get(typeof(MockActor)).ImplementationType, instance.ActorTypeInformation.ImplementationType);
             Assert.IsNotNull(instance.StateProvider);
@@ -32,7 +32,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
 
             var instance = MockActorServiceFactory.CreateActorServiceForActor<MockActor>(context: serviceContext);
 
-            Assert.IsInstanceOfType(instance, typeof(MockActorService<MockActor>));
+            Assert.IsInstanceOfType<MockActorService<MockActor>>(instance);
             Assert.AreEqual(serviceContext, instance.Context);
         }
 

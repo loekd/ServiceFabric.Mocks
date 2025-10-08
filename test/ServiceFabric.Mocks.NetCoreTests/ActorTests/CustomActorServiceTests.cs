@@ -19,8 +19,8 @@ namespace ServiceFabric.Mocks.NetCoreTests.ActorTests
             var customActorService = MockActorServiceFactory.CreateCustomActorServiceForActor<CustomActorService, InvokeOnActor>();
             var actor = customActorService.Activate<InvokeOnActor>(new ActorId(123L));
 
-            Assert.IsInstanceOfType(customActorService, typeof(CustomActorService));
-            Assert.IsInstanceOfType(actor, typeof(InvokeOnActor));
+            Assert.IsInstanceOfType<CustomActorService>(customActorService);
+            Assert.IsInstanceOfType<InvokeOnActor>(actor);
             Assert.AreEqual(123L, actor.Id.GetLongId());
         }
 
@@ -99,7 +99,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ActorTests
 
             var actor = customActorService.Activate<InvokeOnActor>(new ActorId(123L));
 
-            Assert.IsInstanceOfType(actor, typeof(InvokeOnActor));
+            Assert.IsInstanceOfType<InvokeOnActor>(actor);
             Assert.AreEqual(123L, actor.Id.GetLongId());
         }
     }

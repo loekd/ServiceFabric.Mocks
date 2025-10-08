@@ -40,9 +40,8 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceExtensions
         {
             var serviceInstance = new NestedStatelessService(MockStatelessServiceContextFactory.Default);
             var result = serviceInstance.InvokeCreateServiceInstanceListeners();
-            Assert.IsInstanceOfType(result, typeof(ServiceInstanceListener[]));
+            Assert.IsInstanceOfType<IEnumerable<ServiceInstanceListener>>(result);
         }
-
 
         [TestMethod]
         public async Task TestStatefulInvokeOnOpenAsync()
@@ -81,7 +80,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceExtensions
         {
             var serviceInstance = new NestedStatefulService(MockStatefulServiceContextFactory.Default);
             var result = serviceInstance.InvokeCreateServiceReplicaListeners();
-            Assert.IsInstanceOfType(result, typeof(ServiceReplicaListener[]));
+            Assert.IsInstanceOfType<IEnumerable<ServiceReplicaListener>>(result);
         }
 
         [TestMethod]
@@ -111,6 +110,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceExtensions
 
             Assert.AreEqual(partitionInfo, sut.GetPartition().PartitionInfo);
         }
+        
         private class NestedStatelessService : StatelessService
         {
             public bool OnOpenCalled { get; private set; }

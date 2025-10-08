@@ -25,15 +25,22 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceRemoting
         [TestMethod]
         public async Task TestRemotingFactoryAsync()
         {
+            const string listenerName = "Listener";
+
             var service = new CustomActorService(MockStatefulServiceContextFactory.Default, ActorTypeInformation.Get(typeof(MyStatefulActor)));
             var factory = new MockActorServiceRemotingClientFactory(service);
-            var client = await factory.GetClientAsync(new Uri("fabric:/App/Service"), ServicePartitionKey.Singleton,
-                TargetReplicaSelector.Default, "Listener", new OperationRetrySettings(), CancellationToken.None);
+            var client = await factory.GetClientAsync(
+                new Uri("fabric:/App/Service"),
+                ServicePartitionKey.Singleton,
+                TargetReplicaSelector.Default,
+                listenerName,
+                new OperationRetrySettings(),
+                CancellationToken.None);
 
-            Assert.IsInstanceOfType(factory, typeof(IServiceRemotingClientFactory));
-            Assert.IsInstanceOfType(client, typeof(IServiceRemotingClient));
-            Assert.IsInstanceOfType(client, typeof(MockActorServiceRemotingClient));
-            Assert.AreEqual("Listener", client.ListenerName);
+            Assert.IsInstanceOfType<IServiceRemotingClientFactory>(factory);
+            Assert.IsInstanceOfType<IServiceRemotingClient>(client);
+            Assert.IsInstanceOfType<MockActorServiceRemotingClient>(client);
+            Assert.AreEqual(listenerName, client.ListenerName);
         }
 
         [TestMethod]
@@ -65,7 +72,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceRemoting
             var proxy = proxyFactory.CreateActorProxy<IMyStatefulActor>(ActorId.CreateRandom(), "App", "Service", "Listener");
             await proxy.InsertAsync("state", payload);
 
-            Assert.IsInstanceOfType(proxy, typeof(IMyStatefulActor));
+            Assert.IsInstanceOfType<IMyStatefulActor>(proxy);
         }
     }
 

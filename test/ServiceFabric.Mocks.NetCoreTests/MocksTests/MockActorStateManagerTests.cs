@@ -15,7 +15,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
             var instance = new MockActorStateManager();
             var result = await instance.TryGetStateAsync<int?>("not existing");
 
-            Assert.IsInstanceOfType(result, typeof(ConditionalValue<int?>));
+            Assert.IsInstanceOfType<ConditionalValue<int?>>(result);
             Assert.IsNull(result.Value);
             Assert.IsFalse(result.HasValue);
         }
@@ -28,7 +28,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
 
             var result = await instance.TryGetStateAsync<int?>("existing");
 
-            Assert.IsInstanceOfType(result, typeof(ConditionalValue<int?>));
+            Assert.IsInstanceOfType<ConditionalValue<int?>>(result);
             Assert.IsNotNull(result.Value);
             Assert.IsTrue(result.HasValue);
             Assert.AreEqual(6, result.Value);
@@ -40,7 +40,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
             var instance = new MockActorStateManager();
             var result = await instance.TryGetStateAsync<int>("not existing");
 
-            Assert.IsInstanceOfType(result, typeof(ConditionalValue<int>));
+            Assert.IsInstanceOfType<ConditionalValue<int>>(result);
             Assert.AreEqual(default, result.Value);
             Assert.IsFalse(result.HasValue);
         }
@@ -53,7 +53,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
 
             var result = await instance.TryGetStateAsync<int>("existing");
 
-            Assert.IsInstanceOfType(result, typeof(ConditionalValue<int>));
+            Assert.IsInstanceOfType<ConditionalValue<int>>(result);
             Assert.IsNotNull(result.Value);
             Assert.IsTrue(result.HasValue);
             Assert.AreEqual(6, result.Value);
@@ -67,7 +67,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
             await instance.TryRemoveStateAsync("existing");
             var result = await instance.TryGetStateAsync<int>("existing");
 
-            Assert.IsInstanceOfType(result, typeof(ConditionalValue<int>));
+            Assert.IsInstanceOfType<ConditionalValue<int>>(result);
             Assert.AreEqual(default, result.Value);
             Assert.IsFalse(result.HasValue);
         }
@@ -80,7 +80,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
 
             var result = await instance.TryGetStateAsync<int>("existing");
 
-            Assert.IsInstanceOfType(result, typeof(ConditionalValue<int>));
+            Assert.IsInstanceOfType<ConditionalValue<int>>(result);
             Assert.IsNotNull(result.Value);
             Assert.IsTrue(result.HasValue);
             Assert.AreEqual(6, result.Value);
@@ -119,7 +119,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
             await instance.SetStateAsync(stateName, utcNow);
 
             var result = await instance.TryGetStateAsync<DateTimeOffset>(stateName);
-            Assert.IsInstanceOfType(result, typeof(ConditionalValue<DateTimeOffset>));
+            Assert.IsInstanceOfType<ConditionalValue<DateTimeOffset>>(result);
             Assert.IsNotNull(result.Value);
             Assert.IsTrue(result.HasValue);
             Assert.AreEqual(utcNow, result.Value);
