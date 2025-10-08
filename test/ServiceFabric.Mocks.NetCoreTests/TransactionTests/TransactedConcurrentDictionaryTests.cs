@@ -145,18 +145,16 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
                 }
             );
 
-            using (var tx = _stateManager.CreateTransaction())
-            {
-                await d.AddAsync(tx, 1, "One");
-                await Assert.ThrowsAsync<TimeoutException>(
-                    async () =>
-                    {
-                        await ContainsKey(d, 1, TimeSpan.FromMilliseconds(20));
-                    }
-                );
-                await tx.CommitAsync();
-                Assert.IsTrue(await ContainsKey(d, 1));
-            }
+            using var tx = _stateManager.CreateTransaction();
+            await d.AddAsync(tx, 1, "One");
+            await Assert.ThrowsAsync<TimeoutException>(
+                async () =>
+                {
+                    await ContainsKey(d, 1, TimeSpan.FromMilliseconds(20));
+                }
+            );
+            await tx.CommitAsync();
+            Assert.IsTrue(await ContainsKey(d, 1));
         }
 
         [TestMethod]
@@ -171,17 +169,15 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
                 }
             );
 
-            using (var tx = _stateManager.CreateTransaction())
-            {
-                await d.GetOrAddAsync(tx, 1, (_) => "One");
-                await d.GetOrAddAsync(tx, 1, (_) => "Two");
+            using var tx = _stateManager.CreateTransaction();
+            await d.GetOrAddAsync(tx, 1, (_) => "One");
+            await d.GetOrAddAsync(tx, 1, (_) => "Two");
 
-                Assert.IsNull(change);
-                await tx.CommitAsync();
-                Assert.IsNotNull(change);
-                Assert.AreEqual("One", change.Added);
-                Assert.AreEqual("One", (await GetValue(d, 1)).Value);
-            }
+            Assert.IsNull(change);
+            await tx.CommitAsync();
+            Assert.IsNotNull(change);
+            Assert.AreEqual("One", change.Added);
+            Assert.AreEqual("One", (await GetValue(d, 1)).Value);
         }
 
         [TestMethod]
@@ -299,24 +295,22 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
                 }
             );
 
-            using (var tx = _stateManager.CreateTransaction())
+            using var tx = _stateManager.CreateTransaction();
+            Assert.IsFalse((await d.TryGetValueAsync(tx, 1, LockMode.Default)).HasValue);
+            Assert.IsTrue(await d.TryAddAsync(tx, 1, "One"));
+
+            using (var tx2 = _stateManager.CreateTransaction())
             {
-                Assert.IsFalse((await d.TryGetValueAsync(tx, 1, LockMode.Default)).HasValue);
-                Assert.IsTrue(await d.TryAddAsync(tx, 1, "One"));
-
-                using (var tx2 = _stateManager.CreateTransaction())
-                {
-                    await Assert.ThrowsAsync<TimeoutException>(
-                        async () =>
-                        {
-                            await d.TryGetValueAsync(tx2, 1, LockMode.Default, timeout: TimeSpan.FromMilliseconds(20));
-                        }
-                    );
-                }
-                await tx.CommitAsync();
-
-                Assert.AreEqual("One", change.Added);
+                await Assert.ThrowsAsync<TimeoutException>(
+                    async () =>
+                    {
+                        await d.TryGetValueAsync(tx2, 1, LockMode.Default, timeout: TimeSpan.FromMilliseconds(20));
+                    }
+                );
             }
+            await tx.CommitAsync();
+
+            Assert.AreEqual("One", change.Added);
         }
 
         [TestMethod]
@@ -409,26 +403,20 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
         private async Task<bool> ContainsKey(TransactedConcurrentDictionary<int, string> d, int key, TimeSpan timeout = default)
         {
-            using (var tx = _stateManager.CreateTransaction())
-            {
-                return await d.ContainsKeyAsync(tx, key, LockMode.Default, timeout);
-            }
+            using var tx = _stateManager.CreateTransaction();
+            return await d.ContainsKeyAsync(tx, key, LockMode.Default, timeout);
         }
 
         private async Task<long> GetCount(TransactedConcurrentDictionary<int, string> d)
         {
-            using (var tx = _stateManager.CreateTransaction())
-            {
-                return await d.GetCountAsync(tx);
-            }
+            using var tx = _stateManager.CreateTransaction();
+            return await d.GetCountAsync(tx);
         }
 
         private async Task<ConditionalValue<string>> GetValue(TransactedConcurrentDictionary<int, string> d, int key, TimeSpan timeout = default)
         {
-            using (var tx = _stateManager.CreateTransaction())
-            {
-                return await d.TryGetValueAsync(tx, key, LockMode.Default, timeout: timeout);
-            }
+            using var tx = _stateManager.CreateTransaction();
+            return await d.TryGetValueAsync(tx, key, LockMode.Default, timeout: timeout);
         }
     }
 }

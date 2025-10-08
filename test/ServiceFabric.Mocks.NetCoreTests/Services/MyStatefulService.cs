@@ -75,11 +75,9 @@ namespace ServiceFabric.Mocks.NetCoreTests.Services
             var dictionary =
                 await StateManager.GetOrAddAsync<IReliableDictionary<string, Payload>>(StateManagerDictionaryKey);
 
-            using (var tx = StateManager.CreateTransaction())
-            {
-                await dictionary.TryAddAsync(tx, stateName, value);
-                tx.Abort();
-            }
+            using var tx = StateManager.CreateTransaction();
+            await dictionary.TryAddAsync(tx, stateName, value);
+            tx.Abort();
         }
 
 
@@ -87,11 +85,9 @@ namespace ServiceFabric.Mocks.NetCoreTests.Services
         {
             var queue = await StateManager.GetOrAddAsync<IReliableQueue<Payload>>(StateManagerQueueKey);
 
-            using (var tx = StateManager.CreateTransaction())
-            {
-                await queue.EnqueueAsync(tx, value);
-                await tx.CommitAsync();
-            }
+            using var tx = StateManager.CreateTransaction();
+            await queue.EnqueueAsync(tx, value);
+            await tx.CommitAsync();
         }
 
         public async Task ConcurrentEnqueueAsync(Payload value)
@@ -99,11 +95,9 @@ namespace ServiceFabric.Mocks.NetCoreTests.Services
             var concurrentQueue =
                 await StateManager.GetOrAddAsync<IReliableConcurrentQueue<Payload>>(StateManagerConcurrentQueueKey);
 
-            using (var tx = StateManager.CreateTransaction())
-            {
-                await concurrentQueue.EnqueueAsync(tx, value);
-                await tx.CommitAsync();
-            }
+            using var tx = StateManager.CreateTransaction();
+            await concurrentQueue.EnqueueAsync(tx, value);
+            await tx.CommitAsync();
         }
 
 
@@ -119,20 +113,16 @@ namespace ServiceFabric.Mocks.NetCoreTests.Services
                 //hydrate the in-memory state
                 var dictionary =
                     await StateManager.GetOrAddAsync<IReliableDictionary<string, Payload>>(StateManagerDictionaryKey);
-                using (var tx = StateManager.CreateTransaction())
+                using var tx = StateManager.CreateTransaction();
+                var enumerable = await dictionary.CreateEnumerableAsync(tx, EnumerationMode.Unordered);
+                using var enumerator = enumerable.GetAsyncEnumerator();
+                while (await enumerator.MoveNextAsync(cancellationToken))
                 {
-                    var enumerable = await dictionary.CreateEnumerableAsync(tx, EnumerationMode.Unordered);
-                    using (var enumerator = enumerable.GetAsyncEnumerator())
-                    {
-                        while (await enumerator.MoveNextAsync(cancellationToken))
-                        {
-                            //copy so we dont have the same reference in the model and the reliable collection
-                            var item = new KeyValuePair<string, Payload>(enumerator.Current.Key,
-                                new Payload(enumerator.Current.Value.Content));
-                            if (CacheCleared.IsSet) throw new InvalidOperationException("Should not happen after clearing the cache.");
-                            _cache.AddOrUpdate(item.Key, item.Value, (_, _) => item.Value);
-                        }
-                    }
+                    //copy so we dont have the same reference in the model and the reliable collection
+                    var item = new KeyValuePair<string, Payload>(enumerator.Current.Key,
+                        new Payload(enumerator.Current.Value.Content));
+                    if (CacheCleared.IsSet) throw new InvalidOperationException("Should not happen after clearing the cache.");
+                    _cache.AddOrUpdate(item.Key, item.Value, (_, _) => item.Value);
                 }
             }
             else

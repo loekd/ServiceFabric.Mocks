@@ -64,7 +64,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
 
             await dictionary.AddAsync(tx, key, value);
             var enumerable = await dictionary.CreateKeyEnumerableAsync(tx);
-            var enumerator = enumerable.GetAsyncEnumerator();
+            using var enumerator = enumerable.GetAsyncEnumerator();
             await enumerator.MoveNextAsync(CancellationToken.None);
             var actual = enumerator.Current;
 

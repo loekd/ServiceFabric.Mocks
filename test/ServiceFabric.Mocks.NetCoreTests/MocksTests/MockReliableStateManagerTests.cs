@@ -135,7 +135,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
 
                 var list = new List<Guid>();
                 //This goes into infinite loop if the query returns an empty collection with a key value pair of null for both the key and the value.
-                Microsoft.ServiceFabric.Data.IAsyncEnumerator<KeyValuePair<Guid, long>> asyncEnumerator = query.GetAsyncEnumerator();
+                using Microsoft.ServiceFabric.Data.IAsyncEnumerator<KeyValuePair<Guid, long>> asyncEnumerator = query.GetAsyncEnumerator();
                 while (await asyncEnumerator.MoveNextAsync(CancellationToken.None))
                 {
                     list.Add(asyncEnumerator.Current.Key);
@@ -161,13 +161,11 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
             {
                 updates.Add(Task.Run(async () =>
                 {
-                    using (var tx = stateManager.CreateTransaction())
-                    {
-                        var newValue = DateTime.Now.ToString();
-                        await data.AddOrUpdateAsync(tx, id, newValue, (_, _) => newValue).ConfigureAwait(false);
+                    using var tx = stateManager.CreateTransaction();
+                    var newValue = DateTime.Now.ToString();
+                    await data.AddOrUpdateAsync(tx, id, newValue, (_, _) => newValue).ConfigureAwait(false);
 
-                        await tx.CommitAsync().ConfigureAwait(false);
-                    }
+                    await tx.CommitAsync().ConfigureAwait(false);
                 }));
             }
 

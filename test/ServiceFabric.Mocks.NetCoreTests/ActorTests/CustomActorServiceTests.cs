@@ -54,7 +54,6 @@ namespace ServiceFabric.Mocks.NetCoreTests.ActorTests
             var actor1_2 = customActorService.Activate<MyStatefulActor>(id1);
             var stateManager1_2 = (MockActorStateManager)actor1_2.StateManager;
 
-
             const string stateName = "test";
             const string payloadText = "foo";
             var payload = new Payload(payloadText);

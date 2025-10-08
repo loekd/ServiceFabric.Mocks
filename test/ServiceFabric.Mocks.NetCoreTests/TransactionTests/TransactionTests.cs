@@ -199,11 +199,9 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
         private void CheckDictionaryCount(IReliableStateManager stateManager, int expectedCount)
         {
             var dictionary = stateManager.GetOrAddAsync<IReliableDictionary<string, Payload>>(MyStatefulService.StateManagerDictionaryKey).Result;
-            using (var tx = stateManager.CreateTransaction())
-            {
-                Assert.AreEqual(expectedCount, dictionary.GetCountAsync(tx).Result);
-                tx.CommitAsync().Wait();
-            }
+            using var tx = stateManager.CreateTransaction();
+            Assert.AreEqual(expectedCount, dictionary.GetCountAsync(tx).Result);
+            tx.CommitAsync().Wait();
         }
     }
 }
