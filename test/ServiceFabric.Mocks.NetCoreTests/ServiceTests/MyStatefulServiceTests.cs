@@ -202,7 +202,6 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceTests
             await replicaSet.AddReplicaAsync(ReplicaRole.Primary, 1);
             var originalPrimary = replicaSet.Primary;
             await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 2);
-            var originalSecondary = replicaSet.SecondaryReplicas.Single();
             await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 3);
 
             const string stateName = "test";

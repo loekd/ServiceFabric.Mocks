@@ -1,14 +1,14 @@
+using System;
+using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceFabric.Mocks.ReliableCollections;
-using System;
-using System.Threading.Tasks;
+
+// ReSharper disable AccessToDisposedClosure
 
 namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 {
-    // ReSharper disable AccessToDisposedClosure
-
     [TestClass]
     public class TransactedConcurrentDictionaryTests
     {

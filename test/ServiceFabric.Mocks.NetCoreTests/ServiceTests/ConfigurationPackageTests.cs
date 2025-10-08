@@ -1,7 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Fabric;
 using System.Fabric.Description;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static ServiceFabric.Mocks.MockConfigurationPackage;
 
 namespace ServiceFabric.Mocks.NetCoreTests.ServiceTests
@@ -9,7 +9,6 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceTests
     [TestClass]
     public class ConfigurationPackageTests
     {
-
         [TestMethod]
         public void DataPackageAtMockCodePackageActivationContextTest()
         {

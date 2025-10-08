@@ -157,10 +157,6 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceRemoting
         [TestMethod]
         public async Task TestSubscribe_Doesnt_CrashAsync()
         {
-            //var service = new CustomActorService(MockStatefulServiceContextFactory.Default, ActorTypeInformation.Get(typeof(MyStatefulActor)));
-            //var factory = new MockActorServiceRemotingClientFactory(service);
-            //var proxyFactory = new ActorProxyFactory(callbackClient => factory)
-
             var guid = Guid.NewGuid();
             var id = new ActorId(guid);
             Func<ActorService, ActorId, ActorBase> factory = (service, actorId) => new ExampleActorMock(service, actorId);

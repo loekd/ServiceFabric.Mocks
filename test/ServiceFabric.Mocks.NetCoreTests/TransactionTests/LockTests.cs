@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceFabric.Mocks.ReliableCollections;
+
 // ReSharper disable PossibleInvalidOperationException
 
 namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
@@ -142,7 +143,6 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
                 }
             );
         }
-
 
         [TestMethod]
         public void Lock_RaceToAcquire_Success()

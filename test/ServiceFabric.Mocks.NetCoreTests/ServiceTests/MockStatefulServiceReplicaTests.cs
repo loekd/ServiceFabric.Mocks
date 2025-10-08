@@ -1,15 +1,15 @@
-using Microsoft.ServiceFabric.Data;
-using Microsoft.ServiceFabric.Services.Communication.Runtime;
-using Microsoft.ServiceFabric.Services.Remoting;
-using Microsoft.ServiceFabric.Services.Runtime;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ServiceFabric.Mocks.ReplicaSet;
 using System;
 using System.Collections.Generic;
 using System.Fabric;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Data;
+using Microsoft.ServiceFabric.Services.Communication.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting;
+using Microsoft.ServiceFabric.Services.Runtime;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ServiceFabric.Mocks.ReplicaSet;
 
 namespace ServiceFabric.Mocks.NetCoreTests.ServiceTests
 {
@@ -178,11 +178,13 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceTests
             }
             finally
             {
-                _ = Task.Run(async () =>
-                  {
-                      await Task.Delay(20);
-                      RunAsyncCompleted.Set();
-                  });
+                _ = Task.Run(
+                    async () =>
+                    {
+                        await Task.Delay(20);
+                        RunAsyncCompleted.Set();
+                    },
+                    cancellationToken);
             }
         }
     }
