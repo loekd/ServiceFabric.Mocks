@@ -207,7 +207,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
                 await d.SetAsync(tx, 1, "One");
                 await tx.CommitAsync();
                 Assert.AreEqual("One", change.Added);
-                Assert.AreEqual(null, change.Removed);
+                Assert.IsNull(change.Removed);
             }
 
             using (var tx = _stateManager.CreateTransaction())
