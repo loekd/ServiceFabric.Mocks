@@ -1,10 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ServiceFabric.Mocks;
 using ServiceFabric.Mocks.NetCoreTests.Actors;
 using ServiceFabric.Mocks.NetCoreTests.ActorServices;
 
@@ -81,11 +80,10 @@ namespace ServiceFabric.Mocks.NetCoreTests.ActorTests
         public void TestAnotherCustomActorService_CreateFails()
         {
             //an ActorService with a NON standard constructor can be created by the MockActorServiceFactory
-            Assert.ThrowsException<InvalidOperationException>(() =>
+            Assert.Throws<InvalidOperationException>(() =>
             {
                 // ReSharper disable once UnusedVariable
-                var customActorService =
-                    MockActorServiceFactory.CreateCustomActorServiceForActor<AnotherCustomActorService, InvokeOnActor>();
+                var customActorService = MockActorServiceFactory.CreateCustomActorServiceForActor<AnotherCustomActorService, InvokeOnActor>();
             });
         }
 
