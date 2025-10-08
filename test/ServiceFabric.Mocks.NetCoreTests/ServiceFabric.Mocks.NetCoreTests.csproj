@@ -26,6 +26,7 @@
     <StartupObject />
     <OutputType>Library</OutputType>
     <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
