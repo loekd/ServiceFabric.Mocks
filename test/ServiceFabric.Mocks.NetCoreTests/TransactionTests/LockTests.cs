@@ -120,12 +120,12 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             await lockManager.AcquireLock(1, 2, LockMode.Update);
             await lockManager.AcquireLock(1, 3, LockMode.Update);
 
-            Task[] tasks = new Task[]
-                {
-                    lockManager.AcquireLock(2, 1, LockMode.Update),
-                    lockManager.AcquireLock(3, 2, LockMode.Update),
-                    lockManager.AcquireLock(4, 3, LockMode.Update),
-                };
+            Task[] tasks =
+            [
+                lockManager.AcquireLock(2, 1, LockMode.Update),
+                lockManager.AcquireLock(3, 2, LockMode.Update),
+                lockManager.AcquireLock(4, 3, LockMode.Update)
+            ];
 
             lockManager.ReleaseLocks(1);
             Task.WaitAll(tasks);

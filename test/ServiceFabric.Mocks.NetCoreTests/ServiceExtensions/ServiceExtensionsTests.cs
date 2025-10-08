@@ -136,7 +136,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceExtensions
 
             protected override IEnumerable<ServiceInstanceListener> CreateServiceInstanceListeners()
             {
-                return new[] { new ServiceInstanceListener(_ => null) };
+                return [new ServiceInstanceListener(_ => null)];
             }
 
             protected override Task RunAsync(CancellationToken cancellationToken)
