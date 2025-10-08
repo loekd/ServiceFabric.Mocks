@@ -119,7 +119,6 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceTests
         }
     }
 
-
     public class StatefulServiceWithReplicaListener : StatefulService, IService
     {
         public StatefulServiceWithReplicaListener(StatefulServiceContext serviceContext) : base(serviceContext)
@@ -128,9 +127,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceTests
 
         protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
         {
-            return new List<ServiceReplicaListener> {
-                new ServiceReplicaListener(_ => new Listener()),
-            };
+            yield return new ServiceReplicaListener(_ => new Listener());
         }
     }
 

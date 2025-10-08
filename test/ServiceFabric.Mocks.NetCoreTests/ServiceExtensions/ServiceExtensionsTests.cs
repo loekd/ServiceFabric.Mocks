@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Fabric;
 using System.Threading;
 using System.Threading.Tasks;
@@ -171,7 +171,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceExtensions
 
             protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
             {
-                return new[] { new ServiceReplicaListener(_ => null) };
+                yield return new ServiceReplicaListener(_ => null);
             }
 
             protected override Task RunAsync(CancellationToken cancellationToken)
