@@ -1,4 +1,4 @@
-﻿using Microsoft.ServiceFabric.Data;
+using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceFabric.Mocks.ReliableCollections;
@@ -29,7 +29,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             using (var tx = _stateManager.CreateTransaction())
             {
                 await d.AddAsync(tx, 1, "One");
-                await Assert.ThrowsExceptionAsync<ArgumentException>(
+                await Assert.ThrowsAsync<ArgumentException>(
                     async () =>
                     {
                         await d.AddAsync(tx, 1, "Two");
@@ -40,7 +40,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
                 using (var tx2 = _stateManager.CreateTransaction())
                 {
-                    await Assert.ThrowsExceptionAsync<TimeoutException>(
+                    await Assert.ThrowsAsync<TimeoutException>(
                         async () =>
                         {
                             await d.AddAsync(tx2, 1, "Three", TimeSpan.FromMilliseconds(20));
@@ -148,7 +148,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             using (var tx = _stateManager.CreateTransaction())
             {
                 await d.AddAsync(tx, 1, "One");
-                await Assert.ThrowsExceptionAsync<TimeoutException>(
+                await Assert.ThrowsAsync<TimeoutException>(
                     async () =>
                     {
                         await ContainsKey(d, 1, TimeSpan.FromMilliseconds(20));
@@ -260,7 +260,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
                 using (var tx2 = _stateManager.CreateTransaction())
                 {
-                    await Assert.ThrowsExceptionAsync<TimeoutException>(
+                    await Assert.ThrowsAsync<TimeoutException>(
                         async () =>
                         {
                             await d.TryAddAsync(tx2, 1, "Three", timeout: TimeSpan.FromMilliseconds(20));
@@ -306,7 +306,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
                 using (var tx2 = _stateManager.CreateTransaction())
                 {
-                    await Assert.ThrowsExceptionAsync<TimeoutException>(
+                    await Assert.ThrowsAsync<TimeoutException>(
                         async () =>
                         {
                             await d.TryGetValueAsync(tx2, 1, LockMode.Default, timeout: TimeSpan.FromMilliseconds(20));
@@ -338,7 +338,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
                 using (var tx2 = _stateManager.CreateTransaction())
                 {
-                    await Assert.ThrowsExceptionAsync<TimeoutException>(
+                    await Assert.ThrowsAsync<TimeoutException>(
                         async () =>
                         {
                             await d.TryRemoveAsync(tx2, 1, timeout: TimeSpan.FromMilliseconds(20));
@@ -380,7 +380,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
                 using (var tx2 = _stateManager.CreateTransaction())
                 {
-                    await Assert.ThrowsExceptionAsync<TimeoutException>(
+                    await Assert.ThrowsAsync<TimeoutException>(
                         async () =>
                         {
                             await d.TryRemoveAsync(tx2, 1, timeout: TimeSpan.FromMilliseconds(20));

@@ -1,4 +1,4 @@
-﻿using Microsoft.ServiceFabric.Data.Collections;
+using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceFabric.Mocks.ReliableCollections;
 using System;
@@ -37,7 +37,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
             await l.Acquire(1, LockMode.Update);
 
-            await Assert.ThrowsExceptionAsync<TimeoutException>(
+            await Assert.ThrowsAsync<TimeoutException>(
                 async () =>
                 {
                     await l.Acquire(2, LockMode.Default, timeout: TimeSpan.FromMilliseconds(10));
@@ -101,7 +101,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
             await l.Acquire(1, LockMode.Update);
 
-            await Assert.ThrowsExceptionAsync<OperationCanceledException>(
+            await Assert.ThrowsAsync<OperationCanceledException>(
                 async () =>
                 {
                     CancellationTokenSource tokenSource = new CancellationTokenSource();
@@ -135,7 +135,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
             await lockManager.AcquireLock(5, 1, LockMode.Default);
             await lockManager.AcquireLock(5, 2, LockMode.Default);
-            await Assert.ThrowsExceptionAsync<TimeoutException>(
+            await Assert.ThrowsAsync<TimeoutException>(
                 async () =>
                 {
                     await lockManager.AcquireLock(5, 3, LockMode.Default, timeout: TimeSpan.FromMilliseconds(10));

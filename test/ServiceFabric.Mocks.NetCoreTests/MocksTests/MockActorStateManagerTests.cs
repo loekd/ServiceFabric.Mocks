@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Data;
@@ -45,7 +45,6 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
             Assert.AreEqual(default, result.Value);
             Assert.IsFalse(result.HasValue);
         }
-
 
         [TestMethod]
         public async Task Int_TryGetStateAsyncTest()
@@ -135,10 +134,8 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
 
             Task Action() => instance.GetStateAsync<int>(notExisting);
 
-            var ex = await Assert.ThrowsExceptionAsync<KeyNotFoundException>(Action);
+            var ex = await Assert.ThrowsAsync<KeyNotFoundException>(Action);
             StringAssert.Contains(ex.Message, notExisting);
         }
-
-
     }
 }

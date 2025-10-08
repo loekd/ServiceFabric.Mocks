@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 using ServiceFabric.Mocks.ReliableCollections;
@@ -17,7 +17,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
             var tx = new MockTransaction(null, 1);
 
             await dictionary.AddAsync(tx, key, "value");
-            await Assert.ThrowsExceptionAsync<ArgumentException>(async () =>
+            await Assert.ThrowsAsync<ArgumentException>(async () =>
             {
                 await dictionary.AddAsync(tx, key, "value");
             });
