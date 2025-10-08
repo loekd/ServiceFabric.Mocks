@@ -1,4 +1,4 @@
-﻿using Microsoft.ServiceFabric.Data;
+using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Services.Runtime;
 using ServiceFabric.Mocks.ReliableCollections;
 using System;
@@ -33,7 +33,7 @@ namespace ServiceFabric.Mocks.ReplicaSet
             ServiceTypeName = serviceTypeName;
             ServiceName = serviceName;
 
-            if (stateManagerFactory == null)
+            if (stateManagerFactory is null)
                 _stateManagerFactory = (ctx, store) => new MockReliableStateManager(store);
             else
                 _stateManagerFactory = stateManagerFactory;
@@ -101,7 +101,7 @@ namespace ServiceFabric.Mocks.ReplicaSet
         {
             var primary = Primary;
             var activeSecondary = GetActiveSecondary(replicaId);
-            if (primary != null)
+            if (primary is not null)
                 await primary.DemoteToActiveSecondaryAsync();
 
             await activeSecondary.PromoteToPrimaryAsync();

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
@@ -29,7 +29,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.Actors
             {
                 //not found...
             }
-            return Task.FromResult(reminder != null);
+            return Task.FromResult(reminder is not null);
         }
 
         /// <inheritdoc />

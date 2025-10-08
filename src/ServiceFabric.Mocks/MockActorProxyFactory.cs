@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using Microsoft.ServiceFabric.Actors;
@@ -77,7 +77,7 @@ namespace ServiceFabric.Mocks
         {
             var args = new MissingActorEventArgs(actorType, id);
             MissingActor?.Invoke(sender, args);
-            if (args.ActorInstance != null)
+            if (args.ActorInstance is not null)
             {
                 RegisterActor(args.ActorInstance);
             }
@@ -97,7 +97,7 @@ namespace ServiceFabric.Mocks
             //re-check
             _actorRegistry.TryGetValue(actorId, out set);
 
-            if (set != null)
+            if (set is not null)
             {
                 return set
                 .OfType<TActorInterface>()

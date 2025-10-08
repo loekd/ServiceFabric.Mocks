@@ -136,7 +136,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceRemoting
                 IActorEventSubscriptionHelper subscriptionHelper, IActorProxyFactory actorProxyFactory)
                 : base(serviceContext, reliableStateManagerReplica)
             {
-                if (actorProxyFactory == null)
+                if (actorProxyFactory is null)
                     throw new ArgumentNullException(nameof(actorProxyFactory));
 
                 _subscriptionHelper = subscriptionHelper ?? new ActorEventSubscriptionHelper();

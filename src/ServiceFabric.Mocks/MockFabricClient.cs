@@ -1,4 +1,4 @@
-Ôªøusing System;
+using System;
 using System.Collections.Generic;
 using System.Fabric;
 using System.Fabric.Description;
@@ -348,7 +348,7 @@ namespace ServiceFabric.Mocks
         //
         // Exceptions:
         //   T:System.ArgumentNullException:
-        //     The specified fabric client settings can‚Äôt be null.
+        //     The specified fabric client settings canít be null.
         //
         //   T:System.ArgumentException:
         //     System.Fabric.FabricClientSettings.PartitionLocationCacheLimit must be positive.
@@ -1858,11 +1858,11 @@ namespace ServiceFabric.Mocks
             //     If partitionKey is null or empty.
             //
             // Remarks:
-            //     Notification will include changes on partition‚Äôs endpoints or exceptions that
+            //     Notification will include changes on partitionís endpoints or exceptions that
             //     occurred while the information was being updated. This overload is used for Named
             //     partitioned service instances. Returned Int64 is the callback handle identifier
             //     for the registration.
-            //     Notifications is a mechanism that delivers notifications to user‚Äôs code each
+            //     Notifications is a mechanism that delivers notifications to userís code each
             //     time there is an service address change or an address resolution error related
             //     to a service partition the code has raised interest for. This way instead of
             //     resolving every time the current System.Fabric.ResolvedServicePartition becomes
@@ -1897,11 +1897,11 @@ namespace ServiceFabric.Mocks
             //     If serviceName or callback are null.
             //
             // Remarks:
-            //     Notification will include changes on partition‚Äôs endpoints or exceptions that
+            //     Notification will include changes on partitionís endpoints or exceptions that
             //     occurred while the information was being updated. This overload is used for UniformInt64Range
             //     partitioned service instances. Returned Int64 is the callback handle identifier
             //     for the registration.
-            //     Notifications is a mechanism that delivers notifications to user‚Äôs code each
+            //     Notifications is a mechanism that delivers notifications to userís code each
             //     time there is an service address change or an address resolution error related
             //     to a service partition the code has raised interest for. This way instead of
             //     resolving every time the current System.Fabric.ResolvedServicePartition becomes
@@ -1933,11 +1933,11 @@ namespace ServiceFabric.Mocks
             //     If serviceName or callback are null.
             //
             // Remarks:
-            //     Notification will include changes on partition‚Äôs endpoints or exceptions that
+            //     Notification will include changes on partitionís endpoints or exceptions that
             //     occurred while the information was being updated. This overload is used for Singleton
             //     partitioned service instances. Returned Int64 is the callback handle identifier
             //     for the registration.
-            //     Notifications is a mechanism that delivers notifications to user‚Äôs code each
+            //     Notifications is a mechanism that delivers notifications to userís code each
             //     time there is an service address change or an address resolution error related
             //     to a service partition the code has raised interest for. This way instead of
             //     resolving every time the current System.Fabric.ResolvedServicePartition becomes
@@ -2197,11 +2197,11 @@ namespace ServiceFabric.Mocks
             //     This is a complaint based resolution API.
             //     This will return a System.Fabric.ResolvedServicePartition for the specified service
             //     partition. When this overload is used, the system will return a more up-to-date
-            //     System.Fabric.ResolvedServicePartition than the ‚ÄúpreviousResult‚Äù argument if
+            //     System.Fabric.ResolvedServicePartition than the ìpreviousResultî argument if
             //     it is available.
-            //     The PreviousResult argument enables the user to say ‚ÄùThis is the previous list
+            //     The PreviousResult argument enables the user to say îThis is the previous list
             //     of endpoints for this Service partition. I have tried the endpoints and I believe
-            //     they are stale. Return me a more up to date version of this set.‚Äù In this case,
+            //     they are stale. Return me a more up to date version of this set.î In this case,
             //     the system will try to return a more up-to-date System.Fabric.ResolvedServicePartition
             //     in the most efficient way possible. If no newer version can be found, a System.Fabric.ResolvedServicePartition
             //     with the same version will be returned.ResolveServicePartition can be called
@@ -2248,11 +2248,11 @@ namespace ServiceFabric.Mocks
             //     This is a complaint based resolution API.
             //     This will return a System.Fabric.ResolvedServicePartition for the specified service
             //     partition. When this overload is used, the system will return a more up-to-date
-            //     System.Fabric.ResolvedServicePartition than the ‚ÄúpreviousResult‚Äù argument if
+            //     System.Fabric.ResolvedServicePartition than the ìpreviousResultî argument if
             //     it is available.
-            //     The PreviousResult argument enables the user to say ‚ÄùThis is the previous list
+            //     The PreviousResult argument enables the user to say îThis is the previous list
             //     of endpoints for this Service partition. I have tried the endpoints and I believe
-            //     they are stale. Return me a more up to date version of this set.‚Äù In this case,
+            //     they are stale. Return me a more up to date version of this set.î In this case,
             //     the system will try to return a more up-to-date System.Fabric.ResolvedServicePartition
             //     in the most efficient way possible. If no newer version can be found, a System.Fabric.ResolvedServicePartition
             //     with the same version will be returned.ResolveServicePartition can be called
@@ -2295,11 +2295,11 @@ namespace ServiceFabric.Mocks
             //     This is a complaint based resolution API.
             //     This will return a System.Fabric.ResolvedServicePartition for the specified service
             //     partition. When this overload is used, the system will return a more up-to-date
-            //     System.Fabric.ResolvedServicePartition than the ‚ÄúpreviousResult‚Äù argument if
+            //     System.Fabric.ResolvedServicePartition than the ìpreviousResultî argument if
             //     it is available.
-            //     The PreviousResult argument enables the user to say ‚ÄùThis is the previous list
+            //     The PreviousResult argument enables the user to say îThis is the previous list
             //     of endpoints for this Service partition. I have tried the endpoints and I believe
-            //     they are stale. Return me a more up to date version of this set.‚Äù In this case,
+            //     they are stale. Return me a more up to date version of this set.î In this case,
             //     the system will try to return a more up-to-date System.Fabric.ResolvedServicePartition
             //     in the most efficient way possible. If no newer version can be found, a System.Fabric.ResolvedServicePartition
             //     with the same version will be returned.ResolveServicePartition can be called
@@ -2547,11 +2547,11 @@ namespace ServiceFabric.Mocks
             //     This is a complaint based resolution API.
             //     This will return a System.Fabric.ResolvedServicePartition for the specified service
             //     partition. When this overload is used, the system will return a more up-to-date
-            //     System.Fabric.ResolvedServicePartition than the ‚ÄúpreviousResult‚Äù argument if
+            //     System.Fabric.ResolvedServicePartition than the ìpreviousResultî argument if
             //     it is available.
-            //     PreviousResult argument enables the user to say ‚ÄùThis is the previous list of
+            //     PreviousResult argument enables the user to say îThis is the previous list of
             //     endpoints for this Service partition. I have tried the endpoints and I believe
-            //     they are stale. Return me a more up to date version of this set.‚Äù In this case,
+            //     they are stale. Return me a more up to date version of this set.î In this case,
             //     the system will try to return a more up-to-date System.Fabric.ResolvedServicePartition
             //     in the most efficient way possible. If no newer version can be found, a System.Fabric.ResolvedServicePartition
             //     with the same version will be returned.ResolveServicePartition can be called
@@ -2599,11 +2599,11 @@ namespace ServiceFabric.Mocks
             //     This is a complaint based resolution API.
             //     This will return a System.Fabric.ResolvedServicePartition for the specified service
             //     partition. When this overload is used, the system will return a more up-to-date
-            //     System.Fabric.ResolvedServicePartition than the ‚ÄúpreviousResult‚Äù argument if
+            //     System.Fabric.ResolvedServicePartition than the ìpreviousResultî argument if
             //     it is available.
-            //     PreviousResult argument enables the user to say ‚ÄùThis is the previous list of
+            //     PreviousResult argument enables the user to say îThis is the previous list of
             //     endpoints for this Service partition. I have tried the endpoints and I believe
-            //     they are stale. Return me a more up to date version of this set.‚Äù In this case,
+            //     they are stale. Return me a more up to date version of this set.î In this case,
             //     the system will try to return a more up-to-date System.Fabric.ResolvedServicePartition
             //     in the most efficient way possible. If no newer version can be found, a System.Fabric.ResolvedServicePartition
             //     with the same version will be returned.ResolveServicePartition can be called
@@ -2647,11 +2647,11 @@ namespace ServiceFabric.Mocks
             //     This is a complaint based resolution API.
             //     This will return a System.Fabric.ResolvedServicePartition for the specified service
             //     partition. When this overload is used, the system will return a more up-to-date
-            //     System.Fabric.ResolvedServicePartition than the ‚ÄúpreviousResult‚Äù argument if
+            //     System.Fabric.ResolvedServicePartition than the ìpreviousResultî argument if
             //     it is available.
-            //     PreviousResult argument enables the user to say ‚ÄùThis is the previous list of
+            //     PreviousResult argument enables the user to say îThis is the previous list of
             //     endpoints for this Service partition. I have tried the endpoints and I believe
-            //     they are stale. Return me a more up to date version of this set.‚Äù In this case,
+            //     they are stale. Return me a more up to date version of this set.î In this case,
             //     the system will try to return a more up-to-date System.Fabric.ResolvedServicePartition
             //     in the most efficient way possible. If no newer version can be found, a System.Fabric.ResolvedServicePartition
             //     with the same version will be returned.ResolveServicePartition can be called
@@ -2748,11 +2748,11 @@ namespace ServiceFabric.Mocks
             //     A complaint based resolution API.
             //     This method will return a System.Fabric.ResolvedServicePartition for the specified
             //     service partition. When this overload is used, the system will return a more
-            //     up-to-date System.Fabric.ResolvedServicePartition than the ‚ÄúpreviousResult‚Äù argument
+            //     up-to-date System.Fabric.ResolvedServicePartition than the ìpreviousResultî argument
             //     if it is available.
-            //     PreviousResult argument enables the user to say ‚ÄùThis is the previous list of
+            //     PreviousResult argument enables the user to say îThis is the previous list of
             //     endpoints for this Service partition. I have tried the endpoints and I believe
-            //     they are stale. Return me a more up to date version of this set.‚Äù In this case,
+            //     they are stale. Return me a more up to date version of this set.î In this case,
             //     the system will try to return a more up-to-date System.Fabric.ResolvedServicePartition
             //     in the most efficient way possible. If no newer version can be found, a System.Fabric.ResolvedServicePartition
             //     with the same version will be returned.ResolveServicePartition can be called
@@ -2788,11 +2788,11 @@ namespace ServiceFabric.Mocks
             //     This is a complaint based resolution API.
             //     This method will return a System.Fabric.ResolvedServicePartition for the specified
             //     service partition. When this overload is used, the system will return a more
-            //     up-to-date System.Fabric.ResolvedServicePartition than the ‚ÄúpreviousResult‚Äù argument
+            //     up-to-date System.Fabric.ResolvedServicePartition than the ìpreviousResultî argument
             //     if it is available.
-            //     PreviousResult argument enables the user to say ‚ÄùThis is the previous list of
+            //     PreviousResult argument enables the user to say îThis is the previous list of
             //     endpoints for this Service partition. I have tried the endpoints and I believe
-            //     they are stale. Return me a more up to date version of this set.‚Äù In this case,
+            //     they are stale. Return me a more up to date version of this set.î In this case,
             //     the system will try to return a more up-to-date System.Fabric.ResolvedServicePartition
             //     in the most efficient way possible. If no newer version can be found, a System.Fabric.ResolvedServicePartition
             //     with the same version will be returned.ResolveServicePartition can be called
@@ -2837,11 +2837,11 @@ namespace ServiceFabric.Mocks
             //     This is a complaint based resolution API.
             //     This method will return a System.Fabric.ResolvedServicePartition for the specified
             //     service partition. When this overload is used, the system will return a more
-            //     up-to-date System.Fabric.ResolvedServicePartition than the ‚ÄúpreviousResult‚Äù argument
+            //     up-to-date System.Fabric.ResolvedServicePartition than the ìpreviousResultî argument
             //     if it is available.
-            //     previousResult argument enables the user to say ‚ÄùThis is the previous list of
+            //     previousResult argument enables the user to say îThis is the previous list of
             //     endpoints for this Service partition. I have tried the endpoints and I believe
-            //     they are stale. Return me a more up to date version of this set.‚Äù In this case,
+            //     they are stale. Return me a more up to date version of this set.î In this case,
             //     the system will try to return a more up-to-date System.Fabric.ResolvedServicePartition
             //     in the most efficient way possible. If no newer version can be found, a System.Fabric.ResolvedServicePartition
             //     with the same version will be returned.ResolveServicePartition can be called
@@ -8849,7 +8849,7 @@ namespace ServiceFabric.Mocks
             //    //     to the cluster. FabricClient fabricClient = new FabricClient(clusterConnection);
             //    //     // Get the application health. try { applicationHealth = fabricClient.HealthManager.GetApplicationHealthAsync(applicationName).Result;
             //    //     } catch (Exception e) { Console.WriteLine("Error: " + e.Message); if (e.InnerException
-            //    //     != null) Console.WriteLine(" Inner Exception: " + e.InnerException.Message);
+            //    //     is not null) Console.WriteLine(" Inner Exception: " + e.InnerException.Message);
             //    //     return false; } // Display the application health information. Console.WriteLine("Get
             //    //     Application Health:"); Console.WriteLine(" Application {0}: {1}", applicationHealth.ApplicationName,
             //    //     applicationHealth.AggregatedHealthState); // List the deployed application health
@@ -8933,7 +8933,7 @@ namespace ServiceFabric.Mocks
             //    //     clusterHealth; // Connect to the cluster. FabricClient fabricClient = new FabricClient(clusterConnection);
             //    //     // Get the cluster health. try { clusterHealth = fabricClient.HealthManager.GetClusterHealthAsync().Result;
             //    //     } catch (Exception e) { Console.WriteLine("Error: " + e.Message); if (e.InnerException
-            //    //     != null) Console.WriteLine(" Inner Exception: " + e.InnerException.Message);
+            //    //     is not null) Console.WriteLine(" Inner Exception: " + e.InnerException.Message);
             //    //     return false; } // Display the cluster health state. Console.WriteLine("Cluster
             //    //     Health:"); Console.WriteLine(" Aggregated Health State: " + clusterHealth.AggregatedHealthState);
             //    //     Console.WriteLine(); // Display the application health states on the cluster.
@@ -9549,7 +9549,7 @@ namespace ServiceFabric.Mocks
             //    //     Kind: " + healthEvaluation.Kind); Console.WriteLine(" Aggregated Health State:
             //    //     " + healthEvaluation.AggregatedHealthState); Console.WriteLine(" Description:
             //    //     " + healthEvaluation.Description); } Console.WriteLine(); } } catch (Exception
-            //    //     e) { Console.WriteLine("Error: " + e.Message); if (e.InnerException != null)
+            //    //     e) { Console.WriteLine("Error: " + e.Message); if (e.InnerException is not null)
             //    //     Console.WriteLine(" Inner Exception: " + e.InnerException.Message); return false;
             //    //     } return true; }
             //    public Task<DeployedApplicationHealth> GetDeployedApplicationHealthAsync(Uri applicationName, string nodeName);
@@ -9979,7 +9979,7 @@ namespace ServiceFabric.Mocks
             //    //     Kind: " + healthEvaluation.Kind); Console.WriteLine(" Aggregated Health State:
             //    //     " + healthEvaluation.AggregatedHealthState); Console.WriteLine(" Description:
             //    //     " + healthEvaluation.Description); } Console.WriteLine(); } } catch (Exception
-            //    //     e) { Console.WriteLine("Error: " + e.Message); if (e.InnerException != null)
+            //    //     e) { Console.WriteLine("Error: " + e.Message); if (e.InnerException is not null)
             //    //     Console.WriteLine(" Inner Exception: " + e.InnerException.Message); return false;
             //    //     } return true; }
             //    public Task<DeployedServicePackageHealth> GetDeployedServicePackageHealthAsync(Uri applicationName, string serviceManifestName, string nodeName);
@@ -10362,7 +10362,7 @@ namespace ServiceFabric.Mocks
             //    //     // Connect to the cluster. FabricClient fabricClient = new FabricClient(clusterConnection);
             //    //     // Get the node health. try { nodeHealth = fabricClient.HealthManager.GetNodeHealthAsync("Node1").Result;
             //    //     } catch (Exception e) { Console.WriteLine("Error: " + e.Message); if (e.InnerException
-            //    //     != null) Console.WriteLine(" Inner Exception: " + e.InnerException.Message);
+            //    //     is not null) Console.WriteLine(" Inner Exception: " + e.InnerException.Message);
             //    //     return false; } // Display the node health information. Console.WriteLine("Node
             //    //     Health:"); Console.WriteLine(" Node {0}: {1}", nodeHealth.NodeName, nodeHealth.AggregatedHealthState);
             //    //     // List the health events. Console.WriteLine(" Health Events:"); IList<HealthEvent>
@@ -10746,7 +10746,7 @@ namespace ServiceFabric.Mocks
             //    //     partitionHealth; // Connect to the cluster. FabricClient fabricClient = new FabricClient(clusterConnection);
             //    //     // Get the partition health. try { partitionHealth = fabricClient.HealthManager.GetPartitionHealthAsync(new
             //    //     Guid("a7206315-e53b-4d05-b59c-e210caa28893")).Result; } catch (Exception e) {
-            //    //     Console.WriteLine("Error: " + e.Message); if (e.InnerException != null) Console.WriteLine("
+            //    //     Console.WriteLine("Error: " + e.Message); if (e.InnerException is not null) Console.WriteLine("
             //    //     Inner Exception: " + e.InnerException.Message); return false; } // Display the
             //    //     partition health information. Console.WriteLine("Partition Health:"); Console.WriteLine("
             //    //     Partition ID: " + partitionHealth.PartitionId); Console.WriteLine(" Aggregated
@@ -11453,7 +11453,7 @@ namespace ServiceFabric.Mocks
             //    //     // Get the replica health. try { replicaHealth = fabricClient.HealthManager.GetReplicaHealthAsync(
             //    //     new Guid("a7206315-e53b-4d05-b59c-e210caa28893"), 130538257146083818).Result;
             //    //     } catch (Exception e) { Console.WriteLine("Error: " + e.Message); if (e.InnerException
-            //    //     != null) Console.WriteLine(" Inner Exception: " + e.InnerException.Message);
+            //    //     is not null) Console.WriteLine(" Inner Exception: " + e.InnerException.Message);
             //    //     return false; } Console.WriteLine("Replica Health:"); Console.WriteLine(" ID:
             //    //     " + replicaHealth.Id); Console.WriteLine(" Aggregated Health State: " + replicaHealth.AggregatedHealthState);
             //    //     Console.WriteLine(" Kind: " + replicaHealth.Kind); Console.WriteLine(" Partition
@@ -11851,7 +11851,7 @@ namespace ServiceFabric.Mocks
             //    //     to the cluster. FabricClient fabricClient = new FabricClient(clusterConnection);
             //    //     // Get the service health. try { serviceHealth = fabricClient.HealthManager.GetServiceHealthAsync(serviceName).Result;
             //    //     } catch (Exception e) { Console.WriteLine("Error: " + e.Message); if (e.InnerException
-            //    //     != null) Console.WriteLine(" Inner Exception: " + e.InnerException.Message);
+            //    //     is not null) Console.WriteLine(" Inner Exception: " + e.InnerException.Message);
             //    //     return false; } Console.WriteLine("Service Health:"); Console.WriteLine(" Service
             //    //     {0}: {1}", serviceHealth.ServiceName, serviceHealth.AggregatedHealthState); //
             //    //     List the health states. Console.WriteLine(" Partition Health States:"); IList<PartitionHealthState>
@@ -12408,7 +12408,7 @@ namespace ServiceFabric.Mocks
             //    //     by the system. It does not mean that the deactivation is complete. The progress
             //    //     of the operation can be determined by using the System.Fabric.FabricClient.QueryClient.GetNodeListAsync
             //    //     API
-            //    //     Once the deactivation is in progress, the deactivation intent can be ‚Äúincreased‚Äù
+            //    //     Once the deactivation is in progress, the deactivation intent can be ìincreasedî
             //    //     but not decreased (for example, a node which is was deactivated with the System.Fabric.NodeDeactivationIntent.Pause
             //    //     intent can be deactivated further with System.Fabric.NodeDeactivationIntent.Restart,
             //    //     but not the other way around. Nodes may be reactivated via System.Fabric.FabricClient.ClusterManagementClient.ActivateNodeAsync(System.String)
@@ -12461,7 +12461,7 @@ namespace ServiceFabric.Mocks
             //    //     by the system. It does not mean that the deactivation is complete. The progress
             //    //     of the operation can be determined by using the System.Fabric.FabricClient.QueryClient.GetNodeListAsync
             //    //     API
-            //    //     Once the deactivation is in progress, the deactivation intent can be ‚Äúincreased‚Äù
+            //    //     Once the deactivation is in progress, the deactivation intent can be ìincreasedî
             //    //     but not decreased (for example, a node which is was deactivated with the System.Fabric.NodeDeactivationIntent.Pause
             //    //     intent can be deactivated further with System.Fabric.NodeDeactivationIntent.Restart,
             //    //     but not the other way around. Nodes may be reactivated via System.Fabric.FabricClient.ClusterManagementClient.ActivateNodeAsync(System.String)
@@ -14236,7 +14236,7 @@ namespace ServiceFabric.Mocks
             //    //
             //    // Parameters:
             //    //   upgradeProgress:
-            //    //     ‚ÄìThe Upgrade progress of the application instance of interest. This provides
+            //    //     ñThe Upgrade progress of the application instance of interest. This provides
             //    //     information about the next upgrade domain to be upgraded.
             //    //
             //    // Returns:

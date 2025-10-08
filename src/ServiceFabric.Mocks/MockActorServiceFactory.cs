@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Fabric;
 using Microsoft.ServiceFabric.Actors;
@@ -21,12 +21,12 @@ namespace ServiceFabric.Mocks
         public static MockActorService<TActor> CreateActorServiceForActor<TActor>(Func<ActorService, ActorId, ActorBase> actorFactory = null, IActorStateProvider actorStateProvider = null, StatefulServiceContext context = null, ActorServiceSettings settings = null, Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory = null)
             where TActor : Actor
         {
-            if (stateManagerFactory == null)
+            if (stateManagerFactory is null)
             {
                 stateManagerFactory = (actr, stateProvider) => new MockActorStateManager();
             }
 
-            if (actorStateProvider == null)
+            if (actorStateProvider is null)
             {
                 actorStateProvider = new MockActorStateProvider();
                 actorStateProvider.Initialize(ActorTypeInformation.Get(typeof(TActor)));
@@ -52,12 +52,12 @@ namespace ServiceFabric.Mocks
             where TActor : Actor
             where TActorService : ActorService
         {
-            if (stateManagerFactory == null)
+            if (stateManagerFactory is null)
             {
                 stateManagerFactory = (actr, stateProvider) => new MockActorStateManager();
             }
 
-            if (actorStateProvider == null)
+            if (actorStateProvider is null)
             {
                 actorStateProvider = new MockActorStateProvider();
                 actorStateProvider.Initialize(ActorTypeInformation.Get(typeof(TActor)));
@@ -75,7 +75,7 @@ namespace ServiceFabric.Mocks
                     typeof(IActorStateProvider),
                     typeof(ActorServiceSettings),
                 }, null);
-            if (ctor == null) throw new InvalidOperationException("This helper only works for an ActorService with a default constructor. Please create your own instance of {TActorService}.");
+            if (ctor is null) throw new InvalidOperationException("This helper only works for an ActorService with a default constructor. Please create your own instance of {TActorService}.");
             var svc = ctor.Invoke(new object[] { context, ActorTypeInformation.Get(typeof(TActor)), actorFactory, stateManagerFactory, actorStateProvider, settings });
             return (TActorService)svc;
         }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Fabric;
 using System.Threading;
@@ -118,7 +118,7 @@ namespace ServiceFabric.Mocks.RemotingV2
         /// <param name="control"></param>
         public void RegisterOperationRetryControl(IServiceRemotingClient client, OperationRetryControl control)
         {
-            if (client == null) throw new ArgumentNullException(nameof(client));
+            if (client is null) throw new ArgumentNullException(nameof(client));
             _operationRetryControls[client] = control;
         }
 
@@ -256,7 +256,7 @@ namespace ServiceFabric.Mocks.RemotingV2
 
         public MockActorServiceRemotingClient(ActorService wrappedService)
         {
-            if (wrappedService == null) throw new ArgumentNullException(nameof(wrappedService));
+            if (wrappedService is null) throw new ArgumentNullException(nameof(wrappedService));
             WrappedService = wrappedService;
         }
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.ServiceFabric.Actors.Runtime;
 
 namespace ServiceFabric.Mocks
@@ -23,7 +23,7 @@ namespace ServiceFabric.Mocks
         public MockActorReminderState(MockActorReminderData reminder, TimeSpan currentLogicalTime, MockReminderCompletedData reminderCompletedData = null)
         {
             _reminderData = reminder;
-            if (reminderCompletedData != null)
+            if (reminderCompletedData is not null)
                 RemainingDueTime = ComputeRemainingTime(currentLogicalTime, reminderCompletedData.LogicalTime, reminder.Period);
             else
                 RemainingDueTime = ComputeRemainingTime(currentLogicalTime, reminder.LogicalCreationTime, reminder.DueTime);

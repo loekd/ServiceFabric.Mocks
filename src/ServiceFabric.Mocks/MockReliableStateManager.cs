@@ -1,4 +1,4 @@
-﻿namespace ServiceFabric.Mocks
+namespace ServiceFabric.Mocks
 {
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
@@ -24,7 +24,7 @@
             _store.InternalDictionaryChanged +=
                 (sender, args) =>
                 {
-                    if (StateManagerChanged != null)
+                    if (StateManagerChanged is not null)
                     {
                         NotifyStateManagerSingleEntityChangedEventArgs changeEvent = null;
                         switch (args.ChangeType)

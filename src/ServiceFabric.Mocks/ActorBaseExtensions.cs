@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
@@ -77,7 +77,7 @@ namespace ServiceFabric.Mocks
 		public static IEnumerable<IActorTimer> GetActorTimers(this ActorBase actor)
 		{
 			var field = typeof(ActorBase).GetField("timers", BindingFlags.Instance | BindingFlags.NonPublic);
-			if (field != null)
+			if (field is not null)
 			{
 				var timers = (List<IActorTimer>)(field.GetValue(actor));
 				return timers;
