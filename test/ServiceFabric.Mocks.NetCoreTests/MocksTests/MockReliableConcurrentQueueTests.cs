@@ -1,11 +1,11 @@
+using System;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Data;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ServiceFabric.Mocks.ReliableCollections;
+
 namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
 {
-    using Microsoft.ServiceFabric.Data;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using ReliableCollections;
-    using System;
-    using System.Threading.Tasks;
-
     [TestClass]
     public class MockReliableConcurrentQueueTests
     {
