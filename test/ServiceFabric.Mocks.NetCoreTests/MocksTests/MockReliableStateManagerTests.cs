@@ -1,4 +1,4 @@
-﻿using Microsoft.ServiceFabric.Data.Collections;
+using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -131,7 +131,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
             using (var tx = sut.CreateTransaction())
             {
 
-                var query = await collection.CreateEnumerableAsync(tx, key => false, EnumerationMode.Unordered);
+                var query = await collection.CreateEnumerableAsync(tx, _ => false, EnumerationMode.Unordered);
 
                 var list = new List<Guid>();
                 //This goes into infinite loop if the query returns an empty collection with a key value pair of null for both the key and the value.
@@ -164,7 +164,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
                     using (var tx = stateManager.CreateTransaction())
                     {
                         var newValue = DateTime.Now.ToString();
-                        await data.AddOrUpdateAsync(tx, id, newValue, (key, value) => newValue).ConfigureAwait(false);
+                        await data.AddOrUpdateAsync(tx, id, newValue, (_, _) => newValue).ConfigureAwait(false);
 
                         await tx.CommitAsync().ConfigureAwait(false);
                     }

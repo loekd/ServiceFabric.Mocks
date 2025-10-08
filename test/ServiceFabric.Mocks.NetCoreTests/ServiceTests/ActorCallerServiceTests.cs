@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
@@ -16,7 +16,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceTests
         {
             //mock out the called actor
             var id = new ActorId(ActorCallerService.CalledActorId);
-            Func<ActorService, ActorId, ActorBase> actorFactory = (service, actorId) => new MockTestStatefulActor(service, id);
+            Func<ActorService, ActorId, ActorBase> actorFactory = (service, _) => new MockTestStatefulActor(service, id);
             var svc = MockActorServiceFactory.CreateActorServiceForActor<MockTestStatefulActor>(actorFactory);
             var actor = svc.Activate(id);
 

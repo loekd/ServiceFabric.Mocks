@@ -1,4 +1,4 @@
-﻿using Microsoft.ServiceFabric.Data;
+using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceFabric.Mocks.NetCoreTests.Services;
@@ -22,7 +22,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
             int abortedCount = 0;
             stateManager.MockTransactionChanged +=
-                (s, t) =>
+                (_, t) =>
                 {
                     Assert.IsTrue(t.IsCommitted == !t.IsAborted, "Expected IsCommitted != IsAborted");
                     if (t.IsAborted)
@@ -50,7 +50,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
             int abortedCount = 0;
             stateManager.MockTransactionChanged +=
-                (s, t) =>
+                (_, t) =>
                 {
                     Assert.IsTrue(t.IsCommitted == !t.IsAborted, "Expected IsCommitted != IsAborted");
                     if (t.IsAborted)
@@ -80,7 +80,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
             int abortedCount = 0;
             stateManager.MockTransactionChanged +=
-                (s, t) =>
+                (_, t) =>
                 {
                     Assert.IsTrue(t.IsCommitted == !t.IsAborted, "Expected IsCommitted != IsAborted");
                     if (t.IsAborted)
@@ -113,7 +113,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
             int abortedCount = 0;
             stateManager.MockTransactionChanged +=
-                (s, t) =>
+                (_, t) =>
                 {
                     Assert.IsTrue(t.IsCommitted == !t.IsAborted, "Expected IsCommitted != IsAborted");
                     if (t.IsAborted)
@@ -147,7 +147,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
             int abortedCount = 0;
             stateManager.MockTransactionChanged +=
-                (s, t) =>
+                (_, t) =>
                 {
                     Assert.IsTrue(t.IsCommitted == !t.IsAborted, "Expected IsCommitted != IsAborted");
                     if (t.IsAborted)
@@ -175,7 +175,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
             int abortedCount = 0;
             stateManager.MockTransactionChanged +=
-                (s, t) =>
+                (_, t) =>
                 {
                     Assert.IsTrue(t.IsCommitted == !t.IsAborted, "Expected IsCommitted != IsAborted");
                     if (t.IsAborted)

@@ -1,4 +1,4 @@
-﻿using Microsoft.ServiceFabric.Data;
+using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting;
 using Microsoft.ServiceFabric.Services.Runtime;
@@ -19,7 +19,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceTests
         [TestMethod]
         public async Task TestPrimaryReplicaShouldHaveOpenListenersAsync()
         {
-            Func<StatefulServiceContext, IReliableStateManagerReplica2, StatefulServiceWithReplicaListener> serviceFactory = (context, stateManager) => new StatefulServiceWithReplicaListener(context);
+            Func<StatefulServiceContext, IReliableStateManagerReplica2, StatefulServiceWithReplicaListener> serviceFactory = (context, _) => new StatefulServiceWithReplicaListener(context);
             var replicaSet = new MockStatefulServiceReplicaSet<StatefulServiceWithReplicaListener>(serviceFactory);
             await replicaSet.AddReplicaAsync(ReplicaRole.Primary, 1);
             var openListeners = replicaSet.Primary.OpenListeners;
@@ -29,7 +29,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceTests
         [TestMethod]
         public async Task TestPromoteActiveSecondaryToPrimaryAsync()
         {
-            Func<StatefulServiceContext, IReliableStateManagerReplica2, StatefulServiceWithReplicaListener> serviceFactory = (context, stateManager) => new StatefulServiceWithReplicaListener(context);
+            Func<StatefulServiceContext, IReliableStateManagerReplica2, StatefulServiceWithReplicaListener> serviceFactory = (context, _) => new StatefulServiceWithReplicaListener(context);
             var replicaSet = new MockStatefulServiceReplicaSet<StatefulServiceWithReplicaListener>(serviceFactory);
             await replicaSet.AddReplicaAsync(ReplicaRole.Primary, 1);
             await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 2);
@@ -41,7 +41,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceTests
         [TestMethod]
         public async Task TestPromoteActiveSecondaryToPrimaryWithRunAsyncOverrideAsync()
         {
-            Func<StatefulServiceContext, IReliableStateManagerReplica2, StatefulServiceWithRunAsyncOverride> serviceFactory = (context, stateManager) => new StatefulServiceWithRunAsyncOverride(context);
+            Func<StatefulServiceContext, IReliableStateManagerReplica2, StatefulServiceWithRunAsyncOverride> serviceFactory = (context, _) => new StatefulServiceWithRunAsyncOverride(context);
             var replicaSet = new MockStatefulServiceReplicaSet<StatefulServiceWithRunAsyncOverride>(serviceFactory);
             await replicaSet.AddReplicaAsync(ReplicaRole.Primary, 1);
             var originalPrimaryReplica = replicaSet.Primary;
@@ -61,7 +61,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceTests
         [TestMethod]
         public async Task TestPrimaryReplicaShouldHaveLastExceptionAsync()
         {
-            Func<StatefulServiceContext, IReliableStateManagerReplica2, StatefulServiceWithFailingRunAsyncOverride> serviceFactory = (context, stateManager) => new StatefulServiceWithFailingRunAsyncOverride(context);
+            Func<StatefulServiceContext, IReliableStateManagerReplica2, StatefulServiceWithFailingRunAsyncOverride> serviceFactory = (context, _) => new StatefulServiceWithFailingRunAsyncOverride(context);
             var replicaSet = new MockStatefulServiceReplicaSet<StatefulServiceWithFailingRunAsyncOverride>(serviceFactory);
             await replicaSet.AddReplicaAsync(ReplicaRole.Primary, 1);
             bool completed = replicaSet.Primary.ServiceInstance.RunAsyncCompleted.WaitOne(500, false);
@@ -81,7 +81,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceTests
         [TestMethod]
         public void TestDeadLock9()
         {
-            Func<StatefulServiceContext, IReliableStateManagerReplica2, StatefulServiceWithReplicaListener> serviceFactory = (context, stateManagerReplica) =>
+            Func<StatefulServiceContext, IReliableStateManagerReplica2, StatefulServiceWithReplicaListener> serviceFactory = (context, _) =>
             {
                 var partition = new MockStatefulServicePartition()
                 {
@@ -102,7 +102,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceTests
             //shared instance, called from multiple threads
             MockStatefulServiceReplicaSet<StatefulServiceWithReplicaListener> replicaSet;
 
-            Parallel.For(1, 100, async (i) =>
+            Parallel.For(1, 100, async (_) =>
             {
                 replicaSet = new MockStatefulServiceReplicaSet<StatefulServiceWithReplicaListener>(serviceFactory);
                 await replicaSet.AddReplicaAsync(ReplicaRole.Primary, 1);
@@ -129,7 +129,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceTests
         protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
         {
             return new List<ServiceReplicaListener>() {
-                new ServiceReplicaListener((context) => new Listener()),
+                new ServiceReplicaListener((_) => new Listener()),
             };
         }
     }

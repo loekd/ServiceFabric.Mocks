@@ -20,7 +20,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s, e) =>
+                (_, e) =>
                 {
                     change = e;
                 }
@@ -66,7 +66,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s, e) =>
+                (_, e) =>
                 {
                     change = e;
                 }
@@ -74,7 +74,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
             using (var tx = _stateManager.CreateTransaction())
             {
-                await d.AddOrUpdateAsync(tx, 1, (k) => "One", (k, v) => "Two");
+                await d.AddOrUpdateAsync(tx, 1, (_) => "One", (_, _) => "Two");
                 Assert.IsNull(change);
                 await tx.CommitAsync();
                 Assert.IsNotNull(change);
@@ -84,7 +84,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             change = null;
             using (var tx = _stateManager.CreateTransaction())
             {
-                await d.AddOrUpdateAsync(tx, 1, (k) => "One", (k, v) => "Two");
+                await d.AddOrUpdateAsync(tx, 1, (_) => "One", (_, _) => "Two");
                 Assert.IsNull(change);
                 await tx.CommitAsync();
                 Assert.IsNotNull(change);
@@ -98,7 +98,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s, e) =>
+                (_, e) =>
                 {
                     change = e;
                 }
@@ -123,7 +123,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s, e) =>
+                (_, e) =>
                 {
                     change = e;
                 }
@@ -140,7 +140,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
         {
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s, e) =>
+                (_, _) =>
                 {
                 }
             );
@@ -165,7 +165,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s, e) =>
+                (_, e) =>
                 {
                     change = e;
                 }
@@ -173,8 +173,8 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
 
             using (var tx = _stateManager.CreateTransaction())
             {
-                await d.GetOrAddAsync(tx, 1, (k) => "One");
-                await d.GetOrAddAsync(tx, 1, (k) => "Two");
+                await d.GetOrAddAsync(tx, 1, (_) => "One");
+                await d.GetOrAddAsync(tx, 1, (_) => "Two");
 
                 Assert.IsNull(change);
                 await tx.CommitAsync();
@@ -190,7 +190,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s, e) =>
+                (_, e) =>
                 {
                     change = e;
                 }
@@ -247,7 +247,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s, e) =>
+                (_, e) =>
                 {
                     change = e;
                 }
@@ -293,7 +293,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s, e) =>
+                (_, e) =>
                 {
                     change = e;
                 }
@@ -325,7 +325,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s, e) =>
+                (_, e) =>
                 {
                     change = e;
                 }
@@ -367,7 +367,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             DictionaryChangedEvent<int, string> change = null;
             TransactedConcurrentDictionary<int, string> d = new TransactedConcurrentDictionary<int, string>(
                 new Uri("test://mocks", UriKind.Absolute),
-                (s, e) =>
+                (_, e) =>
                 {
                     change = e;
                 }

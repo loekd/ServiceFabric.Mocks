@@ -20,7 +20,6 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
             Assert.IsFalse(result.HasValue);
         }
 
-
         [TestMethod]
         public async Task Nullable_Int_TryGetStateAsyncTest()
         {
@@ -93,9 +92,9 @@ namespace ServiceFabric.Mocks.NetCoreTests.MocksTests
             var instance = new MockActorStateManager();
             await instance.AddStateAsync("existing", 6);
 
-            Assert.ThrowsException<InvalidOperationException>(() =>
+            await Assert.ThrowsAsync<InvalidOperationException>(async () =>
             {
-                instance.AddStateAsync("existing", 6).ConfigureAwait(false).GetAwaiter().GetResult();
+                await instance.AddStateAsync("existing", 6);
             });
         }
 

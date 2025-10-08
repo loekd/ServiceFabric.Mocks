@@ -153,7 +153,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             AcquireResult? resultB = null;
             Lock<int> l = new Lock<int>();
 
-            Thread a = new Thread(state =>
+            Thread a = new Thread(_ =>
             {
                 l.Acquire(1, LockMode.Default, 100, new CancellationToken(false)).Wait();
                 resultA = l.Acquire(1, LockMode.Default, 100, new CancellationToken(false)).Result;
@@ -163,7 +163,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
                 l.Release(1);
             });
 
-            Thread b = new Thread(state =>
+            Thread b = new Thread(_ =>
             {
                 waitToStart.Wait();
                 waitToEnd.Set(); //continue a
@@ -191,7 +191,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             AcquireResult? resultB = null;
             Lock<int> l = new Lock<int>();
 
-            Thread a = new Thread(state =>
+            Thread a = new Thread(_ =>
             {
                 l.Acquire(1, LockMode.Default, 100, new CancellationToken(false)).Wait();
                 resultA = l.Acquire(1, LockMode.Default, 100, new CancellationToken(false)).Result;
@@ -202,7 +202,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
                 l.Release(1);
             });
 
-            Thread b = new Thread(state =>
+            Thread b = new Thread(_ =>
             {
                 waitToStart.Wait();
                 waitToEnd.Set(); //continue a
@@ -230,7 +230,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
             AcquireResult? resultB = null;
             Lock<int> l = new Lock<int>();
 
-            Thread a = new Thread(state =>
+            Thread a = new Thread(_ =>
             {
                 l.Acquire(1, LockMode.Default, 100, new CancellationToken(false)).Wait();
                 resultA = l.Acquire(1, LockMode.Default, 100, new CancellationToken(false)).Result;
@@ -241,7 +241,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.TransactionTests
                 l.Release(1);
             });
 
-            Thread b = new Thread(state =>
+            Thread b = new Thread(_ =>
             {
                 waitToStart.Wait();
                 waitToEnd.Set(); //continue a

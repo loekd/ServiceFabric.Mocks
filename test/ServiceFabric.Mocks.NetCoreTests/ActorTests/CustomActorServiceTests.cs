@@ -29,7 +29,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ActorTests
         {
             Dictionary<ActorId, IActorStateManager> stateManagerMap = new Dictionary<ActorId, IActorStateManager>();
 
-            Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory = (actr, stateProvider) =>
+            Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory = (actr, _) =>
             {
                 if (!stateManagerMap.TryGetValue(actr.Id, out var actorStateManager))
                 {

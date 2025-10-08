@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Fabric;
 using System.Threading;
@@ -62,7 +62,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.ServiceRemoting
                 }
             };
 
-            var proxyFactory = new ActorProxyFactory(callbackClient => factory);
+            var proxyFactory = new ActorProxyFactory(_ => factory);
             var proxy = proxyFactory.CreateActorProxy<IMyStatefulActor>(ActorId.CreateRandom(), "App", "Service", "Listener");
             await proxy.InsertAsync("state", payload);
 

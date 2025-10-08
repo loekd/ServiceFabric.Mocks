@@ -1,4 +1,4 @@
-﻿using Microsoft.ServiceFabric.Data;
+using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.ServiceFabric.Services.Runtime;
 using System;
@@ -51,7 +51,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.Services
                 await tx.CommitAsync();
             }
             if (CacheCleared.IsSet) throw new InvalidOperationException("Should not happen after clearing the cache.");
-            _cache.AddOrUpdate(stateName, new Payload(content), (k, v) => new Payload(content));
+            _cache.AddOrUpdate(stateName, new Payload(content), (_, _) => new Payload(content));
         }
 
         public async Task InsertAsync(string stateName, Payload value)
@@ -130,7 +130,7 @@ namespace ServiceFabric.Mocks.NetCoreTests.Services
                             var item = new KeyValuePair<string, Payload>(enumerator.Current.Key,
                                 new Payload(enumerator.Current.Value.Content));
                             if (CacheCleared.IsSet) throw new InvalidOperationException("Should not happen after clearing the cache.");
-                            _cache.AddOrUpdate(item.Key, item.Value, (k, v) => item.Value);
+                            _cache.AddOrUpdate(item.Key, item.Value, (_, _) => item.Value);
                         }
                     }
                 }
