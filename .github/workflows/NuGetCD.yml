@@ -13,6 +13,10 @@ on:
         required: false
         default: false
         type: boolean
+permissions:
+  checks: write
+  contents: read
+  
 jobs:
 
   prepare:
