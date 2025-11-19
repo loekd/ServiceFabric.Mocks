@@ -159,12 +159,15 @@ jobs:
         path: ${{ github.workspace }}/ServiceFabric.Mocks.${{ steps.tag_version.outputs.new_version }}.nupkg
 
     # publish GH nuget package artifact
+    - name: Configure GitHub Packages as NuGet source
+      run: dotnet nuget add source --username loekd --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/loekd/index.json"
+    
     - name: Push Package to GitHub
       if: ${{ steps.check_version.outputs.sf_ver_changed == 'true' || github.event.inputs.force_release == 'true' }}
-      run: dotnet nuget push --api-key ${{secrets.GITHUB_TOKEN}} --source "https://nuget.pkg.github.com/loekd/index.json" ${{ github.workspace }}/ServiceFabric.Mocks.${{ steps.tag_version.outputs.new_version }}.nupkg
+      run: dotnet nuget push ${{ github.workspace }}/ServiceFabric.Mocks.${{ steps.tag_version.outputs.new_version }}.nupkg --source "github"
 
     # publish packge to nuget
-    - name: Push Package to GitHub
+    - name: Push Package to NuGet
       if: ${{ steps.check_version.outputs.sf_ver_changed == 'true' || github.event.inputs.force_release == 'true' }}
       run: dotnet nuget push --api-key ${{secrets.NUGETPUSH}} --source "https://api.nuget.org/v3/index.json" ${{ github.workspace }}/ServiceFabric.Mocks.${{ steps.tag_version.outputs.new_version }}.nupkg
 
