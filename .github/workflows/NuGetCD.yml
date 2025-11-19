@@ -36,8 +36,8 @@ jobs:
       with:
         python-version: '3.x'
      
-    - name: Install libxml2 and libxslt on Windows
-      run: choco install libxml2 libxslt
+    - name: Install lxml
+      run: pip install lxml
     # Echo context
     - name: Echo context
       shell: pwsh
