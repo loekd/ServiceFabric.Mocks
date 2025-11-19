@@ -18,6 +18,7 @@ permissions:
   contents: write
   checks: write
   pull-requests: write
+  packages: write
   
 jobs:
 
