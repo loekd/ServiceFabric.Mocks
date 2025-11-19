@@ -32,9 +32,12 @@ jobs:
       with:
         fetch-depth: 0
     - name: Setup Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.x'
+     
+    - name: Install libxml2 and libxslt on Windows
+      run: choco install libxml2 libxslt
     # Echo context
     - name: Echo context
       shell: pwsh
