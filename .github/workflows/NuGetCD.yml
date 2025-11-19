@@ -13,9 +13,11 @@ on:
         required: false
         default: false
         type: boolean
+        
 permissions:
+  contents: write
   checks: write
-  contents: read
+  pull-requests: write
   
 jobs:
 
@@ -29,7 +31,10 @@ jobs:
       uses: actions/checkout@v5
       with:
         fetch-depth: 0
-
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
     # Echo context
     - name: Echo context
       shell: pwsh
