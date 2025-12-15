@@ -153,7 +153,7 @@ jobs:
     # publish nuget package artifact
     - name: Upload Package for Publishing
       if: ${{ steps.check_version.outputs.sf_ver_changed == 'true' || github.event.inputs.force_release == 'true' }}
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: PackedLib
         path: ${{ github.workspace }}/ServiceFabric.Mocks.${{ steps.tag_version.outputs.new_version }}.nupkg
