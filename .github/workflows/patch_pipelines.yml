@@ -53,8 +53,8 @@ jobs:
 
               # Use default branch dynamically (often 'main' not 'master')
               gh pr create \
-                --title "Update Service Fabric SDK download link" \
-                --body "This PR updates the Service Fabric SDK download link to the latest version: $download_link" \
+                --title "(automated) Update Service Fabric SDK download link" \
+                --body "This automated PR updates the Service Fabric SDK download link to the latest published version: $download_link" \
                 --head "$branch_name" \
                 --base "${{ github.event.repository.default_branch }}"
             else
