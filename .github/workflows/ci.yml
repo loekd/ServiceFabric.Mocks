@@ -65,7 +65,7 @@ jobs:
           if (!$sdkDownloadUrl) {
             throw "Could not find a matching Service Fabric SDK download URL for Microsoft.ServiceFabric.Actors version $packageVersion."
           }
-          Invoke-RestMethod -OutFile setup.exe -Method GET -Uri $sdkDownloadUrl
+          Invoke-RestMethod -Method GET -Uri $sdkDownloadUrl -OutFile setup.exe
           # .\setup.exe  /accepteula /force /quiet
           Start-Process setup.exe -UseNewEnvironment -ArgumentList '/accepteula /force /quiet' -Wait
      
