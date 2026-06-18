@@ -59,7 +59,7 @@ jobs:
           # see https://learn.microsoft.com/en-us/azure/service-fabric/service-fabric-get-started
           [xml]$packageProps = Get-Content "./Directory.Packages.props"
           $packageVersion = ($packageProps.Project.ItemGroup.PackageVersion | Where-Object { $_.Include -eq "Microsoft.ServiceFabric.Actors" } | Select-Object -First 1).Version
-          $packageMinorVersion = ($packageVersion -split '\.')[1]
+          $packageMinorVersion = ([version]$packageVersion).Minor
           $pageContent = Invoke-RestMethod -Method GET -Uri https://learn.microsoft.com/en-us/azure/service-fabric/service-fabric-get-started
           $sdkDownloadUrl = [regex]::Match($pageContent, "https://download\.microsoft\.com/download/[a-zA-Z0-9/\.\-]*MicrosoftServiceFabric\.11\.$packageMinorVersion\.[0-9]+\.[0-9]+\.exe").Value
           if (!$sdkDownloadUrl) {
