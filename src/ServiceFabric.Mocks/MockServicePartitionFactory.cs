@@ -91,12 +91,13 @@ namespace ServiceFabric.Mocks
 		public static Partition CreateStatefulPartition(ServicePartitionInformation partitionInformation, long targetReplicaSetSize, long minReplicaSetSize,
 			HealthState healthState, ServicePartitionStatus partitionStatus, TimeSpan lastQuorumLossDuration, Epoch primaryEpoch)
 		{
-            long? unknown = null;
+            long? auxiliaryReplicaCount = null;
+            bool? enableOnDemandAuxiliaryReplica = null;
 			object[] param =
 			{
-				partitionInformation, targetReplicaSetSize, minReplicaSetSize, healthState, partitionStatus, lastQuorumLossDuration, primaryEpoch, unknown
+				partitionInformation, targetReplicaSetSize, minReplicaSetSize, healthState, partitionStatus, lastQuorumLossDuration, primaryEpoch, auxiliaryReplicaCount, enableOnDemandAuxiliaryReplica
 			};
-			//new StatefulServicePartition(new SingletonPartitionInformation(), 3, 3, HealthState.Ok, ServicePartitionStatus.Ready, TimeSpan.Zero, new Epoch(), unknown)
+			//new StatefulServicePartition(new SingletonPartitionInformation(), 3, 3, HealthState.Ok, ServicePartitionStatus.Ready, TimeSpan.Zero, new Epoch(), auxiliaryReplicaCount)
 			return (Partition)Activator.CreateInstance(typeof(StatefulServicePartition), BindingFlags.Instance | BindingFlags.NonPublic, null, param, CultureInfo.CurrentCulture);
 		}
 
