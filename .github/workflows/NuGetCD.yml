@@ -6,6 +6,7 @@ on:
     paths:
       - '**.cs'
       - '**.csproj'
+      - 'Directory.Packages.props'
   workflow_dispatch:
     inputs:
       force_release:
