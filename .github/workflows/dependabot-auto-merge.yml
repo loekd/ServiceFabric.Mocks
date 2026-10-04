@@ -19,10 +19,30 @@ jobs:
 
       # Only patch/minor bumps are auto-merged. Major version bumps
       # (potentially breaking) are left for manual review.
+      #
+      # For grouped Dependabot PRs (e.g. the MSTest.* group), the
+      # `update-type` output can be empty because it's not reliably
+      # populated for multi-dependency groups. In that case, fall back
+      # to inspecting `updated-dependencies-json` and only skip
+      # auto-merge if any dependency in the group is a major bump.
+      - name: Check grouped updates for major bumps
+        id: grouped-updates
+        if: steps.metadata.outputs.update-type == ''
+        env:
+          DEPS_JSON: ${{ steps.metadata.outputs.updated-dependencies-json }}
+        run: |
+          if echo "$DEPS_JSON" | jq -e '.[] | select(.updateType == "version-update:semver-major")' > /dev/null; then
+            echo "has-major=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has-major=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Enable auto-merge for patch and minor updates
         if: |
           steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
-          steps.metadata.outputs.update-type == 'version-update:semver-minor'
+          steps.metadata.outputs.update-type == 'version-update:semver-minor' ||
+          (steps.metadata.outputs.update-type == '' &&
+           steps.grouped-updates.outputs.has-major == 'false')
         run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
