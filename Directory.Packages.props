@@ -7,14 +7,14 @@
 
   <!-- ServiceFabric.Mocks.csproj -->
   <ItemGroup>
-    <PackageVersion Include="Microsoft.ServiceFabric.Actors" Version="8.7.157" />
+    <PackageVersion Include="Microsoft.ServiceFabric.Actors" Version="8.8.121" />
   </ItemGroup>
 
   <!-- ServiceFabric.Mocks.NetCoreTests.csproj -->
   <ItemGroup>
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
-    <PackageVersion Include="MSTest.TestAdapter" Version="4.3.3" />
-    <PackageVersion Include="MSTest.TestFramework" Version="4.3.3" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
+    <PackageVersion Include="MSTest.TestAdapter" Version="4.4.1" />
+    <PackageVersion Include="MSTest.TestFramework" Version="4.4.1" />
   </ItemGroup>
 
 </Project>
