@@ -20,6 +20,7 @@ permissions:
   checks: write
   pull-requests: write
   packages: write
+  id-token: write
   
 jobs:
 
@@ -162,9 +163,16 @@ jobs:
       if: ${{ steps.check_version.outputs.sf_ver_changed == 'true' || github.event.inputs.force_release == 'true' }}
       run: dotnet nuget push ${{ github.workspace }}/ServiceFabric.Mocks.${{ steps.tag_version.outputs.new_version }}.nupkg --source "github"
 
+    - name: Login to NuGet
+      id: nuget_login
+      if: ${{ steps.check_version.outputs.sf_ver_changed == 'true' || github.event.inputs.force_release == 'true' }}
+      uses: NuGet/login@v1
+      with:
+        user: LoekD
+
     # publish packge to nuget
     - name: Push Package to NuGet
       if: ${{ steps.check_version.outputs.sf_ver_changed == 'true' || github.event.inputs.force_release == 'true' }}
-      run: dotnet nuget push --api-key ${{secrets.NUGETPUSH}} --source "https://api.nuget.org/v3/index.json" ${{ github.workspace }}/ServiceFabric.Mocks.${{ steps.tag_version.outputs.new_version }}.nupkg
+      run: dotnet nuget push --api-key ${{ steps.nuget_login.outputs.NUGET_API_KEY }} --source "https://api.nuget.org/v3/index.json" ${{ github.workspace }}/ServiceFabric.Mocks.${{ steps.tag_version.outputs.new_version }}.nupkg
 
     
